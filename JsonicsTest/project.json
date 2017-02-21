@@ -5,7 +5,7 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Jsonic": "1.0.0",
+    "Jsonics": "1.0.0",
     "NUnit": "3.6.0",
     "dotnet-test-nunit": "3.4.0-beta-3"
   },

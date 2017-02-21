@@ -1,16 +1,16 @@
-using Jsonic;
+using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicTests
+namespace JsonicsTests
 {
     [TestFixture]
-    public class JsonicFactoryTest
+    public class JsonFactoryTest
     {
         [Test]
         public void ToJson_Person_CorrectJson()
         {
             //arrange
-            var jsonConverter = JsonicFactory.Compile<SimpleTestObject>();
+            var jsonConverter = JsonFactory.Compile<SimpleTestObject>();
 
             //act
             var json = jsonConverter.ToJson(new SimpleTestObject(){FirstName="Rey", LastName="Kenoby"});

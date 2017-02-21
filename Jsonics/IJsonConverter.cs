@@ -1,4 +1,4 @@
-namespace Jsonic
+namespace Jsonics
 {
     public interface IJsonConverter<T>
     {

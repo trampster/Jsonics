@@ -1,13 +1,13 @@
 ﻿using System;
-using Jsonic;
+using Jsonics;
 
-namespace JsonicTests
+namespace JsonicsTests
 {
-    public class JsonicTest
+    public class JsonicsTest
     {
         public static void Main(string[] args)
         {
-            var jsonConverter = JsonicFactory.Compile<SimpleTestObject>();
+            var jsonConverter = JsonFactory.Compile<SimpleTestObject>();
             var json = jsonConverter.ToJson(new SimpleTestObject(){FirstName="Luke", LastName="Skywalker"});
             Console.WriteLine(json);
         }

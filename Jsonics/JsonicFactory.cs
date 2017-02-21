@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace Jsonic
+namespace Jsonics
 {
-    public class JsonicFactory
+    public class JsonFactory
     {
         public static IJsonConverter<T> Compile<T>()
         {
