@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/JsonicTest/bin/Debug/netcoreapp1.1/JsonicTest.dll",
+            "program": "${workspaceRoot}/JsonicsTest/bin/Debug/netcoreapp1.1/JsonicsTest.dll",
             "args": [],
             "cwd": "${workspaceRoot}",
             "externalConsole": false,

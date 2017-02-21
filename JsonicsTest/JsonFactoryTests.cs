@@ -13,10 +13,10 @@ namespace JsonicsTests
             var jsonConverter = JsonFactory.Compile<SimpleTestObject>();
 
             //act
-            var json = jsonConverter.ToJson(new SimpleTestObject(){FirstName="Rey", LastName="Kenoby"});
+            var json = jsonConverter.ToJson(new SimpleTestObject(){FirstName="Rey", LastName="Kenoby", Age=60});
 
             //assert
-            Assert.That(json, Is.EqualTo("{\"FirstName\":\"Rey\",\"LastName\":\"Kenoby\"}"));
+            Assert.That(json, Is.EqualTo("{\"FirstName\":\"Rey\",\"LastName\":\"Kenoby\",\"Age\":60}"));
         }
     }
 }

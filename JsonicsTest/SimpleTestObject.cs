@@ -13,5 +13,11 @@ namespace JsonicsTests
             get;
             set;
         }
+
+        public int Age
+        {
+            get;
+            set;
+        }
     }
 }
