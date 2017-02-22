@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Linq;
 
 namespace Jsonics
 {
@@ -25,12 +26,22 @@ namespace Jsonics
                 new Type[] { typeof(T) });
 
             var generator = methodBuilder.GetILGenerator();
+
+
         
             var builder = new StringBuilder();
             builder.Append("{{");
             var type = typeof(T);
             var emitProperties = new List<Action>();
             int propertyIndex = 0;
+
+            var propertiesQuery = 
+                from property in type.GetRuntimeProperties()
+                where property.CanRead && property.CanWrite
+                select property;
+            var properties = propertiesQuery.ToArray();
+
+            
 
             bool isFirstProperty = true;
             foreach(var property in type.GetRuntimeProperties())
@@ -57,27 +68,30 @@ namespace Jsonics
                 {
                     CreateNumberProperty<T>(builder, emitProperties, propertyIndex, property, generator);
                 }
+                else if(property.PropertyType == typeof(bool))
+                {
+                    CreateBoolProperty<T>(builder, emitProperties, propertyIndex, property, generator);
+                }
+                else
+                {
+                    throw new NotSupportedException($"PropertyType {property.PropertyType} is not supported.");
+                }
 
                 propertyIndex++;
             }
-            builder.Append("}}");
+            builder.Append("}}"); 
 
             //string.Format
             generator.Emit(OpCodes.Ldstr, builder.ToString());
+            generator.Emit(OpCodes.Ldc_I4_S, properties.Length);
+            generator.Emit(OpCodes.Newarr, typeof(System.Object));
 
             foreach(var emitProperty in emitProperties)
             {
                 emitProperty();
             }
 
-            var types = new List<Type>();
-            types.Add(typeof(string));
-            for(int index = 0; index < propertyIndex; index++)
-            {
-                types.Add(typeof(object));
-            }
-
-            generator.Emit(OpCodes.Call, typeof(string).GetRuntimeMethod("Format", types.ToArray()));
+            generator.Emit(OpCodes.Call, typeof(string).GetRuntimeMethod("Format", new Type[]{typeof(string), typeof(object[])}));
 
             generator.Emit(OpCodes.Ret);
 
@@ -93,8 +107,11 @@ namespace Jsonics
             formatBuilder.Append($"\"{property.Name}\":\"{{{propertyIndex}}}\"");
             emitProperties.Add(() => 
             { 
+                generator.Emit(OpCodes.Dup);
+                generator.Emit(OpCodes.Ldc_I4_S, propertyIndex);
                 generator.Emit(OpCodes.Ldarg_1);
                 generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+                generator.Emit(OpCodes.Stelem_Ref);
             });
         }
 
@@ -103,9 +120,33 @@ namespace Jsonics
             formatBuilder.Append($"\"{property.Name}\":{{{propertyIndex}}}");
             emitProperties.Add(() => 
             { 
+                generator.Emit(OpCodes.Dup);
+                generator.Emit(OpCodes.Ldc_I4_S, propertyIndex);
                 generator.Emit(OpCodes.Ldarg_1);
                 generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
                 generator.Emit(OpCodes.Box, property.PropertyType);
+                generator.Emit(OpCodes.Stelem_Ref);
+            });
+        }
+
+        static void CreateBoolProperty<T>(StringBuilder formatBuilder, List<Action> emitProperties, int propertyIndex, PropertyInfo property, ILGenerator generator)
+        {
+            formatBuilder.Append($"\"{property.Name}\":{{{propertyIndex}}}");
+            emitProperties.Add(() => 
+            { 
+                generator.Emit(OpCodes.Dup);
+                generator.Emit(OpCodes.Ldc_I4_S, propertyIndex);
+                generator.Emit(OpCodes.Ldarg_1);
+                generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+                Label trueLable = generator.DefineLabel();
+                Label storeArray = generator.DefineLabel();
+                generator.Emit(OpCodes.Brtrue, trueLable);
+                generator.Emit(OpCodes.Ldstr, "false");
+                generator.Emit(OpCodes.Br, storeArray);
+                generator.MarkLabel(trueLable);
+                generator.Emit(OpCodes.Ldstr, "true");
+                generator.MarkLabel(storeArray);
+                generator.Emit(OpCodes.Stelem_Ref);
             });
         }
     }

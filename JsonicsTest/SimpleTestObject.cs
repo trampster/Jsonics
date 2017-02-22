@@ -19,5 +19,11 @@ namespace JsonicsTests
             get;
             set;
         }
+
+        public bool IsJedi
+        {
+            get;
+            set;
+        }
     }
 }

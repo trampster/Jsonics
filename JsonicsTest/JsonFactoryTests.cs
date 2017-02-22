@@ -11,12 +11,19 @@ namespace JsonicsTests
         {
             //arrange
             var jsonConverter = JsonFactory.Compile<SimpleTestObject>();
+            var testObject = new SimpleTestObject()
+            {
+                FirstName="Ob Won", 
+                LastName="Kenoby", 
+                Age=60,
+                IsJedi=true
+            };
 
             //act
-            var json = jsonConverter.ToJson(new SimpleTestObject(){FirstName="Rey", LastName="Kenoby", Age=60});
+            var json = jsonConverter.ToJson(testObject);
 
             //assert
-            Assert.That(json, Is.EqualTo("{\"FirstName\":\"Rey\",\"LastName\":\"Kenoby\",\"Age\":60}"));
+            Assert.That(json, Is.EqualTo("{\"FirstName\":\"Ob Won\",\"LastName\":\"Kenoby\",\"Age\":60,\"IsJedi\":true}"));
         }
     }
 }
