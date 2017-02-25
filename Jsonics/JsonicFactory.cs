@@ -19,6 +19,11 @@ namespace Jsonics
             var typeBuilder = module.DefineType("Person.Endurer", TypeAttributes.Public|TypeAttributes.Class);
             typeBuilder.AddInterfaceImplementation(typeof(IJsonConverter<T>));
 
+            //create a StringBuilder cache per instance
+            var builderField = typeBuilder.DefineField("_builder", typeof(StringBuilder), FieldAttributes.Static | FieldAttributes.Private);
+            ConstructorInfo attributeConstructor = typeof(ThreadStaticAttribute).GetTypeInfo().GetConstructor(new Type[]{});
+            builderField.SetCustomAttribute(attributeConstructor, new byte[]{01,00,00,00});
+
             var methodBuilder = typeBuilder.DefineMethod(
                 "ToJson",
                 MethodAttributes.Public | MethodAttributes.Virtual,
@@ -27,13 +32,24 @@ namespace Jsonics
 
             var generator = methodBuilder.GetILGenerator();
 
+            //lazy construct a StringBuilder
+            generator.Emit(OpCodes.Ldsfld, builderField);
+            
+            Label beforeClear = generator.DefineLabel();
+            generator.Emit(OpCodes.Brtrue_S, beforeClear);
+            generator.Emit(OpCodes.Newobj, typeof(StringBuilder).GetTypeInfo().GetConstructor(new Type[]{}));
+            generator.Emit(OpCodes.Stsfld, builderField);
+            generator.MarkLabel(beforeClear);
+            
+            //Clear the StringBuilder
+            generator.Emit(OpCodes.Ldsfld, builderField);
+            generator.EmitCall(OpCodes.Callvirt, typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]), null);            
+            
+            
+            var queuedAppends = new StringBuilder();
+            queuedAppends.Append("{");
 
-        
-            var builder = new StringBuilder();
-            builder.Append("{{");
             var type = typeof(T);
-            var emitProperties = new List<Action>();
-            int propertyIndex = 0;
 
             var propertiesQuery = 
                 from property in type.GetRuntimeProperties()
@@ -41,24 +57,19 @@ namespace Jsonics
                 select property;
             var properties = propertiesQuery.ToArray();
 
-            
-
+            //do the properties
             bool isFirstProperty = true;
             foreach(var property in type.GetRuntimeProperties())
             {
-                if((!property.CanRead && property.CanWrite))
-                {
-                    continue;
-                }
                 if(!isFirstProperty)
                 {
-                    builder.Append(",");
+                    QueueAppend(queuedAppends, ",");
                 }
                 isFirstProperty = false;
 
                 if(property.PropertyType == typeof(string))
                 {
-                    CreateStringProperty<T>(builder, emitProperties, propertyIndex, property, generator);
+                    CreateStringProperty<T>(queuedAppends, property, generator);
                 }
                 else if(property.PropertyType == typeof(int) || property.PropertyType == typeof(uint) ||
                    property.PropertyType == typeof(long) || property.PropertyType == typeof(ulong) ||
@@ -66,32 +77,21 @@ namespace Jsonics
                    property.PropertyType == typeof(short) || property.PropertyType == typeof(ushort) ||
                    property.PropertyType == typeof(float) || property.PropertyType == typeof(double))
                 {
-                    CreateNumberProperty<T>(builder, emitProperties, propertyIndex, property, generator);
+                    CreateNumber32BitProperty<T>(queuedAppends, property, generator);
                 }
                 else if(property.PropertyType == typeof(bool))
                 {
-                    CreateBoolProperty<T>(builder, emitProperties, propertyIndex, property, generator);
+                    CreateBoolProperty<T>(queuedAppends, property, generator);
                 }
                 else
                 {
                     throw new NotSupportedException($"PropertyType {property.PropertyType} is not supported.");
                 }
-
-                propertyIndex++;
             }
-            builder.Append("}}"); 
+            QueueAppend(queuedAppends, "}");
+            EmitQueuedAppends(queuedAppends, generator);
 
-            //string.Format
-            generator.Emit(OpCodes.Ldstr, builder.ToString());
-            generator.Emit(OpCodes.Ldc_I4_S, properties.Length);
-            generator.Emit(OpCodes.Newarr, typeof(System.Object));
-
-            foreach(var emitProperty in emitProperties)
-            {
-                emitProperty();
-            }
-
-            generator.Emit(OpCodes.Call, typeof(string).GetRuntimeMethod("Format", new Type[]{typeof(string), typeof(object[])}));
+            generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
 
             generator.Emit(OpCodes.Ret);
 
@@ -102,52 +102,67 @@ namespace Jsonics
             return (IJsonConverter<T>)Activator.CreateInstance(myType);
         }
 
-        static void CreateStringProperty<T>(StringBuilder formatBuilder, List<Action> emitProperties, int propertyIndex, PropertyInfo property, ILGenerator generator)
+        static void QueueAppend(StringBuilder queuedAppends, string constant)
         {
-            formatBuilder.Append($"\"{property.Name}\":\"{{{propertyIndex}}}\"");
-            emitProperties.Add(() => 
-            { 
-                generator.Emit(OpCodes.Dup);
-                generator.Emit(OpCodes.Ldc_I4_S, propertyIndex);
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-                generator.Emit(OpCodes.Stelem_Ref);
-            });
+            queuedAppends.Append(constant);
         }
 
-        static void CreateNumberProperty<T>(StringBuilder formatBuilder, List<Action> emitProperties, int propertyIndex, PropertyInfo property, ILGenerator generator)
+        static void EmitQueuedAppends(StringBuilder queuedAppends, ILGenerator generator)
         {
-            formatBuilder.Append($"\"{property.Name}\":{{{propertyIndex}}}");
-            emitProperties.Add(() => 
-            { 
-                generator.Emit(OpCodes.Dup);
-                generator.Emit(OpCodes.Ldc_I4_S, propertyIndex);
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-                generator.Emit(OpCodes.Box, property.PropertyType);
-                generator.Emit(OpCodes.Stelem_Ref);
-            });
+            if(queuedAppends.Length == 0)
+            {
+                return;
+            }
+            generator.Emit(OpCodes.Ldstr, queuedAppends.ToString());
+            EmitAppend(generator, typeof(string));
+            queuedAppends.Clear();
         }
 
-        static void CreateBoolProperty<T>(StringBuilder formatBuilder, List<Action> emitProperties, int propertyIndex, PropertyInfo property, ILGenerator generator)
+        static void EmitAppend(ILGenerator generator, Type type)
         {
-            formatBuilder.Append($"\"{property.Name}\":{{{propertyIndex}}}");
-            emitProperties.Add(() => 
-            { 
-                generator.Emit(OpCodes.Dup);
-                generator.Emit(OpCodes.Ldc_I4_S, propertyIndex);
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-                Label trueLable = generator.DefineLabel();
-                Label storeArray = generator.DefineLabel();
-                generator.Emit(OpCodes.Brtrue, trueLable);
-                generator.Emit(OpCodes.Ldstr, "false");
-                generator.Emit(OpCodes.Br, storeArray);
-                generator.MarkLabel(trueLable);
-                generator.Emit(OpCodes.Ldstr, "true");
-                generator.MarkLabel(storeArray);
-                generator.Emit(OpCodes.Stelem_Ref);
-            });
+            generator.Emit(OpCodes.Callvirt, typeof(StringBuilder).GetRuntimeMethod("Append", new Type[]{type}));
+        }
+
+        static void CreateStringProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            QueueAppend(queuedAppends, $"\"{property.Name}\":\"");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+            EmitAppend(generator, typeof(string));
+
+            QueueAppend(queuedAppends, "\"");
+        }
+
+        static void CreateNumber32BitProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            QueueAppend(queuedAppends, $"\"{property.Name}\":");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+            EmitAppend(generator, property.PropertyType);
+        }
+
+        static void CreateBoolProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            EmitQueuedAppends(queuedAppends, generator);
+            Label trueLable = generator.DefineLabel();
+            Label callAppend = generator.DefineLabel();
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+            generator.Emit(OpCodes.Brtrue, trueLable);
+            //false case
+            generator.Emit(OpCodes.Ldstr, $"\"{property.Name}\":false");
+            generator.Emit(OpCodes.Br_S, callAppend);
+            //true calse
+            generator.MarkLabel(trueLable);
+            generator.Emit(OpCodes.Ldstr, $"\"{property.Name}\":true");
+
+            generator.MarkLabel(callAppend);
+            EmitAppend(generator, typeof(string));
         }
     }
 }
