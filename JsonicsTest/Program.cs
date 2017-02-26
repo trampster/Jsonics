@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Text;
 using Jsonics;
-using Newtonsoft.Json;
 
 namespace JsonicsTests
 {
@@ -17,52 +14,29 @@ namespace JsonicsTests
             var testObject = new SimpleTestObject()
             {
                 FirstName="Ob Won", 
-                LastName="Kenoby", 
+                LastName="Kenoby",
                 Age=60,
                 IsJedi=true
             };
 
+            var example = new Example();
+
             watch.Start();
             for(int index = 0; index < 1000000; index++)
             {
-                converter.ToJson(testObject);
+                example.ToJson(testObject);
+                //converter.ToJson(testObject);
             }
             watch.Stop();
             Console.WriteLine($"Time: {watch.ElapsedMilliseconds}");
+
+            Console.WriteLine($"Output: {example.ToJson(testObject)}");
         }
-
-        [ThreadStatic]
-        static StringBuilder _builder;
-
-        const string _firstName = "{\"FirstName\":\"";
-        const string _lastName = "\",\"LastName\":\"";
-        const string _age = "\",\"Age\":";
-        const string _isJediTrue = ",\"IsJedi\":true}";
-        const string _isJediFalse = ",\"IsJedi\":false}";
-        
-        public static string StringBuilderFormat(SimpleTestObject testObj)
-        {
-            if(_builder == null)
-            {
-                 _builder = new StringBuilder();
-            }
-            return _builder
-                .Clear()
-                .Append(_firstName)
-                .Append(testObj.FirstName)
-                .Append(_lastName)
-                .Append(testObj.LastName)
-                .Append(_age)
-                .Append(testObj.Age)
-                .Append(testObj.IsJedi ? _isJediTrue : _isJediFalse)
-                .ToString(); 
-        }
-
     }
 
     public class Example : IJsonConverter<SimpleTestObject>
     {
-        //[ThreadStatic]
+        [ThreadStatic]
         static StringBuilder _builder;
 
         public string ToJson(SimpleTestObject jsonObject)
@@ -74,9 +48,9 @@ namespace JsonicsTests
             return _builder
                 .Clear()
                 .Append("{\"FirstName\":\"")
-                .Append(jsonObject.FirstName)
+                .AppendEscaped(jsonObject.FirstName)
                 .Append("\",\"LastName\":\"")
-                .Append(jsonObject.LastName)
+                .AppendEscaped(jsonObject.LastName)
                 .Append("\",\"Age\":")
                 .Append(jsonObject.Age)
                 .Append(jsonObject.IsJedi ? ",\"IsJedi\":true}" : ",\"IsJedi\":false}")
