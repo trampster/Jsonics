@@ -123,6 +123,11 @@ namespace Jsonics
             generator.Emit(OpCodes.Callvirt, typeof(StringBuilder).GetRuntimeMethod("Append", new Type[]{type}));
         }
 
+        static void EmitAppendEscaped(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendEscaped", new Type[]{typeof(StringBuilder), typeof(string)}));
+        }
+
         static void CreateStringProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
         {
             QueueAppend(queuedAppends, $"\"{property.Name}\":\"");
@@ -130,7 +135,7 @@ namespace Jsonics
 
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            EmitAppend(generator, typeof(string));
+            EmitAppendEscaped(generator);
 
             QueueAppend(queuedAppends, "\"");
         }
