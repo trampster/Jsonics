@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using Jsonics;
+using Newtonsoft.Json;
 
 namespace JsonicsTests
 {
@@ -16,7 +18,8 @@ namespace JsonicsTests
                 FirstName="Ob Won", 
                 LastName="Kenoby",
                 Age=60,
-                IsJedi=true
+                IsJedi=true,
+                PowerFactor=104.6789
             };
 
             var example = new Example();
@@ -30,7 +33,7 @@ namespace JsonicsTests
             watch.Stop();
             Console.WriteLine($"Time: {watch.ElapsedMilliseconds}");
 
-            Console.WriteLine($"Output: {example.ToJson(testObject)}");
+            Console.WriteLine($"Output: {example.ToJson(testObject)}");           
         }
     }
 
@@ -53,7 +56,10 @@ namespace JsonicsTests
                 .AppendEscaped(jsonObject.LastName)
                 .Append("\",\"Age\":")
                 .Append(jsonObject.Age)
-                .Append(jsonObject.IsJedi ? ",\"IsJedi\":true}" : ",\"IsJedi\":false}")
+                .Append(jsonObject.IsJedi ? ",\"IsJedi\":true" : ",\"IsJedi\":false")
+                .Append(",\"PowerFactor\":")
+                .Append(jsonObject.PowerFactor)
+                .Append("}")
                 .ToString(); 
         }
     }

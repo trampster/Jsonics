@@ -20,6 +20,12 @@ namespace JsonicsTests
             set;
         }
 
+        public double PowerFactor
+        {
+            get;
+            set;
+        }
+
         public bool IsJedi
         {
             get;
