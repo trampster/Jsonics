@@ -77,11 +77,15 @@ namespace Jsonics
                    property.PropertyType == typeof(short) || property.PropertyType == typeof(ushort) ||
                    property.PropertyType == typeof(float) || property.PropertyType == typeof(double))
                 {
-                    CreateNumber32BitProperty<T>(queuedAppends, property, generator);
+                    CreateNumberProperty<T>(queuedAppends, property, generator);
                 }
                 else if(property.PropertyType == typeof(bool))
                 {
                     CreateBoolProperty<T>(queuedAppends, property, generator);
+                }
+                else if(property.PropertyType == typeof(List<int>))
+                {
+                    CreateListIntProperty<T>(queuedAppends, property, generator);
                 }
                 else
                 {
@@ -140,7 +144,7 @@ namespace Jsonics
             QueueAppend(queuedAppends, "\"");
         }
 
-        static void CreateNumber32BitProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateNumberProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
         {
             QueueAppend(queuedAppends, $"\"{property.Name}\":");
             EmitQueuedAppends(queuedAppends, generator);
@@ -168,6 +172,18 @@ namespace Jsonics
 
             generator.MarkLabel(callAppend);
             EmitAppend(generator, typeof(string));
+        }
+
+        static void CreateListIntProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            QueueAppend(queuedAppends, $"\"{property.Name}\":");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+
+            //AppendIntList
+            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendIntList", new Type[]{typeof(StringBuilder), typeof(List<int>)}));
         }
     }
 }

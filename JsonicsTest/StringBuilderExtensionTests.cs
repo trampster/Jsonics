@@ -57,5 +57,24 @@ namespace JsonicsTests
             //assert
             Assert.That(builder.ToString(), Is.EqualTo("Doesn't\\nneed\\t escaping"));
         }
+
+        [TestCase(0, "0")]
+        [TestCase(1, "1")]
+        [TestCase(-1, "-1")]
+        [TestCase(12345, "12345")]
+        [TestCase(-54321, "-54321")]
+        [TestCase(int.MaxValue, "2147483647")]
+        [TestCase(int.MinValue, "-2147483648")]
+        public void AppendInt_CorrectValue(int input, string expectedString)
+        {
+            //arrange
+            var builder = new StringBuilder();
+
+            //act
+            builder.AppendInt(input);
+
+            //assert
+            Assert.That(builder.ToString(), Is.EqualTo(expectedString));
+        }
     }
 }
