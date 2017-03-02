@@ -78,18 +78,28 @@ namespace Jsonics
 
         public static StringBuilder AppendInt(this StringBuilder builder, int val)
         {
-            uint number;
+            int number;
+            
             if(val < 0)
             {
                 builder.Append('-');
-                number = (uint)(val*-1);
+                uint num = (uint)(val*-1);
+                if(num > int.MaxValue)
+                {
+                    //deal with the billions so that we can fit the rest in the faster int type
+                    uint billionsUint = num/1000000000;
+                    uint soFarUint = billionsUint*1000000000;
+                    builder.Append((char)('0' + billionsUint));
+                    num = num - soFarUint;
+                }
+                number = (int)num;
             }
             else
             {
-                number = (uint)val;
+                number = val;
             }
 
-            uint soFar = 0;
+            int soFar = 0;
 
             if(number < 1000000)
             {
@@ -113,52 +123,52 @@ namespace Jsonics
             }
             if(number < 1000000000) goto HundredMillions;
 
-            uint billions = (number)/1000000000;
+            int billions = (number)/1000000000;
             soFar += billions*1000000000;
             builder.Append((char)('0' + billions));
 
             HundredMillions:
-            uint hundredMillions = (number-soFar)/100000000;
+            int hundredMillions = (number-soFar)/100000000;
             soFar += hundredMillions*100000000;
             builder.Append((char)('0' + hundredMillions));
 
             TenMillions:
-            uint tenMillions = (number-soFar)/10000000;
+            int tenMillions = (number-soFar)/10000000;
             soFar += tenMillions*10000000;
             builder.Append((char)('0' + tenMillions));
 
             Millions:
-            uint millions = (number-soFar)/1000000;
+            int millions = (number-soFar)/1000000;
             soFar += millions*1000000;
             builder.Append((char)('0' + millions));
 
             HundredThousands:
-            uint hundredThousands = (number-soFar)/100000;
+            int hundredThousands = (number-soFar)/100000;
             soFar += hundredThousands*100000;
             builder.Append((char)('0' + hundredThousands));
 
             TenThousands:
-            uint tenThousands = (number-soFar)/10000;
+            int tenThousands = (number-soFar)/10000;
             soFar += tenThousands*10000;
             builder.Append((char)('0' + tenThousands));
 
             Thousands:
-            uint thousands = (number-soFar)/1000;
+            int thousands = (number-soFar)/1000;
             soFar += thousands*1000;
             builder.Append((char)('0' + thousands));
 
             Hundreds:
-            uint hundreds = (number-soFar)/100;
+            int hundreds = (number-soFar)/100;
             soFar += hundreds*100;
             builder.Append((char)('0' + hundreds));
             
             Tens:
-            uint tens = (number - soFar)/10;
+            int tens = (number - soFar)/10;
             soFar += tens*10;
             builder.Append((char)('0' + tens));
 
             Ones:
-            uint ones = number - soFar;
+            int ones = number - soFar;
             return builder.Append((char)('0' + ones));
         }
     }
