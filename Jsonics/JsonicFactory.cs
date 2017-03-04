@@ -71,7 +71,11 @@ namespace Jsonics
                 {
                     CreateStringProperty<T>(queuedAppends, property, generator);
                 }
-                else if(property.PropertyType == typeof(int) || property.PropertyType == typeof(uint) ||
+                else if (property.PropertyType == typeof(int))
+                {
+                    CreateIntProperty<T>(queuedAppends, property, generator);
+                }
+                else if(property.PropertyType == typeof(uint) ||
                    property.PropertyType == typeof(long) || property.PropertyType == typeof(ulong) ||
                    property.PropertyType == typeof(byte) || property.PropertyType == typeof(sbyte) ||
                    property.PropertyType == typeof(short) || property.PropertyType == typeof(ushort) ||
@@ -143,6 +147,16 @@ namespace Jsonics
             EmitAppendEscaped(generator);
 
             QueueAppend(queuedAppends, "\"");
+        }
+
+        static void CreateIntProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            QueueAppend(queuedAppends, $"\"{property.Name}\":");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendInt", new Type[]{typeof(StringBuilder), typeof(int)}));
         }
 
         static void CreateNumberProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
