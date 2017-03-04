@@ -60,7 +60,7 @@ namespace Jsonics
             return builder.Append(input, start, input.Length - start);
         }
 
-        public static StringBuilder AppendIntList(this StringBuilder builder, List<int> property)
+        public static StringBuilder AppendList(this StringBuilder builder, List<int> property)
         {
             builder.Append('[');
             if(property.Count >= 1)
@@ -73,6 +73,96 @@ namespace Jsonics
                 builder.AppendInt(property[index]);
             }
             builder.Append(']');
+            return builder;
+        }
+
+        public static StringBuilder AppendList<T>(this StringBuilder builder, List<T> property)
+        {
+            builder.Append('[');
+            if(property.Count >= 1)
+            {
+                builder.Append(property[0]);
+            }
+            for(int index = 1; index < property.Count; index++)
+            {
+                builder.Append(',');
+                builder.Append(property[index]);
+            }
+            builder.Append(']');
+            return builder;
+        }
+
+        public static StringBuilder AppendList<T>(this StringBuilder builder, T[] property)
+        {
+            builder.Append('[');
+            if(property.Length >= 1)
+            {
+                builder.Append(property[0]);
+            }
+            for(int index = 1; index < property.Length; index++)
+            {
+                builder.Append(',');
+                builder.Append(property[index]);
+            }
+            builder.Append(']');
+            return builder;
+        }
+
+        public static StringBuilder AppendList(this StringBuilder builder, int[] property)
+        {
+            builder.Append('[');
+            if(property.Length >= 1)
+            {
+                builder.AppendInt(property[0]);
+            }
+            for(int index = 1; index < property.Length; index++)
+            {
+                builder.Append(',');
+                builder.AppendInt(property[index]);
+            }
+            builder.Append(']');
+            return builder;
+        }
+
+        public static StringBuilder AppendList(this StringBuilder builder, List<string> property)
+        {
+            if(property.Count >= 1)
+            {
+                builder.Append("[\"");
+                builder.AppendEscaped(property[0]);
+            }
+            else
+            {
+                builder.Append("[]");
+                return builder;
+            }
+            for(int index = 1; index < property.Count; index++)
+            {
+                builder.Append("\",\"");
+                builder.AppendEscaped(property[index]);
+            }
+            builder.Append("\"]");
+            return builder;
+        }
+
+        public static StringBuilder AppendList(this StringBuilder builder, string[] property)
+        {
+            if(property.Length >= 1)
+            {
+                builder.Append("[\"");
+                builder.AppendEscaped(property[0]);
+            }
+            else
+            {
+                builder.Append("[]");
+                return builder;
+            }
+            for(int index = 1; index < property.Length; index++)
+            {
+                builder.Append("\",\"");
+                builder.AppendEscaped(property[index]);
+            }
+            builder.Append("\"]");
             return builder;
         }
 

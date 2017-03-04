@@ -83,9 +83,10 @@ namespace Jsonics
                 {
                     CreateBoolProperty<T>(queuedAppends, property, generator);
                 }
-                else if(property.PropertyType == typeof(List<int>))
+                else if(property.PropertyType == typeof(List<int>) || property.PropertyType == typeof(int[]) || 
+                    property.PropertyType == typeof(List<string>) || property.PropertyType == typeof(string[]))
                 {
-                    CreateListIntProperty<T>(queuedAppends, property, generator);
+                    CreateListProperty<T>(queuedAppends, property, generator);
                 }
                 else
                 {
@@ -174,16 +175,51 @@ namespace Jsonics
             EmitAppend(generator, typeof(string));
         }
 
-        static void CreateListIntProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateListProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
         {
-            QueueAppend(queuedAppends, $"\"{property.Name}\":");
             EmitQueuedAppends(queuedAppends, generator);
 
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
+            generator.Emit(OpCodes.Stloc_0);            
+            generator.Emit(OpCodes.Ldloc_0);
 
-            //AppendIntList
-            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendIntList", new Type[]{typeof(StringBuilder), typeof(List<int>)}));
+            //check for null
+            var endLabel = generator.DefineLabel();
+            generator.Emit(OpCodes.Brfalse_S, endLabel);
+            
+            QueueAppend(queuedAppends, $"\"{property.Name}\":");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldloc_0);
+
+            var specificMethod = typeof(StringBuilderExtension).GetRuntimeMethod("AppendList", new Type[]{typeof(StringBuilder), property.PropertyType});
+
+            if(specificMethod != null)
+            {
+                //if we have specific method for this type then we use it otherwise we fall back to the generic one
+                generator.Emit(OpCodes.Call, specificMethod);
+                generator.MarkLabel(endLabel);
+                return;
+            }
+
+            Func<ParameterInfo, bool> parametersSelecter = parameter =>  
+                property.PropertyType.IsArray ?
+                parameter.ParameterType.IsArray :
+                parameter.ParameterType == property.PropertyType.GetGenericTypeDefinition();
+
+            var methodQuery = 
+                from method in typeof(StringBuilderExtension).GetRuntimeMethods()
+                where 
+                    method.IsGenericMethod && 
+                    method.Name == "AppendList" &&
+                    method.GetParameters().Where(parametersSelecter).Any()
+                select method;
+            var genericMethod = methodQuery.First();
+            generator.Emit(OpCodes.Call, genericMethod.MakeGenericMethod(property.PropertyType));
+            generator.MarkLabel(endLabel);
+            
         }
     }
 }
