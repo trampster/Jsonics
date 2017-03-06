@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicsTest
+namespace JsonicsTests
 {
     [TestFixture]
     public class ListSerializationTests
@@ -24,7 +24,7 @@ namespace JsonicsTest
             var json = jsonConverter.ToJson(testObject);
 
             //assert
-            Assert.That(json, Is.EqualTo("{}"));
+            Assert.That(json, Is.EqualTo("{\"IntListProperty\":null}"));
         }
 
 
@@ -63,7 +63,7 @@ namespace JsonicsTest
             var json = jsonConverter.ToJson(testObject);
 
             //assert
-            Assert.That(json, Is.EqualTo("{}"));
+            Assert.That(json, Is.EqualTo("{\"IntArrayProperty\":null}"));
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace JsonicsTest
         }
 
         [Test]
-        public void ToJson_LStringArrayObjectNullProperty_PropertyNotIncludedInJson()
+        public void ToJson_StringArrayObjectNullProperty_PropertyNotIncludedInJson()
         {
             //arrange
             var jsonConverter = JsonFactory.Compile<StringArrayObject>();
@@ -101,7 +101,7 @@ namespace JsonicsTest
             var json = jsonConverter.ToJson(testObject);
 
             //assert
-            Assert.That(json, Is.EqualTo("{}"));
+            Assert.That(json, Is.EqualTo("{\"StringArrayProperty\":null}"));
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace JsonicsTest
             var json = jsonConverter.ToJson(testObject);
 
             //assert
-            Assert.That(json, Is.EqualTo("{}"));
+            Assert.That(json, Is.EqualTo("{\"StringListProperty\":null}"));
         }
 
         [Test]

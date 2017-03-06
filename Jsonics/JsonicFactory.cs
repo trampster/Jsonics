@@ -139,14 +139,12 @@ namespace Jsonics
 
         static void CreateStringProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
         {
-            QueueAppend(queuedAppends, $"\"{property.Name}\":\"");
+            QueueAppend(queuedAppends, $"\"{property.Name}\":");
             EmitQueuedAppends(queuedAppends, generator);
 
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
             EmitAppendEscaped(generator);
-
-            QueueAppend(queuedAppends, "\"");
         }
 
         static void CreateIntProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
@@ -191,21 +189,29 @@ namespace Jsonics
 
         static void CreateListProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
         {
+            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
+            var endLabel = generator.DefineLabel();
+            var nonNullLabel = generator.DefineLabel();
+
             EmitQueuedAppends(queuedAppends, generator);
 
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             generator.Emit(OpCodes.Stloc_0);            
             generator.Emit(OpCodes.Ldloc_0);
 
             //check for null
-            var endLabel = generator.DefineLabel();
-            generator.Emit(OpCodes.Brfalse_S, endLabel);
+            generator.Emit(OpCodes.Brtrue_S, nonNullLabel);
             
+            //property is null
+            QueueAppend(queuedAppends, $"\"{property.Name}\":null");
+            EmitQueuedAppends(queuedAppends, generator);
+            generator.Emit(OpCodes.Br_S, endLabel);
+
+            //property is not null
+            generator.MarkLabel(nonNullLabel);
             QueueAppend(queuedAppends, $"\"{property.Name}\":");
             EmitQueuedAppends(queuedAppends, generator);
-
             generator.Emit(OpCodes.Ldloc_0);
 
             var specificMethod = typeof(StringBuilderExtension).GetRuntimeMethod("AppendList", new Type[]{typeof(StringBuilder), property.PropertyType});

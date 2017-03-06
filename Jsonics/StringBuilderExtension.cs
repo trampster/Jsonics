@@ -46,6 +46,12 @@ namespace Jsonics
 
         public static StringBuilder AppendEscaped(this StringBuilder builder, string input)
         {
+            if(input == null)
+            {
+                return builder.Append("null");
+            }
+
+            builder.Append('\"');
             int start = 0;
             for(int index = 0; index < input.Length; index++)
             {
@@ -57,7 +63,9 @@ namespace Jsonics
                     start = index + 1;
                 }
             }
-            return builder.Append(input, start, input.Length - start);
+            return builder
+                .Append(input, start, input.Length - start)
+                .Append('\"');
         }
 
         public static StringBuilder AppendList(this StringBuilder builder, List<int> property)
@@ -128,7 +136,7 @@ namespace Jsonics
         {
             if(property.Count >= 1)
             {
-                builder.Append("[\"");
+                builder.Append('[');
                 builder.AppendEscaped(property[0]);
             }
             else
@@ -138,10 +146,10 @@ namespace Jsonics
             }
             for(int index = 1; index < property.Count; index++)
             {
-                builder.Append("\",\"");
+                builder.Append(',');
                 builder.AppendEscaped(property[index]);
             }
-            builder.Append("\"]");
+            builder.Append("]");
             return builder;
         }
 
@@ -149,7 +157,7 @@ namespace Jsonics
         {
             if(property.Length >= 1)
             {
-                builder.Append("[\"");
+                builder.Append('[');
                 builder.AppendEscaped(property[0]);
             }
             else
@@ -159,10 +167,10 @@ namespace Jsonics
             }
             for(int index = 1; index < property.Length; index++)
             {
-                builder.Append("\",\"");
+                builder.Append(',');
                 builder.AppendEscaped(property[index]);
             }
-            builder.Append("\"]");
+            builder.Append(']');
             return builder;
         }
 

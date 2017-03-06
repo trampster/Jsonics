@@ -18,7 +18,7 @@ namespace JsonicsTests
             builder.AppendEscaped(input);
 
             //assert
-            Assert.That(builder.ToString(), Is.EqualTo(input));
+            Assert.That(builder.ToString(), Is.EqualTo($"\"{input}\""));
         }
 
         [TestCase('\"', "\\\"")]
@@ -41,7 +41,7 @@ namespace JsonicsTests
             builder.AppendEscaped(input);
 
             //assert
-            Assert.That(builder.ToString(), Is.EqualTo($"Doesn't need{expectedEscape} escaping"));
+            Assert.That(builder.ToString(), Is.EqualTo($"\"Doesn't need{expectedEscape} escaping\""));
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace JsonicsTests
             builder.AppendEscaped(input);
 
             //assert
-            Assert.That(builder.ToString(), Is.EqualTo("Doesn't\\nneed\\t escaping"));
+            Assert.That(builder.ToString(), Is.EqualTo("\"Doesn't\\nneed\\t escaping\""));
         }
 
         [TestCase(0, "0")]
