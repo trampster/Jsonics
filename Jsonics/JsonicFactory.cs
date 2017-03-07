@@ -92,6 +92,10 @@ namespace Jsonics
                 {
                     CreateListProperty<T>(queuedAppends, property, generator);
                 }
+                else if(property.PropertyType == typeof(DateTime))
+                {
+                    CreateDateTimeProperty<T>(queuedAppends, property, generator);
+                }
                 else
                 {
                     throw new NotSupportedException($"PropertyType {property.PropertyType} is not supported.");
@@ -165,6 +169,16 @@ namespace Jsonics
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
             EmitAppend(generator, property.PropertyType);
+        }
+
+        static void CreateDateTimeProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            QueueAppend(queuedAppends, $"\"{property.Name}\":");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendDate", new Type[]{typeof(StringBuilder), property.PropertyType}));
         }
 
         static void CreateBoolProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -267,6 +268,156 @@ namespace Jsonics
 
             Ones:
             int ones = number - soFar;
+            return builder.Append((char)('0' + ones));
+        }
+
+
+        static string _offset;
+        static int _offsetCacheTime = 0;
+
+        public static string GetOffset()
+        {
+            int tickCount = Environment.TickCount;
+            if(_offsetCacheTime + 1000 < tickCount)
+            {
+                _offsetCacheTime = tickCount;
+                var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+                var hours = offset.Hours;
+                var builder = new StringBuilder();
+                if(hours > 0) builder.Append('+');
+                else builder.Append('-');
+                builder.AppendIntTwo(Math.Abs(offset.Hours));
+                builder.Append(':');
+                builder.AppendIntTwo(offset.Minutes);
+                _offset = builder.ToString();
+            }
+            return _offset;
+        }
+
+        public static StringBuilder AppendDate(this StringBuilder builder, DateTime date)
+        {
+            builder
+                .Append('\"')
+                .AppendIntFour(date.Year)
+                .Append('-')
+                .AppendIntTwo(date.Month)
+                .Append('-')
+                .AppendIntTwo(date.Day)
+                .Append('T')
+                .AppendIntTwo(date.Hour)
+                .Append(':')
+                .AppendIntTwo(date.Minute)
+                .Append(':')
+                .AppendIntTwo(date.Second);
+            var fractions = date.Ticks % TimeSpan.TicksPerSecond * TimeSpan.TicksPerMillisecond;
+            if(fractions != 0)
+            {
+                builder
+                    .Append('.')
+                    .AppendDateTimeFraction(fractions);
+            }
+
+            //offset
+            if(date.Kind == DateTimeKind.Utc)
+            {
+                return builder.Append("Z\"");
+            }
+            else if(date.Kind == DateTimeKind.Unspecified)
+            {
+                return builder.Append('\"');
+            }
+            builder
+                .Append(GetOffset())
+                .Append('\"');
+            
+            return builder;
+        }
+
+        public static StringBuilder AppendIntTwo(this StringBuilder builder, int number)
+        {
+            int tens = number/10;
+            int soFar = tens*10;
+            builder.Append((char)('0' + tens));
+
+            int ones = number - soFar;
+            return builder.Append((char)('0' + ones));
+        }
+
+        public static StringBuilder AppendIntFour(this StringBuilder builder, int number)
+        {
+            int thousands = (number)/1000;
+            int soFar = thousands*1000;
+            builder.Append((char)('0' + thousands));
+
+            int hundreds = (number-soFar)/100;
+            soFar += hundreds*100;
+            builder.Append((char)('0' + hundreds));
+            
+            int tens = (number - soFar)/10;
+            soFar += tens*10;
+            builder.Append((char)('0' + tens));
+
+            int ones = number - soFar;
+            return builder.Append((char)('0' + ones));
+        }
+
+        public static StringBuilder AppendDateTimeFraction(this StringBuilder builder, long number)
+        {
+            //24 973 300 000
+            long soFar = 0;
+
+            long tenBillions = (number)/10000000000;
+            soFar += tenBillions*10000000000;
+            builder.Append((char)('0' + tenBillions));
+            long leftLong = number-soFar;
+            if(leftLong == 0) return builder;
+
+            long billions = leftLong/1000000000;
+            builder.Append((char)('0' + billions));
+            int left = (int)(leftLong-(billions*1000000000));
+            if(left == 0) return builder;
+
+            int hundredMillions = left/100000000;
+            builder.Append((char)('0' + hundredMillions));
+            left = left-(hundredMillions*100000000);
+            if(left == 0) return builder;
+
+            int tenMillions = left/10000000;
+            builder.Append((char)('0' + tenMillions));
+            left = left-(tenMillions*10000000);
+            if(left == 0) return builder;
+
+            int millions = left/1000000;
+            builder.Append((char)('0' + millions));
+            left = left-(millions*1000000);
+            if(left == 0) return builder;
+
+            int hundredThousands = left/100000;
+            builder.Append((char)('0' + hundredThousands));
+            left = left-(hundredThousands*100000);
+            if(left == 0) return builder;
+
+            int tenThousands = left/10000;
+            builder.Append((char)('0' + tenThousands));
+            left = left-(tenThousands*10000);
+            if(left == 0) return builder;
+
+            int thousands = left/1000;
+            builder.Append((char)('0' + thousands));
+            left = left-(thousands*1000);
+            if(left == 0) return builder;
+
+            int hundreds = left/100;
+            builder.Append((char)('0' + hundreds));
+            left = left-(hundreds*100);
+            if(left == 0) return builder;
+
+            int tens = left/10;
+            builder.Append((char)('0' + tens));
+            left = left-(tens*10);
+            if(left == 0) return builder;
+
+            int ones = left;
             return builder.Append((char)('0' + ones));
         }
     }
