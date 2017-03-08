@@ -282,9 +282,8 @@ namespace Jsonics
             {
                 _offsetCacheTime = tickCount;
                 var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
-                var hours = offset.Hours;
                 var builder = new StringBuilder();
-                if(hours > 0) builder.Append('+');
+                if(offset.TotalMinutes > 0) builder.Append('+');
                 else builder.Append('-');
                 builder.AppendIntTwo(Math.Abs(offset.Hours));
                 builder.Append(':');
