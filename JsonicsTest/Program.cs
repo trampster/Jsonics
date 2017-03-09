@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using Jsonics;
-using Newtonsoft.Json;
+using NUnitLite;
+//using Newtonsoft.Json;
 
 namespace JsonicsTests
 {
@@ -11,29 +13,7 @@ namespace JsonicsTests
     {
         public static void Main(string[] args)
         {
-            var watch = new Stopwatch();
-            var converter = JsonFactory.Compile<SimpleTestObject>();
-            var testObject = new SimpleTestObject()
-            {
-                FirstName="Ob Won", 
-                LastName="Kenoby",
-                Age=60,
-                IsJedi=true,
-                PowerFactor=104.6789
-            };
-
-            var example = new Example();
-
-            watch.Start();
-            for(int index = 0; index < 1000000; index++)
-            {
-                example.ToJson(testObject);
-                //converter.ToJson(testObject);
-            }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.ElapsedMilliseconds}");
-
-            Console.WriteLine($"Output: {example.ToJson(testObject)}");           
+            new AutoRun(typeof(JsonicsTest).GetTypeInfo().Assembly).Execute(args);          
         }
     }
 
