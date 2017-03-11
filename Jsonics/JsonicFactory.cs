@@ -96,6 +96,10 @@ namespace Jsonics
                 {
                     CreateDateTimeProperty<T>(queuedAppends, property, generator);
                 }
+                else if(property.PropertyType == typeof(Guid))
+                {
+                    CreateGuidProperty<T>(queuedAppends, property, generator);
+                }
                 else
                 {
                     throw new NotSupportedException($"PropertyType {property.PropertyType} is not supported.");
@@ -179,6 +183,26 @@ namespace Jsonics
             generator.Emit(OpCodes.Ldarg_1);
             generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
             generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendDate", new Type[]{typeof(StringBuilder), property.PropertyType}));
+        }
+
+        static void CreateGuidProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        {
+            var propertyValueLocal = generator.DeclareLocal(typeof(Guid));
+            
+            QueueAppend(queuedAppends, $"\"{property.Name}\":\"");
+            EmitQueuedAppends(queuedAppends, generator);
+
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
+
+            generator.Emit(OpCodes.Stloc, propertyValueLocal);
+            generator.Emit(OpCodes.Ldloca_S, propertyValueLocal);
+
+            generator.Emit(OpCodes.Constrained, typeof(Guid));
+            generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
+            EmitAppend(generator, typeof(string));
+
+            QueueAppend(queuedAppends, $"\"");
         }
 
         static void CreateBoolProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
