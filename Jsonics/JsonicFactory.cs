@@ -30,34 +30,29 @@ namespace Jsonics
                 typeof(string),
                 new Type[] { typeof(T) });
 
-            var generator = methodBuilder.GetILGenerator();
-
-            //lazy construct a StringBuilder
-            generator.Emit(OpCodes.Ldsfld, builderField);
+            var jsonILGenerator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
             
-            Label beforeClear = generator.DefineLabel();
-            generator.Emit(OpCodes.Brtrue_S, beforeClear);
-            generator.Emit(OpCodes.Newobj, typeof(StringBuilder).GetTypeInfo().GetConstructor(new Type[]{}));
-            generator.Emit(OpCodes.Stsfld, builderField);
-            generator.MarkLabel(beforeClear);
+            //lazy construct a StringBuilder
+            jsonILGenerator.LoadStaticField(builderField);
+            
+            Label beforeClear = jsonILGenerator.DefineLabel();
+            jsonILGenerator.BrIfTrue(beforeClear);
+            jsonILGenerator.NewObject(typeof(StringBuilder).GetTypeInfo().GetConstructor(new Type[]{}));
+            jsonILGenerator.StoreStaticField(builderField);
+            jsonILGenerator.Mark(beforeClear);
             
             //Clear the StringBuilder
-            generator.Emit(OpCodes.Ldsfld, builderField);
-            generator.EmitCall(OpCodes.Callvirt, typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]), null);            
+            jsonILGenerator.LoadStaticField(builderField);
+            jsonILGenerator.CallVirtual(typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]));
             
-            
-            var queuedAppends = new StringBuilder();
-
             Type type = typeof(T);
             if(type == typeof(string))
             {
-                generator.Emit(OpCodes.Ldarg_1);
-                EmitAppendEscaped(generator);
+                CreateString(jsonILGenerator, gen => gen.LoadArg1());
             }
             else if(type == typeof(int))
             {
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendInt", new Type[]{typeof(StringBuilder), typeof(int)}));
+                CreateInt(jsonILGenerator, gen => gen.LoadArg1());
             }
             else if(type == typeof(uint) ||
                 type == typeof(long) || type == typeof(ulong) ||
@@ -65,49 +60,33 @@ namespace Jsonics
                 type == typeof(short) || type == typeof(ushort) ||
                 type == typeof(float) || type == typeof(double))
             {
-                generator.Emit(OpCodes.Ldarg_1);
-                EmitAppend(generator, type);
+                CreateNumber(jsonILGenerator, gen => gen.LoadArg1(), type);
             }
             else if(type == typeof(bool))
             {
-                Label trueLable = generator.DefineLabel();
-                Label callAppend = generator.DefineLabel();
-
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Brtrue, trueLable);
-                //false case
-                generator.Emit(OpCodes.Ldstr, "false");
-                generator.Emit(OpCodes.Br_S, callAppend);
-                //true calse
-                generator.MarkLabel(trueLable);
-                generator.Emit(OpCodes.Ldstr, "true");
-
-                generator.MarkLabel(callAppend);
-                EmitAppend(generator, typeof(string));
+                CreateBool(jsonILGenerator, gen => gen.LoadArg1());
             }
             else if(type == typeof(List<int>) || type == typeof(int[]) || 
                     type == typeof(List<string>) || type == typeof(string[]))
             {
-                CreateList<T>(queuedAppends, type, generator);
+                CreateList(type, jsonILGenerator, gen => gen.LoadArg1());
             }
             else if(type == typeof(DateTime))
             {
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendDate", new Type[]{typeof(StringBuilder), type}));
+                CreateDateTime(jsonILGenerator, gen => gen.LoadArg1());
             }
             else if(type == typeof(Guid))
             {
-                CreateGuid<T>(queuedAppends, generator);
+                CreateGuid(jsonILGenerator, gen => gen.LoadArg1());
             }
             else
             {
-                GenerateObject<T>(generator, queuedAppends);
+                GenerateObject<T>(jsonILGenerator);
             }
 
+            jsonILGenerator.CallToString();
 
-            generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
-
-            generator.Emit(OpCodes.Ret);
+            jsonILGenerator.Return();
 
 
             var typeInfo = typeBuilder.CreateTypeInfo();
@@ -116,9 +95,9 @@ namespace Jsonics
             return (IJsonConverter<T>)Activator.CreateInstance(myType);
         }
 
-        public static void GenerateObject<T>(ILGenerator generator, StringBuilder queuedAppends)
+        public static void GenerateObject<T>(JsonILGenerator jsonILGenerator)
         {
-            queuedAppends.Append("{");
+            jsonILGenerator.Append("{");
 
             var type = typeof(T);
 
@@ -134,17 +113,17 @@ namespace Jsonics
             {
                 if(!isFirstProperty)
                 {
-                    QueueAppend(queuedAppends, ",");
+                    jsonILGenerator.Append(",");
                 }
                 isFirstProperty = false;
 
                 if(property.PropertyType == typeof(string))
                 {
-                    CreateStringProperty<T>(queuedAppends, property, generator);
+                    CreateStringProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else if (property.PropertyType == typeof(int))
                 {
-                    CreateIntProperty<T>(queuedAppends, property, generator);
+                    CreateIntProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else if(property.PropertyType == typeof(uint) ||
                    property.PropertyType == typeof(long) || property.PropertyType == typeof(ulong) ||
@@ -152,32 +131,32 @@ namespace Jsonics
                    property.PropertyType == typeof(short) || property.PropertyType == typeof(ushort) ||
                    property.PropertyType == typeof(float) || property.PropertyType == typeof(double))
                 {
-                    CreateNumberProperty<T>(queuedAppends, property, generator);
+                    CreateNumberProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else if(property.PropertyType == typeof(bool))
                 {
-                    CreateBoolProperty<T>(queuedAppends, property, generator);
+                    CreateBoolProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else if(property.PropertyType == typeof(List<int>) || property.PropertyType == typeof(int[]) || 
                     property.PropertyType == typeof(List<string>) || property.PropertyType == typeof(string[]))
                 {
-                    CreateListProperty<T>(queuedAppends, property, generator);
+                    CreateListProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else if(property.PropertyType == typeof(DateTime))
                 {
-                    CreateDateTimeProperty<T>(queuedAppends, property, generator);
+                    CreateDateTimeProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else if(property.PropertyType == typeof(Guid))
                 {
-                    CreateGuidProperty<T>(queuedAppends, property, generator);
+                    CreateGuidProperty(property, jsonILGenerator, gen => gen.LoadArg1());
                 }
                 else
                 {
                     throw new NotSupportedException($"PropertyType {property.PropertyType} is not supported.");
                 }
             }
-            QueueAppend(queuedAppends, "}");
-            EmitQueuedAppends(queuedAppends, generator);
+            jsonILGenerator.Append("}");
+            jsonILGenerator.EmitQueuedAppends();
         }
 
         static void QueueAppend(StringBuilder queuedAppends, string constant)
@@ -201,203 +180,220 @@ namespace Jsonics
             generator.Emit(OpCodes.Callvirt, typeof(StringBuilder).GetRuntimeMethod("Append", new Type[]{type}));
         }
 
-        static void EmitAppendEscaped(ILGenerator generator)
+        static void CreateStringProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
-            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendEscaped", new Type[]{typeof(StringBuilder), typeof(string)}));
+            generator.Append($"\"{property.Name}\":");
+
+            CreateString(generator, gen => 
+            {
+                loadType(gen);
+                gen.GetProperty(property);
+            });
         }
 
-        static void CreateStringProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateString(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
         {
-            QueueAppend(queuedAppends, $"\"{property.Name}\":");
-            EmitQueuedAppends(queuedAppends, generator);
-
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            EmitAppendEscaped(generator);
+            getValueOnStack(generator);
+            generator.EmitAppendEscaped();
         }
 
-        static void CreateIntProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateIntProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
-            QueueAppend(queuedAppends, $"\"{property.Name}\":");
-            EmitQueuedAppends(queuedAppends, generator);
+            generator.Append($"\"{property.Name}\":");
 
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendInt", new Type[]{typeof(StringBuilder), typeof(int)}));
+            CreateInt(generator, gen =>
+            {
+                loadType(generator);
+                generator.GetProperty(property);
+            });
         }
 
-        static void CreateNumberProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateInt(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
         {
-            QueueAppend(queuedAppends, $"\"{property.Name}\":");
-            EmitQueuedAppends(queuedAppends, generator);
-
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            EmitAppend(generator, property.PropertyType);
+            getValueOnStack(generator);
+            generator.AppendInt();
         }
 
-        static void CreateDateTimeProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateNumberProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
-            QueueAppend(queuedAppends, $"\"{property.Name}\":");
-            EmitQueuedAppends(queuedAppends, generator);
+            generator.Append($"\"{property.Name}\":");
 
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendDate", new Type[]{typeof(StringBuilder), property.PropertyType}));
+            CreateNumber(generator, gen => 
+            {
+                loadType(generator);
+                generator.GetProperty(property);
+            },
+            property.PropertyType);
         }
 
-        static void CreateGuid<T>(StringBuilder queuedAppends, ILGenerator generator)
+        static void CreateNumber(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack, Type numberType)
         {
-            var propertyValueLocal = generator.DeclareLocal(typeof(Guid));
+            getValueOnStack(generator);
+            generator.EmitAppend(numberType);
+        }
+
+        static void CreateDateTimeProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
+        {
+            generator.Append($"\"{property.Name}\":");
+
+            CreateDateTime(generator, gen =>
+            {
+                loadType(gen);
+                gen.GetProperty(property);
+            });
+        }
+
+        static void CreateDateTime(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
+        {
+            getValueOnStack(generator);
+            generator.AppendDate();
+        }
+
+        static void CreateGuid(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
+        {
+            var propertyValueLocal = generator.DeclareLocal<Guid>();
             
-            QueueAppend(queuedAppends, $"\"");
-            EmitQueuedAppends(queuedAppends, generator);
+            generator.Append($"\"");
 
-            generator.Emit(OpCodes.Ldarg_1);
+            getValueOnStack(generator);
 
-            generator.Emit(OpCodes.Stloc, propertyValueLocal);
-            generator.Emit(OpCodes.Ldloca_S, propertyValueLocal);
+            generator.StoreLocal(propertyValueLocal);
+            generator.LoadLocalAddress(propertyValueLocal);
 
-            generator.Emit(OpCodes.Constrained, typeof(Guid));
-            generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
-            EmitAppend(generator, typeof(string));
+            generator.Constrain<Guid>();
+            generator.CallToString();
+            generator.EmitAppend(typeof(string));
 
-            QueueAppend(queuedAppends, $"\"");
-            EmitQueuedAppends(queuedAppends, generator);
+            generator.Append($"\"");
+            generator.EmitQueuedAppends();
         }
 
-        static void CreateGuidProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateGuidProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
-            var propertyValueLocal = generator.DeclareLocal(typeof(Guid));
-            
-            QueueAppend(queuedAppends, $"\"{property.Name}\":\"");
-            EmitQueuedAppends(queuedAppends, generator);
+            generator.Append($"\"{property.Name}\":");
 
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-
-            generator.Emit(OpCodes.Stloc, propertyValueLocal);
-            generator.Emit(OpCodes.Ldloca_S, propertyValueLocal);
-
-            generator.Emit(OpCodes.Constrained, typeof(Guid));
-            generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
-            EmitAppend(generator, typeof(string));
-
-            QueueAppend(queuedAppends, $"\"");
+            CreateGuid(generator, gen =>
+            {
+                loadType(gen);
+                gen.GetProperty(property);
+            });
         }
 
-        static void CreateBoolProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateBoolProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
-            EmitQueuedAppends(queuedAppends, generator);
-            Label trueLable = generator.DefineLabel();
+            Label trueLabel = generator.DefineLabel();
             Label callAppend = generator.DefineLabel();
 
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            generator.Emit(OpCodes.Brtrue, trueLable);
-            //false case
-            generator.Emit(OpCodes.Ldstr, $"\"{property.Name}\":false");
-            generator.Emit(OpCodes.Br_S, callAppend);
-            //true calse
-            generator.MarkLabel(trueLable);
-            generator.Emit(OpCodes.Ldstr, $"\"{property.Name}\":true");
+            loadType(generator);
+            generator.GetProperty(property);
+            generator.BrIfTrue(trueLabel);
 
-            generator.MarkLabel(callAppend);
-            EmitAppend(generator, typeof(string));
+            //false case
+            generator.LoadString($"\"{property.Name}\":false");
+            generator.Branch(callAppend);
+
+            //true calse
+            generator.Mark(trueLabel);
+            generator.LoadString($"\"{property.Name}\":true");
+
+            generator.Mark(callAppend);
+            generator.EmitAppend(typeof(string));
         }
 
-        static void CreateList<T>(StringBuilder queuedAppends, Type type, ILGenerator generator)
+        static void CreateBool(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
+        {
+            Label trueLabel = generator.DefineLabel();
+            Label callAppend = generator.DefineLabel();
+
+            getValueOnStack(generator);
+            generator.BrIfTrue(trueLabel);
+
+            //false case
+            generator.LoadString("false");
+            generator.Branch(callAppend);
+
+            //true calse
+            generator.Mark(trueLabel);
+            generator.LoadString($"true");
+
+            generator.Mark(callAppend);
+            generator.EmitAppend(typeof(string));
+        }
+
+        static void CreateList(Type type, JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
         {
             var propertyValueLocal = generator.DeclareLocal(type);
             var endLabel = generator.DefineLabel();
             var nonNullLabel = generator.DefineLabel();
-
-            EmitQueuedAppends(queuedAppends, generator);
-
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Stloc_0);            
-            generator.Emit(OpCodes.Ldloc_0);
+            
+            getValueOnStack(generator);
+            generator.StoreLocal(propertyValueLocal);
+            generator.LoadLocal(propertyValueLocal);
 
             //check for null
-            generator.Emit(OpCodes.Brtrue_S, nonNullLabel);
+            generator.BrIfTrue(nonNullLabel);
             
             //property is null
-            QueueAppend(queuedAppends, "null");
-            EmitQueuedAppends(queuedAppends, generator);
-            generator.Emit(OpCodes.Br_S, endLabel);
+            generator.Append("null");
+            generator.Branch(endLabel);
 
             //property is not null
-            generator.MarkLabel(nonNullLabel);
-            generator.Emit(OpCodes.Ldloc_0);
+            generator.Mark(nonNullLabel);
+            generator.LoadLocal(propertyValueLocal);
 
-            var specificMethod = typeof(StringBuilderExtension).GetRuntimeMethod("AppendList", new Type[]{typeof(StringBuilder), type});
-
-            if(specificMethod != null)
-            {
-                //if we have specific method for this type then we use it otherwise we fall back to the generic one
-                generator.Emit(OpCodes.Call, specificMethod);
-                generator.MarkLabel(endLabel);
-                return;
-            }
-
-            Func<ParameterInfo, bool> parametersSelecter = parameter =>  
-                type.IsArray ?
-                parameter.ParameterType.IsArray :
-                parameter.ParameterType ==type.GetGenericTypeDefinition();
-
-            var methodQuery = 
-                from method in typeof(StringBuilderExtension).GetRuntimeMethods()
-                where 
-                    method.IsGenericMethod && 
-                    method.Name == "AppendList" &&
-                    method.GetParameters().Where(parametersSelecter).Any()
-                select method;
-            var genericMethod = methodQuery.First();
-            generator.Emit(OpCodes.Call, genericMethod.MakeGenericMethod(type));
-            generator.MarkLabel(endLabel);
+            CreateListValue(generator, type);
+            generator.Mark(endLabel);
         }
 
-        static void CreateListProperty<T>(StringBuilder queuedAppends, PropertyInfo property, ILGenerator generator)
+        static void CreateListProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
             var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             var endLabel = generator.DefineLabel();
             var nonNullLabel = generator.DefineLabel();
 
-            EmitQueuedAppends(queuedAppends, generator);
-
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, typeof(T).GetRuntimeMethod($"get_{property.Name}", new Type[0]));
-            generator.Emit(OpCodes.Stloc_0);            
-            generator.Emit(OpCodes.Ldloc_0);
+            loadType(generator);
+            generator.GetProperty(property);
+            generator.StoreLocal(propertyValueLocal);
+            generator.LoadLocal(propertyValueLocal);
 
             //check for null
-            generator.Emit(OpCodes.Brtrue_S, nonNullLabel);
+            generator.BrIfTrue(nonNullLabel);
             
             //property is null
-            QueueAppend(queuedAppends, $"\"{property.Name}\":null");
-            EmitQueuedAppends(queuedAppends, generator);
-            generator.Emit(OpCodes.Br_S, endLabel);
+            generator.Append($"\"{property.Name}\":null");
+            generator.Branch(endLabel);
 
             //property is not null
-            generator.MarkLabel(nonNullLabel);
-            QueueAppend(queuedAppends, $"\"{property.Name}\":");
-            EmitQueuedAppends(queuedAppends, generator);
-            generator.Emit(OpCodes.Ldloc_0);
+            generator.Mark(nonNullLabel);
+            generator.Append($"\"{property.Name}\":");
+            generator.LoadLocal(propertyValueLocal);
 
-            var specificMethod = typeof(StringBuilderExtension).GetRuntimeMethod("AppendList", new Type[]{typeof(StringBuilder), property.PropertyType});
+            CreateListValue(generator, property.PropertyType);
+
+            generator.Mark(endLabel);
+            
+        }
+
+        /// <summary>
+        /// Creates a list assuming the following:
+        /// 1. The list is already on the top of the stack
+        /// 2. The list is not null Value
+        /// </summary>
+        static void CreateListValue(JsonILGenerator generator, Type listType)
+        {
+            var specificMethod = typeof(StringBuilderExtension).GetRuntimeMethod("AppendList", new Type[]{typeof(StringBuilder), listType});
 
             if(specificMethod != null)
             {
                 //if we have specific method for this type then we use it otherwise we fall back to the generic one
-                generator.Emit(OpCodes.Call, specificMethod);
-                generator.MarkLabel(endLabel);
+                generator.Call(specificMethod);
                 return;
             }
 
             Func<ParameterInfo, bool> parametersSelecter = parameter =>  
-                property.PropertyType.IsArray ?
+                listType.IsArray ?
                 parameter.ParameterType.IsArray :
-                parameter.ParameterType == property.PropertyType.GetGenericTypeDefinition();
+                parameter.ParameterType == listType.GetGenericTypeDefinition();
 
             var methodQuery = 
                 from method in typeof(StringBuilderExtension).GetRuntimeMethods()
@@ -407,9 +403,7 @@ namespace Jsonics
                     method.GetParameters().Where(parametersSelecter).Any()
                 select method;
             var genericMethod = methodQuery.First();
-            generator.Emit(OpCodes.Call, genericMethod.MakeGenericMethod(property.PropertyType));
-            generator.MarkLabel(endLabel);
-            
+            generator.Call(genericMethod.MakeGenericMethod(listType));
         }
     }
 }
