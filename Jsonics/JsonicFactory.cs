@@ -9,6 +9,17 @@ namespace Jsonics
 {
     public class JsonFactory
     {
+        static Dictionary<Type, MethodInfo> _methodLookup = new Dictionary<Type, MethodInfo>();
+
+        static MethodInfo GetMethod(Type type, TypeBuilder typeBuilder, StringBuilder appendQueue)
+        {
+            if(!_methodLookup.ContainsKey(type))
+            {
+                _methodLookup[type] = new ListEmitter().EmitArrayMethod(typeBuilder, type.GetElementType(), appendQueue);
+            }
+            return _methodLookup[type];
+        }
+
         public static IJsonConverter<T> Compile<T>()
         {
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
@@ -44,7 +55,6 @@ namespace Jsonics
             //Clear the StringBuilder
             jsonILGenerator.LoadStaticField(builderField);
             jsonILGenerator.CallVirtual(typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]));
-            
             Type type = typeof(T);
             if(type == typeof(string))
             {
@@ -66,8 +76,17 @@ namespace Jsonics
             {
                 CreateBool(jsonILGenerator, gen => gen.LoadArg1());
             }
+            else if(type == typeof(string[]))
+            {
+                var methodInfo = GetMethod(type, typeBuilder, jsonILGenerator.AppendQueue);
+                jsonILGenerator.Pop();
+                jsonILGenerator.LoadArg(0);
+                jsonILGenerator.LoadStaticField(builderField);
+                jsonILGenerator.LoadArg(1);
+                jsonILGenerator.Call(methodInfo);
+            }
             else if(type == typeof(List<int>) || type == typeof(int[]) || 
-                    type == typeof(List<string>) || type == typeof(string[]))
+                    type == typeof(List<string>))
             {
                 CreateList(type, jsonILGenerator, gen => gen.LoadArg1());
             }

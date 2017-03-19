@@ -16,6 +16,14 @@ namespace Jsonics
             _appendQueue = appendQueue;
         }
 
+        public StringBuilder AppendQueue
+        {
+            get
+            {
+                return _appendQueue;
+            }
+        }
+
         public void Append(string value)
         {
             _appendQueue.Append(value);
@@ -83,6 +91,33 @@ namespace Jsonics
         {
             EmitQueuedAppends();
             _generator.Emit(OpCodes.Ldarg_1);
+        }
+
+        public void LoadArg(int arg)
+        {
+            EmitQueuedAppends();
+            if(arg == 0)
+            {
+                _generator.Emit(OpCodes.Ldarg_0);
+                return;
+            }
+            if(arg == 1)
+            {
+                _generator.Emit(OpCodes.Ldarg_1);
+                return;
+            }
+            if(arg == 2)
+            {
+                _generator.Emit(OpCodes.Ldarg_2);
+                return;
+            }
+            if(arg == 3)
+            {
+                _generator.Emit(OpCodes.Ldarg_3);
+                return;
+            }
+            _generator.Emit(OpCodes.Ldarg_S, (byte)arg);
+            return;
         }
 
         public void GetProperty(PropertyInfo property)
@@ -173,6 +208,102 @@ namespace Jsonics
             _generator.Emit(OpCodes.Call, methodInfo);            
         }
 
+        public void LoadLength()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Ldlen);            
+        }
+
+        public void ConvertToInt32()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Conv_I4);            
+        }
+
+        public void LoadConstantInt32(int val)
+        {
+            EmitQueuedAppends();
+            if(val == 0)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_0);
+                return;
+            }
+            if(val == 1)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_1);
+                return;
+            }
+            if(val == 2)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_2);
+                return;
+            }
+            if(val == 3)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_3);
+                return;
+            }
+            if(val == 4)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_4);
+                return;
+            }
+            if(val == 5)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_5);
+                return;
+            }
+            if(val == 6)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_6);
+                return;
+            }
+            if(val == 7)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_7);
+                return;
+            }
+            if(val == 8)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_8);
+                return;
+            }
+            if(val == -1)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_M1);
+                return;
+            }
+            if((val > 8 && val < 128) || (val < -1 && val > -129))
+            {
+                _generator.Emit(OpCodes.Ldc_I4_S, (byte)val);
+                return;
+            }
+            _generator.Emit(OpCodes.Ldc_I4, val);
+        }
+
+        public void BranchIfLargerThan(Label label)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Blt_S, label);
+        }
+
+        public void Pop()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Pop);
+        }
+
+        public void LoadArrayElementRef()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Ldelem_Ref);
+        }
+
+        public void Add()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Add);
+        }
 
     }
 }
