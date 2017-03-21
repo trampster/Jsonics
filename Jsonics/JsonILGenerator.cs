@@ -293,10 +293,25 @@ namespace Jsonics
             _generator.Emit(OpCodes.Pop);
         }
 
-        public void LoadArrayElementRef()
+        public void LoadArrayElement(Type elementType)
         {
             EmitQueuedAppends();
+            if(elementType == typeof(int))
+            {
+                _generator.Emit(OpCodes.Ldelem_I4);
+                return;
+            }
+            if(elementType.GetTypeInfo().IsValueType)
+            {
+                _generator.Emit(OpCodes.Ldelem);
+                return;
+            }
             _generator.Emit(OpCodes.Ldelem_Ref);
+        }
+
+        public void LoadListElement(Type listType)
+        {
+            CallVirtual(listType.GetRuntimeMethod("get_Item", new Type[]{typeof(int)}));
         }
 
         public void Add()

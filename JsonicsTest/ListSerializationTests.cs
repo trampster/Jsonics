@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicsTests
+namespace JsonicsTest
 {
     [TestFixture]
     public class ListSerializationTests

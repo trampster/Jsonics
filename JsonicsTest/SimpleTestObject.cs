@@ -1,4 +1,4 @@
-namespace JsonicsTests
+namespace JsonicsTest
 {
     public class SimpleTestObject
     {

@@ -73,7 +73,20 @@ namespace JsonicsTest
         }
 
         [Test]
-        public void ToJson_Array_CorrectJson()
+        public void ToJson_StringArray_CorrectJson()
+        {
+            //arrange
+            var converter = JsonFactory.Compile<string[]>();
+
+            //act
+            string json = converter.ToJson(new string[]{"1","2","3","4","5"});
+
+            //assert
+            Assert.That(json, Is.EqualTo("[\"1\",\"2\",\"3\",\"4\",\"5\"]"));
+        }
+
+        [Test]
+        public void ToJson_IntArray_CorrectJson()
         {
             //arrange
             var converter = JsonFactory.Compile<int[]>();
@@ -86,7 +99,7 @@ namespace JsonicsTest
         }
 
         [Test]
-        public void ToJson_List_CorrectJson()
+        public void ToJson_IntList_CorrectJson()
         {
             //arrange
             var converter = JsonFactory.Compile<List<int>>();
@@ -96,6 +109,19 @@ namespace JsonicsTest
 
             //assert
             Assert.That(json, Is.EqualTo("[1,2,3,4,5]"));
+        }
+
+        [Test]
+        public void ToJson_StringList_CorrectJson()
+        {
+            //arrange
+            var converter = JsonFactory.Compile<List<string>>();
+
+            //act
+            string json = converter.ToJson(new List<string>{"1","2","3","4","5"});
+
+            //assert
+            Assert.That(json, Is.EqualTo("[\"1\",\"2\",\"3\",\"4\",\"5\"]"));
         }
 
         [Test]

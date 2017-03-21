@@ -2,7 +2,7 @@ using System.Text;
 using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicsTests
+namespace JsonicsTest
 {
     [TestFixture]
     public class StringBuilderExtensionTests
