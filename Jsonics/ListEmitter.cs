@@ -5,17 +5,22 @@ using System.Text;
 
 namespace Jsonics
 {
-    public class ListEmitter
+    public class ListEmitter : Emitter
     {
-        public MethodBuilder EmitArrayMethod(TypeBuilder typeBuilder, Type elementType, StringBuilder appendQueue, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        public ListEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue)
+            : base(typeBuilder, appendQueue)
         {
-            var methodBuilder = typeBuilder.DefineMethod(
+        }
+
+        public MethodBuilder EmitArrayMethod(Type elementType, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        {
+            var methodBuilder = _typeBuilder.DefineMethod(
                 "Get" + Guid.NewGuid().ToString().Replace("-", ""),
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof(StringBuilder),
                 new Type[] { typeof(StringBuilder), elementType.MakeArrayType()});
             
-            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), appendQueue);
+            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), _appendQueue);
 
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();
@@ -82,15 +87,15 @@ namespace Jsonics
             return methodBuilder;
         }
 
-        public MethodBuilder EmitListMethod(TypeBuilder typeBuilder, Type listType, Type elementType, StringBuilder appendQueue, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        public MethodBuilder EmitListMethod(Type listType, Type elementType, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
         {
-            var methodBuilder = typeBuilder.DefineMethod(
+            var methodBuilder = _typeBuilder.DefineMethod(
                 "Get" + Guid.NewGuid().ToString().Replace("-", ""),
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof(StringBuilder),
                 new Type[] { typeof(StringBuilder), listType});
             
-            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), appendQueue);
+            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), _appendQueue);
 
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();

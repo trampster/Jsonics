@@ -17,11 +17,11 @@ namespace Jsonics
             {
                 if(type.IsArray)
                 {
-                    _methodLookup[type] = new ListEmitter().EmitArrayMethod(typeBuilder, type.GetElementType(), appendQueue, emitElement);
+                    _methodLookup[type] = new ListEmitter(typeBuilder, appendQueue).EmitArrayMethod(type.GetElementType(), emitElement);
                 }
                 else if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    _methodLookup[type] = new ListEmitter().EmitListMethod(typeBuilder, type, type.GenericTypeArguments[0],  appendQueue, emitElement);
+                    _methodLookup[type] = new ListEmitter(typeBuilder, appendQueue).EmitListMethod(type, type.GenericTypeArguments[0], emitElement);
                 }
             }
             return _methodLookup[type];
