@@ -1,0 +1,61 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Text;
+
+namespace Jsonics
+{
+    public class TypeEmitter : Emitter 
+    {
+        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters)
+            : base(typeBuilder, appendQueue, emitters)
+        {
+        }
+
+         public void EmitType(Type type, JsonILGenerator generator, TypeBuilder typeBuilder, FieldBuilder stringBuilderField, Action<JsonILGenerator> getTypeOnStack)
+        {
+            var valueEmitter = _emitters.ValueEmitter;
+            if(type == typeof(string))
+            {
+                valueEmitter.CreateString(generator, getTypeOnStack);
+            }
+            else if(type == typeof(int))
+            {
+                valueEmitter.CreateInt(generator, getTypeOnStack);
+            }
+            else if(type == typeof(uint) ||
+                type == typeof(long) || type == typeof(ulong) ||
+                type == typeof(byte) || type == typeof(sbyte) ||
+                type == typeof(short) || type == typeof(ushort) ||
+                type == typeof(float) || type == typeof(double))
+            {
+                valueEmitter.CreateNumber(generator, getTypeOnStack, type);
+            }
+            else if(type == typeof(bool))
+            {
+                valueEmitter.CreateBool(generator, getTypeOnStack);
+            }
+            else if(type.IsArray)
+            {
+                valueEmitter.CreateArrayValue(type, typeBuilder, generator, stringBuilderField, getTypeOnStack);
+            }
+            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                valueEmitter.CreateListValue(type, typeBuilder, generator, stringBuilderField, getTypeOnStack);
+            }
+            else if(type == typeof(DateTime))
+            {
+                valueEmitter.CreateDateTime(generator, getTypeOnStack);
+            }
+            else if(type == typeof(Guid))
+            {
+                valueEmitter.CreateGuid(generator, getTypeOnStack);
+            }
+            else
+            {
+                _emitters.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack, typeBuilder, stringBuilderField);
+            }
+        }
+    }
+}

@@ -7,8 +7,8 @@ namespace Jsonics
 {
     public class ListEmitter : Emitter
     {
-        public ListEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue)
-            : base(typeBuilder, appendQueue)
+        public ListEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters)
+            : base(typeBuilder, appendQueue, emitters)
         {
         }
 
@@ -20,7 +20,7 @@ namespace Jsonics
                 typeof(StringBuilder),
                 new Type[] { typeof(StringBuilder), elementType.MakeArrayType()});
             
-            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), _appendQueue);
+            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
 
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();
@@ -95,7 +95,7 @@ namespace Jsonics
                 typeof(StringBuilder),
                 new Type[] { typeof(StringBuilder), listType});
             
-            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), _appendQueue);
+            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
 
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();
