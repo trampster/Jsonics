@@ -14,28 +14,30 @@ namespace Jsonics
 
         public MethodBuilder EmitArrayMethod(Type elementType, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
         {
+            Type arrayType = elementType.MakeArrayType();
+
             var methodBuilder = _typeBuilder.DefineMethod(
                 "Get" + Guid.NewGuid().ToString().Replace("-", ""),
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof(StringBuilder),
-                new Type[] { typeof(StringBuilder), elementType.MakeArrayType()});
+                new Type[] { typeof(StringBuilder), arrayType});
             
             var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
 
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();
 
-            generator.LoadArg(2);
+            generator.LoadArg(arrayType, 2);
             generator.LoadLength();
             generator.ConvertToInt32();
             generator.LoadConstantInt32(1);
             generator.BranchIfLargerThan(emptyArray);
 
             //length > 1
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.LoadConstantInt32('[');
             generator.EmitAppend(typeof(char));
-            generator.LoadArg(2);
+            generator.LoadArg(arrayType, 2);
             generator.LoadConstantInt32(0);
             emitElement(generator, gen => gen.LoadArrayElement(elementType));
             generator.Pop();
@@ -43,7 +45,7 @@ namespace Jsonics
 
             //empty array
             generator.Mark(emptyArray);
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.Append("[]");
             generator.Return();
 
@@ -59,10 +61,10 @@ namespace Jsonics
             //loop start
             var loopStart = generator.DefineLabel();
             generator.Mark(loopStart);
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.LoadConstantInt32(',');
             generator.EmitAppend(typeof(char));
-            generator.LoadArg(2);
+            generator.LoadArg(arrayType, 2);
             generator.LoadLocal(indexLocal);
             emitElement(generator, gen => gen.LoadArrayElement(elementType));
             generator.Pop();
@@ -73,13 +75,13 @@ namespace Jsonics
 
             generator.Mark(lengthCheckLabel);
             generator.LoadLocal(indexLocal);
-            generator.LoadArg(2);
+            generator.LoadArg(arrayType, 2);
             generator.LoadLength();
             generator.ConvertToInt32();
             generator.BranchIfLargerThan(loopStart);
             //end loop
 
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.LoadConstantInt32(']');
             generator.EmitAppend(typeof(char));
             generator.Return();
@@ -100,16 +102,16 @@ namespace Jsonics
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();
 
-            generator.LoadArg(2);
+            generator.LoadArg(listType, 2);
             generator.CallVirtual(listType.GetRuntimeMethod("get_Count", new Type[0]));
             generator.LoadConstantInt32(1);
             generator.BranchIfLargerThan(emptyArray);
 
             //length > 1
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.LoadConstantInt32('[');
             generator.EmitAppend(typeof(char));
-            generator.LoadArg(2);
+            generator.LoadArg(listType, 2);
             generator.LoadConstantInt32(0);
             emitElement(generator, gen => gen.LoadListElement(listType));
             generator.Pop();
@@ -117,7 +119,7 @@ namespace Jsonics
 
             //empty array
             generator.Mark(emptyArray);
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.Append("[]");
             generator.Return();
 
@@ -133,10 +135,10 @@ namespace Jsonics
             //loop start
             var loopStart = generator.DefineLabel();
             generator.Mark(loopStart);
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.LoadConstantInt32(',');
             generator.EmitAppend(typeof(char));
-            generator.LoadArg(2);
+            generator.LoadArg(listType, 2);
             generator.LoadLocal(indexLocal);
             emitElement(generator, gen => gen.LoadListElement(listType));
             generator.Pop();
@@ -147,13 +149,13 @@ namespace Jsonics
 
             generator.Mark(lengthCheckLabel);
             generator.LoadLocal(indexLocal);
-            generator.LoadArg(2);
+            generator.LoadArg(listType, 2);
             generator.CallVirtual(listType.GetRuntimeMethod("get_Count", new Type[0]));
             generator.ConvertToInt32();
             generator.BranchIfLargerThan(loopStart);
             //end loop
 
-            generator.LoadArg(1);
+            generator.LoadArg(typeof(StringBuilder), 1);
             generator.LoadConstantInt32(']');
             generator.EmitAppend(typeof(char));
             generator.Return();

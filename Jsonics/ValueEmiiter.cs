@@ -53,7 +53,7 @@ namespace Jsonics
         {
             var methodInfo = _emitters.GetMethod(type, generator.AppendQueue, (gen, getElementOnStack) => _emitters.TypeEmitter.EmitType(type.GetElementType(), gen, getElementOnStack));
             generator.Pop(); //remove StringBuilder from the stack
-            generator.LoadArg(0);  //load this
+            generator.LoadArg(typeof(object), 0);  //load this
             generator.LoadStaticField(_stringBuilderField);
             getTypeOnStack(generator);
             generator.Call(methodInfo);
@@ -63,7 +63,7 @@ namespace Jsonics
         {
             var methodInfo = _emitters.GetMethod(type, generator.AppendQueue, (gen, getElementOnStack) => _emitters.TypeEmitter.EmitType(type.GenericTypeArguments[0], gen, getElementOnStack));
             generator.Pop();     //remove StringBuilder from the stack
-            generator.LoadArg(0);
+            generator.LoadArg(typeof(object), 0);
             generator.LoadStaticField(_stringBuilderField);
             getTypeOnStack(generator);
             generator.Call(methodInfo);

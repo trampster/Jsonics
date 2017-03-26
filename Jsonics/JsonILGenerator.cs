@@ -94,15 +94,16 @@ namespace Jsonics
             _generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
         }
 
-        public void LoadArg1()
+        public void LoadArg(Type type, int arg)
         {
             EmitQueuedAppends();
-            _generator.Emit(OpCodes.Ldarg_1);
-        }
 
-        public void LoadArg(int arg)
-        {
-            EmitQueuedAppends();
+            if(type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid))
+            {
+                _generator.Emit(OpCodes.Ldarga_S, arg);
+                return;
+            }
+
             if(arg == 0)
             {
                 _generator.Emit(OpCodes.Ldarg_0);

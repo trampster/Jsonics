@@ -45,7 +45,7 @@ namespace Jsonics
             jsonILGenerator.CallVirtual(typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]));
 
             Type type = typeof(T);
-            emitters.TypeEmitter.EmitType(type, jsonILGenerator, gen => gen.LoadArg(1));
+            emitters.TypeEmitter.EmitType(type, jsonILGenerator, gen => gen.LoadArg(type, 1));
 
             jsonILGenerator.CallToString();
 
