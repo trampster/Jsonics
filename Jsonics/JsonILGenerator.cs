@@ -35,6 +35,13 @@ namespace Jsonics
             {
                 return;
             }
+            if(_appendQueue.Length == 1)
+            {
+                _generator.Emit(OpCodes.Ldc_I4_S, (int)_appendQueue.ToString()[0]);
+                EmitAppend(typeof(char));
+                _appendQueue.Clear();
+                return;
+            }
             _generator.Emit(OpCodes.Ldstr, _appendQueue.ToString());
             EmitAppend(typeof(string));
             _appendQueue.Clear();
