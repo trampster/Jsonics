@@ -10,18 +10,20 @@ namespace Jsonics
     {
         readonly TypeBuilder _typeBuilder;
         readonly StringBuilder _appendQueue;
+        readonly FieldBuilder _stringBuilderField;
 
-        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue)
+        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
         {
             _typeBuilder = typeBuilder;
             _appendQueue = appendQueue;
+            _stringBuilderField = stringBuilderField;
         }
 
         public ListEmitter ListEmitter
         {
             get
             {
-                return new ListEmitter(_typeBuilder, _appendQueue, this);
+                return new ListEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
             }
         }
 
@@ -29,7 +31,7 @@ namespace Jsonics
         {
             get
             {
-                return new ValueEmitter(_typeBuilder, _appendQueue, this);
+                return new ValueEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
             }
         }
 
@@ -37,7 +39,7 @@ namespace Jsonics
         {
             get
             {
-                return new TypeEmitter(_typeBuilder, _appendQueue, this);
+                return new TypeEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
             }
         }
 
@@ -45,13 +47,13 @@ namespace Jsonics
         {
             get
             {
-                return new ObjectEmitter(_typeBuilder, _appendQueue, this);
+                return new ObjectEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
             }
         }
 
         Dictionary<Type, MethodInfo> _methodLookup = new Dictionary<Type, MethodInfo>();
 
-        public MethodInfo GetMethod(Type type, TypeBuilder typeBuilder, StringBuilder appendQueue, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        public MethodInfo GetMethod(Type type, StringBuilder appendQueue, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
         {
             if(!_methodLookup.ContainsKey(type))
             {

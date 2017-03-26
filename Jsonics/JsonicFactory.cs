@@ -30,7 +30,7 @@ namespace Jsonics
 
             var jsonILGenerator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
             
-            var emitters = new Emitters(typeBuilder, jsonILGenerator.AppendQueue);
+            var emitters = new Emitters(typeBuilder, jsonILGenerator.AppendQueue, builderField);
             //lazy construct a StringBuilder
             jsonILGenerator.LoadStaticField(builderField);
             
@@ -45,7 +45,7 @@ namespace Jsonics
             jsonILGenerator.CallVirtual(typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]));
 
             Type type = typeof(T);
-            emitters.TypeEmitter.EmitType(type, jsonILGenerator, typeBuilder, builderField, gen => gen.LoadArg(1));
+            emitters.TypeEmitter.EmitType(type, jsonILGenerator, gen => gen.LoadArg(1));
 
             jsonILGenerator.CallToString();
 

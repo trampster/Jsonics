@@ -8,12 +8,12 @@ namespace Jsonics
 {
     public class TypeEmitter : Emitter 
     {
-        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters)
-            : base(typeBuilder, appendQueue, emitters)
+        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder builderField)
+            : base(typeBuilder, appendQueue, emitters, builderField)
         {
         }
 
-         public void EmitType(Type type, JsonILGenerator generator, TypeBuilder typeBuilder, FieldBuilder stringBuilderField, Action<JsonILGenerator> getTypeOnStack)
+         public void EmitType(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
         {
             var valueEmitter = _emitters.ValueEmitter;
             if(type == typeof(string))
@@ -38,11 +38,11 @@ namespace Jsonics
             }
             else if(type.IsArray)
             {
-                valueEmitter.CreateArrayValue(type, typeBuilder, generator, stringBuilderField, getTypeOnStack);
+                valueEmitter.CreateArrayValue(type, generator, getTypeOnStack);
             }
             else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
-                valueEmitter.CreateListValue(type, typeBuilder, generator, stringBuilderField, getTypeOnStack);
+                valueEmitter.CreateListValue(type, generator, getTypeOnStack);
             }
             else if(type == typeof(DateTime))
             {
@@ -54,7 +54,7 @@ namespace Jsonics
             }
             else
             {
-                _emitters.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack, typeBuilder, stringBuilderField);
+                _emitters.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack);
             }
         }
     }

@@ -9,12 +9,12 @@ namespace Jsonics
 {
     public class ObjectEmitter : Emitter
     {
-        public ObjectEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters)
-            : base(typeBuilder, appendQueue, emitters)
+        public ObjectEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField)
+            : base(typeBuilder, appendQueue, emitters, stringBuilderField)
         {
         }
 
-        public void GenerateObject(Type type, JsonILGenerator jsonILGenerator, Action<JsonILGenerator> getTypeOnStack, TypeBuilder typeBuilder, FieldBuilder stringBuilderField)
+        public void GenerateObject(Type type, JsonILGenerator jsonILGenerator, Action<JsonILGenerator> getTypeOnStack)
         {
             jsonILGenerator.Append("{");
 
@@ -56,11 +56,11 @@ namespace Jsonics
                 }
                 else if(property.PropertyType.IsArray)
                 {
-                    CreateArrayProperty(property, jsonILGenerator, getTypeOnStack, typeBuilder, stringBuilderField);
+                    CreateArrayProperty(property, jsonILGenerator, getTypeOnStack);
                 }
                 else if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    CreateListProperty(property, jsonILGenerator, getTypeOnStack, typeBuilder, stringBuilderField);
+                    CreateListProperty(property, jsonILGenerator, getTypeOnStack);
                 }
                 else if(property.PropertyType == typeof(DateTime))
                 {
@@ -72,11 +72,22 @@ namespace Jsonics
                 }
                 else
                 {
-                    throw new NotSupportedException($"PropertyType {property.PropertyType} is not supported.");
+                    CreateObjectProperty(property, jsonILGenerator, getTypeOnStack);
                 }
             }
             jsonILGenerator.Append("}");
             jsonILGenerator.EmitQueuedAppends();
+        }
+
+        void CreateObjectProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
+        {
+            generator.Append($"\"{property.Name}\":");
+
+            GenerateObject(property.PropertyType, generator, gen => 
+            {
+                loadType(gen);
+                gen.GetProperty(property);
+            });
         }
 
         void CreateStringProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
@@ -156,7 +167,7 @@ namespace Jsonics
             generator.EmitAppend(typeof(string));
         }
 
-        void CreateArrayProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType, TypeBuilder typeBuilder, FieldBuilder stringBuilderField)
+        void CreateArrayProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
             var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             var endLabel = generator.DefineLabel();
@@ -177,13 +188,13 @@ namespace Jsonics
             //property is not null
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
-            _emitters.ValueEmitter.CreateArrayValue(property.PropertyType, typeBuilder, generator, stringBuilderField, gen => gen.LoadLocal(propertyValueLocal));
+            _emitters.ValueEmitter.CreateArrayValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
 
             generator.Mark(endLabel);
             
         }
 
-        void CreateListProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType, TypeBuilder typeBuilder, FieldBuilder stringBuilderField)
+        void CreateListProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
         {
             var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             var endLabel = generator.DefineLabel();
@@ -204,7 +215,7 @@ namespace Jsonics
             //property is not null
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
-            _emitters.ValueEmitter.CreateListValue(property.PropertyType, typeBuilder, generator, stringBuilderField, gen => gen.LoadLocal(propertyValueLocal));
+            _emitters.ValueEmitter.CreateListValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
 
             generator.Mark(endLabel);
             

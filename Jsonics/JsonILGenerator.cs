@@ -157,7 +157,7 @@ namespace Jsonics
         public void Branch(Label label)
         {
             EmitQueuedAppends();
-            _generator.Emit(OpCodes.Br_S, label);
+            _generator.Emit(OpCodes.Br, label);
         }
 
         public void AppendInt()
@@ -284,7 +284,7 @@ namespace Jsonics
         public void BranchIfLargerThan(Label label)
         {
             EmitQueuedAppends();
-            _generator.Emit(OpCodes.Blt_S, label);
+            _generator.Emit(OpCodes.Blt, label);
         }
 
         public void Pop()

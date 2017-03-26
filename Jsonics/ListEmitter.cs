@@ -7,8 +7,8 @@ namespace Jsonics
 {
     public class ListEmitter : Emitter
     {
-        public ListEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters)
-            : base(typeBuilder, appendQueue, emitters)
+        public ListEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField)
+            : base(typeBuilder, appendQueue, emitters, stringBuilderField)
         {
         }
 
