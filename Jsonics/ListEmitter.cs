@@ -162,5 +162,83 @@ namespace Jsonics
             
             return methodBuilder;
         }
+
+        public MethodBuilder EmitDictionaryMethod(Type dictionaryType)
+        {
+
+            var methodBuilder = _typeBuilder.DefineMethod(
+                "Get" + Guid.NewGuid().ToString().Replace("-", ""),
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                typeof(StringBuilder),
+                new Type[] { typeof(StringBuilder), dictionaryType});
+            
+            var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
+            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.Append("{");
+            generator.Pop();
+            generator.LoadArg(dictionaryType, 2);
+            var getEnumeratorMethodInfo = dictionaryType.GetRuntimeMethod("GetEnumerator", new Type[]{});
+            var enumeratorType = getEnumeratorMethodInfo.ReturnType;
+            generator.CallVirtual(getEnumeratorMethodInfo);
+            var enumeratorLocal = generator.DeclareLocal(getEnumeratorMethodInfo.ReturnType);
+            generator.StoreLocal(enumeratorLocal);
+            generator.LoadLocalAddress(enumeratorLocal);
+            var moveNextMethod = enumeratorType.GetRuntimeMethod("MoveNext", new Type[0]);
+            generator.Call(moveNextMethod);
+            Label returnLabel = generator.DefineLabel();
+            generator.BranchIfFalse(returnLabel);
+            var currentMethod = enumeratorType.GetRuntimeMethod("get_Current", new Type[0]);
+            var currentLocal = generator.DeclareLocal(currentMethod.ReturnType);
+            EmitCurrentKeyValue(generator, enumeratorLocal, currentMethod, currentLocal);
+
+            var loopConditionLabel = generator.DefineLabel();
+
+            generator.Branch(loopConditionLabel);
+
+            //loop start
+            var loopStartLabel = generator.DefineLabel();
+            generator.Mark(loopStartLabel);
+            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.Append(",");
+            generator.Pop(); //remove StringBuilder from stack
+            EmitCurrentKeyValue(generator, enumeratorLocal, currentMethod, currentLocal);
+
+            //loop condition
+            generator.Mark(loopConditionLabel);
+            generator.LoadLocalAddress(enumeratorLocal);
+            generator.Call(moveNextMethod);
+            generator.BrIfTrue(loopStartLabel);
+
+            generator.Mark(returnLabel);
+            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.Append("}");
+            generator.Return();
+
+            return methodBuilder;
+        }
+
+        void EmitCurrentKeyValue(JsonILGenerator generator, LocalBuilder enumeratorLocal, MethodInfo currentMethod, LocalBuilder currentLocal)
+        {
+            generator.LoadLocalAddress(enumeratorLocal);
+            generator.Call(currentMethod);
+            generator.StoreLocal(currentLocal);
+            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadLocalAddress(currentLocal);
+            //key
+            var getKeyMethod = currentMethod.ReturnType.GetRuntimeMethod("get_Key", new Type[0]);
+            generator.Call(getKeyMethod);
+            generator.EmitAppendEscaped();
+            generator.Append(":");
+            //value
+            var getValueMethod = currentMethod.ReturnType.GetRuntimeMethod("get_Value", new Type[0]);
+            
+            //generator.LoadArg(typeof(StringBuilder), 1);
+            _emitters.TypeEmitter.EmitType(getValueMethod.ReturnType, generator, gen => 
+            {
+                gen.LoadLocalAddress(currentLocal);
+                gen.Call(getValueMethod);
+            });
+            generator.Pop(); //get the StringBuilder off the stack
+        }
     }
 }

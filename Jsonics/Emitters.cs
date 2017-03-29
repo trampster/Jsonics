@@ -65,6 +65,10 @@ namespace Jsonics
                 {
                     _methodLookup[type] = ListEmitter.EmitListMethod(type, type.GenericTypeArguments[0], emitElement);
                 }
+                else if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    _methodLookup[type] = ListEmitter.EmitDictionaryMethod(type);
+                }
             }
             return _methodLookup[type];
         }

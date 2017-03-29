@@ -156,6 +156,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Brtrue, label);
         }
 
+        public void BranchIfFalse(Label label)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Brfalse, label);
+        }
+
         public void LoadString(string value)
         {
             EmitQueuedAppends();
@@ -326,6 +332,14 @@ namespace Jsonics
         {
             EmitQueuedAppends();
             _generator.Emit(OpCodes.Add);
+        }
+
+        public void WriteConsoleInt()
+        {
+            EmitQueuedAppends();
+            var temp = _generator.DeclareLocal(typeof(int));
+            _generator.Emit(OpCodes.Stloc, temp);
+            _generator.EmitWriteLine(temp);
         }
 
     }
