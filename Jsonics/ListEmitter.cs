@@ -223,11 +223,45 @@ namespace Jsonics
             generator.Call(currentMethod);
             generator.StoreLocal(currentLocal);
             generator.LoadArg(typeof(StringBuilder), 1);
-            generator.LoadLocalAddress(currentLocal);
             //key
             var getKeyMethod = currentMethod.ReturnType.GetRuntimeMethod("get_Key", new Type[0]);
-            generator.Call(getKeyMethod);
-            generator.EmitAppendEscaped();
+            var keyType = getKeyMethod.ReturnType;
+            if(keyType == typeof(string))
+            {
+                generator.LoadLocalAddress(currentLocal);
+                generator.Call(getKeyMethod);
+                generator.EmitAppendEscaped();
+            }
+            else if(keyType.GetTypeInfo().IsPrimitive || keyType == typeof(Guid) || keyType == typeof(DateTime))
+            {
+                generator.Append("\"");
+                _emitters.TypeEmitter.EmitType(keyType, generator, gen => 
+                {
+                    gen.LoadLocalAddress(currentLocal);
+                    gen.Call(getKeyMethod);
+                });
+                generator.Append("\"");
+            }
+            else if(keyType.GetTypeInfo().IsValueType)
+            {
+                generator.LoadLocalAddress(currentLocal);
+                generator.Call(getKeyMethod);
+                var structLocal = generator.DeclareLocal(keyType);
+                generator.StoreLocal(structLocal);
+                generator.LoadLocalAddress(structLocal);
+                generator.Constrain(keyType);
+                var toStringMethod = typeof(object).GetRuntimeMethod("ToString", new Type[0]);
+                generator.CallVirtual(toStringMethod);
+                generator.EmitAppendEscaped();
+            }
+            else //objects
+            {
+                generator.LoadLocalAddress(currentLocal);
+                generator.Call(getKeyMethod);
+                var toStringMethod = typeof(object).GetRuntimeMethod("ToString", new Type[0]);
+                generator.Call(toStringMethod);
+                generator.EmitAppendEscaped();
+            }
             generator.Append(":");
             //value
             var getValueMethod = currentMethod.ReturnType.GetRuntimeMethod("get_Value", new Type[0]);

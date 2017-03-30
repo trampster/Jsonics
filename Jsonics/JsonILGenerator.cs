@@ -88,6 +88,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Constrained, typeof(T));
         }
 
+        public void Constrain(Type type)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Constrained, type);
+        }
+
         public void CallToString()
         {
             EmitQueuedAppends();
