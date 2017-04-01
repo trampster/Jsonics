@@ -93,6 +93,41 @@ namespace JsonicsTest
 
             //assert
             Assert.That(json, Is.EqualTo("{\"Bob Marley\":9001,\"Luke Skywalker\":3474,\"Gandalf Gray\":11926}"));
+        }
+
+        public class TestClass
+        {
+            public string FirstName{get;set;}
+            public string LastName{get;set;}
+
+            public override string ToString()
+            {
+                return $"{FirstName} {LastName}";
+            }
+        }
+
+        [Test]
+        public void ToJson_DictionaryStringTestClass_CorrectJson()
+        {
+            //arrange
+            var dictionary = new Dictionary<string, TestClass>()
+            {
+                { "one", new TestClass(){FirstName="Bob", LastName="Marley"}},
+                { "two", new TestClass(){FirstName="Luke", LastName="Skywalker"}},
+                { "three", new TestClass(){FirstName="Gandalf", LastName="Gray"}}
+            };
+            var converter = JsonFactory.Compile<Dictionary<string, TestClass>>();
+
+            //act
+            var json = converter.ToJson(dictionary);
+
+            //assert
+            Assert.That(json, Is.EqualTo("{" +
+                "\"one\":{\"FirstName\":\"Bob\",\"LastName\":\"Marley\"}," + 
+                "\"two\":{\"FirstName\":\"Luke\",\"LastName\":\"Skywalker\"}," +
+                "\"three\":{\"FirstName\":\"Gandalf\",\"LastName\":\"Gray\"}" +
+                "}"
+                ));
         } 
     }
 }
