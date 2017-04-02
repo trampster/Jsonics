@@ -14,13 +14,13 @@ namespace Jsonics
         }
 
          public void EmitType(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
-        {
+         {
             var valueEmitter = _emitters.ValueEmitter;
             if(type == typeof(string))
             {
                 valueEmitter.CreateString(generator, getTypeOnStack);
             }
-            else if(type == typeof(int))
+            else if(type == typeof(int) || type.GetTypeInfo().IsEnum)
             {
                 valueEmitter.CreateInt(generator, getTypeOnStack);
             }

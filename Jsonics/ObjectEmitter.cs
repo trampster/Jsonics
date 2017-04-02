@@ -38,7 +38,7 @@ namespace Jsonics
                 {
                     CreateStringProperty(property, jsonILGenerator, getTypeOnStack);
                 }
-                else if (property.PropertyType == typeof(int))
+                else if (property.PropertyType == typeof(int) || property.PropertyType.GetTypeInfo().IsEnum)
                 {
                     CreateIntProperty(property, jsonILGenerator, getTypeOnStack);
                 }

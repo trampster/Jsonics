@@ -104,7 +104,7 @@ namespace Jsonics
         {
             EmitQueuedAppends();
 
-            if(type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid))
+            if(type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid) && !type.GetTypeInfo().IsEnum)
             {
                 _generator.Emit(OpCodes.Ldarga_S, arg);
                 return;
