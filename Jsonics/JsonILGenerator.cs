@@ -65,21 +65,76 @@ namespace Jsonics
         public void StoreLocal(LocalBuilder localBuilder)
         {
             EmitQueuedAppends();
+            int index = localBuilder.LocalIndex;
+            if(index == 0)
+            {
+                _generator.Emit(OpCodes.Stloc_0);
+                return;
+            }
+            if(index == 1)
+            {
+                _generator.Emit(OpCodes.Stloc_1);
+                return;
+            }
+            if(index == 2)
+            {
+                _generator.Emit(OpCodes.Stloc_2);
+                return;
+            }
+            if(index == 3)
+            {
+                _generator.Emit(OpCodes.Stloc_3);
+                return;
+            }
+            if(index <= 255)
+            {
+                _generator.Emit(OpCodes.Stloc_S, localBuilder);
+                return;
+            }
             _generator.Emit(OpCodes.Stloc, localBuilder);
         }
 
         public void LoadLocal(LocalBuilder localBuilder)
         {
             EmitQueuedAppends();
+            int index = localBuilder.LocalIndex;
+            if(index == 0)
+            {
+                _generator.Emit(OpCodes.Ldloc_0);
+                return;
+            }
+            if(index == 1)
+            {
+                _generator.Emit(OpCodes.Ldloc_1);
+                return;
+            }
+            if(index == 2)
+            {
+                _generator.Emit(OpCodes.Ldloc_2);
+                return;
+            }
+            if(index == 3)
+            {
+                _generator.Emit(OpCodes.Ldloc_3);
+                return;
+            }
+            if(index <= 255)
+            {
+                _generator.Emit(OpCodes.Ldloc_S, localBuilder);
+                return;
+            }
             _generator.Emit(OpCodes.Ldloc, localBuilder);
         }
-
-
 
         public void LoadLocalAddress(LocalBuilder localBuilder)
         {
             EmitQueuedAppends();
-            _generator.Emit(OpCodes.Ldloca_S, localBuilder);
+            if(localBuilder.LocalIndex <= 255)
+            {
+                _generator.Emit(OpCodes.Ldloca_S, localBuilder);
+                return;
+            }
+            _generator.Emit(OpCodes.Ldloca, localBuilder);
         }
 
         public void Constrain<T>()
@@ -204,6 +259,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Ldsfld, fieldBuilder);
         }
 
+        public void LoadField(FieldInfo fieldInfo)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Ldfld, fieldInfo);
+        }
+
         public void StoreStaticField(FieldBuilder fieldBuilder)
         {
             EmitQueuedAppends();
@@ -226,6 +287,18 @@ namespace Jsonics
         {
             EmitQueuedAppends();
             _generator.Emit(OpCodes.Call, methodInfo);            
+        }
+
+        public void Call(ConstructorInfo constructorInfo)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Call, constructorInfo);
+        }
+
+        public void Duplicate()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Dup);
         }
 
         public void LoadLength()
@@ -307,6 +380,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Blt, label);
         }
 
+        public void BranchIfEqual(Label label)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Beq, label);
+        }
+
         public void Pop()
         {
             EmitQueuedAppends();
@@ -340,12 +419,34 @@ namespace Jsonics
             _generator.Emit(OpCodes.Add);
         }
 
+        public void Subtract()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Sub);
+        }
+
         public void WriteConsoleInt()
         {
             EmitQueuedAppends();
             var temp = _generator.DeclareLocal(typeof(int));
             _generator.Emit(OpCodes.Stloc, temp);
             _generator.EmitWriteLine(temp);
+        }
+
+        public void WriteConsole(string str)
+        {
+            _generator.EmitWriteLine(str);
+        }
+
+        public void WriteConsole(LocalBuilder localBuilder)
+        {
+            _generator.EmitWriteLine(localBuilder);
+        }
+
+        public void Remainder()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Rem);
         }
 
     }

@@ -48,7 +48,7 @@ namespace Jsonics.PropertyHashing
             return bestHash;
         }
 
-        internal (int, int) FindBestMod(string[] properties, Func<string, int> getHash)
+        (int, int) FindBestMod(string[] properties, Func<string, int> getHash)
         {
             int[] primesToTry = new int[]
             {
@@ -86,7 +86,7 @@ namespace Jsonics.PropertyHashing
             return (bestMod, numberOfCollisions);
         }
 
-        internal int CollisionsForMod(string[] properties, Func<string, int> getHash, int mod)
+        int CollisionsForMod(string[] properties, Func<string, int> getHash, int mod)
         {
             var hashes = new HashSet<int>();
             int collisionsFound = 0;
@@ -101,7 +101,7 @@ namespace Jsonics.PropertyHashing
             return collisionsFound;
         }
 
-        internal ColumnCollisions[] FindColumnCollisions(string[] properties)
+        ColumnCollisions[] FindColumnCollisions(string[] properties)
         {
             int longestProperty = properties.Max(property => property.Length);
             var collisions = new ColumnCollisions[longestProperty];

@@ -2,6 +2,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Linq;
+using Jsonics.PropertyHashing;
+using Jsonics.FromJson;
+using System.Collections.Generic;
 
 namespace Jsonics
 {
@@ -22,6 +26,85 @@ namespace Jsonics
             ConstructorInfo attributeConstructor = typeof(ThreadStaticAttribute).GetTypeInfo().GetConstructor(new Type[]{});
             builderField.SetCustomAttribute(attributeConstructor, new byte[]{01,00,00,00});
 
+            CreateToJsonMethod<T>(typeBuilder, builderField);
+
+            CreateFromJsonMethod<T>(typeBuilder);
+
+
+            var typeInfo = typeBuilder.CreateTypeInfo();
+            var myType = typeInfo.AsType();
+
+            return (IJsonConverter<T>)Activator.CreateInstance(myType);
+        }
+
+        static void CreateFromJsonMethod<T>(TypeBuilder typeBuilder)
+        {
+            var type = typeof(T);
+            var methodBuilder = typeBuilder.DefineMethod(
+                "FromJson",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                type,
+                new Type[] { typeof(string) });
+
+            var jsonILGenerator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
+
+            var objectEmitter = new ObjectFromJsonEmitter();
+
+            //new LazyString(input)
+            var lazyStringLocal = jsonILGenerator.DeclareLocal<LazyString>();
+            jsonILGenerator.LoadLocalAddress(lazyStringLocal);
+            jsonILGenerator.LoadArg(typeof(string), 1);
+            var lazyStringConstructor = typeof(LazyString).GetTypeInfo().GetConstructor(new Type[]{typeof(string)});
+            jsonILGenerator.Call(lazyStringConstructor);
+
+            //inputIndex = 0
+            var indexLocal = jsonILGenerator.DeclareLocal<int>();
+            jsonILGenerator.LoadConstantInt32(0);
+            jsonILGenerator.StoreLocal(indexLocal);
+
+
+            if(type == typeof(string))
+            {
+            }
+            else if(type == typeof(int) || type.GetTypeInfo().IsEnum)
+            {
+            }
+            else if(type == typeof(uint) ||
+                type == typeof(long) || type == typeof(ulong) ||
+                type == typeof(byte) || type == typeof(sbyte) ||
+                type == typeof(short) || type == typeof(ushort) ||
+                type == typeof(float) || type == typeof(double))
+            {
+            }
+            else if(type == typeof(bool))
+            {
+            }
+            else if(type.IsArray)
+            {
+            }
+            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+            }
+            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+            }
+            else if(type == typeof(DateTime))
+            {
+            }
+            else if(type == typeof(Guid))
+            {
+            }
+            else if(type.GetTypeInfo().IsValueType)
+            {
+            }
+            else
+            {
+                objectEmitter.EmitObject(type, lazyStringLocal, jsonILGenerator, indexLocal);
+            }
+        }
+
+        static void CreateToJsonMethod<T>(TypeBuilder typeBuilder, FieldBuilder builderField)
+        {
             var methodBuilder = typeBuilder.DefineMethod(
                 "ToJson",
                 MethodAttributes.Public | MethodAttributes.Virtual,
@@ -50,12 +133,6 @@ namespace Jsonics
             jsonILGenerator.CallToString();
 
             jsonILGenerator.Return();
-
-
-            var typeInfo = typeBuilder.CreateTypeInfo();
-            var myType = typeInfo.AsType();
-
-            return (IJsonConverter<T>)Activator.CreateInstance(myType);
         }
 
         

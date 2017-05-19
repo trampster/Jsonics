@@ -1,3 +1,7 @@
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+
 namespace Jsonics.PropertyHashing
 {
     public class PropertyHash
@@ -14,6 +18,30 @@ namespace Jsonics.PropertyHashing
                 return property.Length % ModValue;
             }
             return property[Column % property.Length] % ModValue;
+        }
+
+        public LocalBuilder EmitHash(JsonILGenerator generator, LocalBuilder propertyNameLocal)
+        {
+            var hashLocal = generator.DeclareLocal<int>();
+            if(UseLength)
+            {
+                generator.LoadLocalAddress(propertyNameLocal);
+                generator.Call(typeof(LazyString).GetRuntimeMethod("get_Length", new Type[0]));
+                generator.LoadConstantInt32(this.ModValue);
+                generator.Remainder();
+                generator.StoreLocal(hashLocal);
+                return hashLocal;
+            }
+            generator.LoadLocalAddress(propertyNameLocal);
+            generator.LoadConstantInt32(this.Column);
+            generator.LoadLocalAddress(propertyNameLocal);
+            generator.Call(typeof(LazyString).GetRuntimeMethod("get_Length", new Type[0]));
+            generator.Remainder();
+            generator.Call(typeof(LazyString).GetRuntimeMethod("At", new Type[]{typeof(int)}));
+            generator.LoadConstantInt32(this.ModValue);
+            generator.Remainder();
+            generator.StoreLocal(hashLocal);
+            return hashLocal;
         }
 
         public bool IsBetterHash(PropertyHash otherHash)
