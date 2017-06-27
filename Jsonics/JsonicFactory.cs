@@ -48,7 +48,6 @@ namespace Jsonics
 
             var jsonILGenerator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
 
-            var objectEmitter = new ObjectFromJsonEmitter();
 
             //new LazyString(input)
             var lazyStringLocal = jsonILGenerator.DeclareLocal<LazyString>();
@@ -99,7 +98,8 @@ namespace Jsonics
             }
             else
             {
-                objectEmitter.EmitObject(type, lazyStringLocal, jsonILGenerator, indexLocal);
+                var objectEmitter = new ObjectFromJsonEmitter(type, lazyStringLocal, jsonILGenerator, indexLocal);
+                objectEmitter.EmitObject();
             }
         }
 

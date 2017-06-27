@@ -386,6 +386,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Beq, label);
         }
 
+        public void BranchIfNotEqualUnsigned(Label label)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Bne_Un, label);
+        }
+
         public void Pop()
         {
             EmitQueuedAppends();
@@ -447,6 +453,12 @@ namespace Jsonics
         {
             EmitQueuedAppends();
             _generator.Emit(OpCodes.Rem);
+        }
+
+        public void Switch(Label[] labels)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Switch, labels);          
         }
 
     }
