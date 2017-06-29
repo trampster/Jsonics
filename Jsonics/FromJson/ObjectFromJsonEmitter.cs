@@ -47,18 +47,18 @@ namespace Jsonics.FromJson
             _generator.Mark(loopStart);
 
             //read to start of property
+            // int indexOfQuote = json.ReadTo(inputIndex, '\"');
             _generator.LoadLocalAddress(_lazyStringLocal);
             _generator.LoadLocal(_indexLocal);
             _generator.LoadConstantInt32('\"');
             var readToMethod = typeof(LazyString).GetRuntimeMethod("ReadTo", new Type[]{typeof(int), typeof(char)});
             _generator.Call(readToMethod);
-            _indexOfQuoteLocal = _generator.DeclareLocal<int>();
-            _generator.StoreLocal(_indexOfQuoteLocal);
 
-            //read property name
-            _generator.LoadLocal(_indexOfQuoteLocal);
+            //int propertyStart = indexOfQuote + 1;
             _generator.LoadConstantInt32(1);
             _generator.Add();
+
+            //int propertyEnd = json.ReadTo(propertyStart, '\"');
             _propertyStartLocal = _generator.DeclareLocal<int>();
             _generator.StoreLocal(_propertyStartLocal);
             _generator.LoadLocalAddress(_lazyStringLocal);
@@ -67,6 +67,8 @@ namespace Jsonics.FromJson
             _generator.Call(readToMethod);
             _propertyEndLocal = _generator.DeclareLocal<int>();
             _generator.StoreLocal(_propertyEndLocal);
+
+            //var propertyName = json.SubString(propertyStart, propertyEnd - propertyStart);
             _generator.LoadLocalAddress(_lazyStringLocal);
             _generator.LoadLocal(_propertyStartLocal);
             _generator.LoadLocal(_propertyEndLocal);
@@ -88,6 +90,7 @@ namespace Jsonics.FromJson
             _propertyValueStartLocal = _generator.DeclareLocal<int>();
             _generator.StoreLocal(_propertyValueStartLocal);
 
+            //properties
             var unknownPropertyLabel = _generator.DefineLabel();
             var propertiesQuery = 
                 from property in _jsonObjectType.GetRuntimeProperties()
@@ -141,7 +144,6 @@ namespace Jsonics.FromJson
                     EmitIfGroup(switchGroup, propertyHandlers, unknownPropertyLabel, loopCheckLabel);
                     continue;
                 }
-                //TODO switch statements
                 EmitSwitchGroup(switchGroup, propertyHandlers, unknownPropertyLabel, loopCheckLabel);
             }
             
@@ -184,8 +186,11 @@ namespace Jsonics.FromJson
             }
             //substract
             _generator.LoadLocal(_hashLocal);
-            _generator.LoadConstantInt32(offset);
-            _generator.Subtract();
+            if(offset != 0)
+            {
+                _generator.LoadConstantInt32(offset);
+                _generator.Subtract();
+            }
 
             //switch
             _generator.Switch(jumpTable.ToArray());
@@ -213,12 +218,12 @@ namespace Jsonics.FromJson
             _generator.LoadLocal(_propertyValueStartLocal);
             Type tupleType = LazyStringCallToX<int>("ToInt", _generator);
             _generator.Duplicate();
-            _generator.LoadField(tupleType.GetRuntimeField("Item1"));
-            var propertyValueLocal = _generator.DeclareLocal(property.PropertyType);
-            _generator.StoreLocal(propertyValueLocal);
+
             _generator.LoadField(tupleType.GetRuntimeField("Item2"));
             _generator.StoreLocal(_indexLocal);
-            _generator.LoadLocal(propertyValueLocal);
+
+            _generator.LoadField(tupleType.GetRuntimeField("Item1"));
+            
             _generator.CallVirtual(_jsonObjectType.GetRuntimeMethod($"set_{property.Name}", new Type[]{property.PropertyType}));
             _generator.Branch(loopCheckLabel);
         }
