@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using Jsonics;
 using Jsonics.PropertyHashing;
+using JsonicsTest.Deserialization;
 using JsonicsTests.FromJsonTests;
 using NUnitLite;
 
@@ -20,16 +21,10 @@ namespace JsonicsTest
             // Console.WriteLine($"AAAA: {hash.Hash("AAAA")}");
             // Console.WriteLine($"AAAB: {hash.Hash("AAAB")}");
             // Console.WriteLine($"BAAA: {hash.Hash("BAAA")}");
-            
-           // var test = new IntPropertyTests();
-            //test.FromJson_ThreeProperties_PropertiesSetCorrectly();
 
             new AutoRun(typeof(JsonicsTest).GetTypeInfo().Assembly).Execute(args);
 
             // string json = "{\"First\":1,\"Extra\":1,\"Secon\":2}";
-
-            
-
             // var example = new Example();
 
             // Time("Example", () => 
@@ -64,7 +59,6 @@ namespace JsonicsTest
             //         NetJSON.NetJSON.Deserialize(typeof(TestClass), json);
             //     }
             // });
-
         }
 
         static void Time(string name, Action action)

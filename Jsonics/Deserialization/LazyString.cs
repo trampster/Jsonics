@@ -181,6 +181,7 @@ namespace Jsonics
             character = _buffer[start];
             if(!IsNumber(character)) goto Return;
             soFar = (soFar*10) + character - '0';
+            start++;
 
             Return:
             return (soFar * sign, start - _start) ;

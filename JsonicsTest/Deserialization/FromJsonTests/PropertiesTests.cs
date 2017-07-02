@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace JsonicsTests.FromJsonTests
 {
     [TestFixture]
-    public class IntPropertyTests
+    public class PropertyTests
     {
         [Test]
         public void FromJson_TwoProperties_ReturnsClassInstance()

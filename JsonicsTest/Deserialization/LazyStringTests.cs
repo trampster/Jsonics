@@ -155,5 +155,18 @@ namespace JsonicsTest.Deserialization
             //assert
             Assert.That(index, Is.EqualTo(2));
         }
+
+        [Test]
+        public void ToInt_MaxValue_CorrectAfterIndex()
+        {
+            //arrange
+            var lazyString = new LazyString($":{int.MaxValue}}}");
+
+            //act
+            (int number, int index) = lazyString.ToInt(1);
+
+            //assert
+            Assert.That(index, Is.EqualTo(11));
+        }
     }
 }

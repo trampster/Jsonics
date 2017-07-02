@@ -82,7 +82,7 @@ namespace Jsonics.FromJson
             _generator.LoadConstantInt32(1);
             _generator.Add();
             _generator.LoadConstantInt32(':');
-            _generator.Call(typeof(LazyString).GetRuntimeMethod("ReadTo", new Type[]{typeof(int), typeof(char)}));
+            _generator.Call(readToMethod);
             _generator.LoadConstantInt32(1);
             _generator.Add();
             _propertyValueStartLocal = _generator.DeclareLocal<int>();
@@ -100,7 +100,7 @@ namespace Jsonics.FromJson
             //unknown property
             _generator.Mark(unknownPropertyLabel);
             _generator.LoadLocalAddress(_lazyStringLocal);
-            _generator.LoadLocal(_propertyStartLocal);
+            _generator.LoadLocal(_propertyValueStartLocal);
             _generator.Call(typeof(LazyString).GetRuntimeMethod("ReadToPropertyValueEnd", new Type[]{typeof(int)}));
             _generator.StoreLocal(_indexLocal);
 
