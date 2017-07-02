@@ -15,11 +15,11 @@ namespace JsonicsTest
     {
         public static void Main(string[] args)
         {
-            // var hash = new Jsonics.PropertyHashing.PropertyHashFactory().FindBestHash(new string[]{"First", "Secon", "Third"});
+            // var hash = new Jsonics.PropertyHashing.PropertyHashFactory().FindBestHash(new string[]{"AAAA", "AAAB", "BAAA"});
             // Console.WriteLine($"Collisions: {hash.CollisionCount}");
-            // Console.WriteLine($"First: {hash.Hash("First")}");
-            // Console.WriteLine($"Secon: {hash.Hash("Secon")}");
-            // Console.WriteLine($"Third: {hash.Hash("Third")}");
+            // Console.WriteLine($"AAAA: {hash.Hash("AAAA")}");
+            // Console.WriteLine($"AAAB: {hash.Hash("AAAB")}");
+            // Console.WriteLine($"BAAA: {hash.Hash("BAAA")}");
             
            // var test = new IntPropertyTests();
             //test.FromJson_ThreeProperties_PropertiesSetCorrectly();

@@ -9,13 +9,11 @@ namespace Jsonics.FromJson
 {
     internal class ObjectFromJsonEmitter
     {
-        LocalBuilder _hashLocal;
         LocalBuilder _propertyNameLocal;
         LocalBuilder _jsonObjectLocal;
         readonly LocalBuilder _lazyStringLocal;
         LocalBuilder _propertyValueStartLocal;
         LocalBuilder _indexLocal;
-        LocalBuilder _indexOfQuoteLocal;
         LocalBuilder _propertyStartLocal;
         LocalBuilder _propertyEndLocal;
         readonly Type _jsonObjectType;
@@ -121,11 +119,24 @@ namespace Jsonics.FromJson
 
         public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
         {           
+            var propertyHandlers = new List<Action>();
+
+            EmitGroup(properties, propertyHandlers, loopCheckLabel, unknownPropertyLabel);
+
+            _generator.Branch(unknownPropertyLabel);
+            foreach(var propertyHandler in propertyHandlers)
+            {
+                propertyHandler();
+            }
+        }
+
+        void EmitGroup(PropertyInfo[] properties, List<Action> propertyHandlers, Label loopCheckLabel, Label unknownPropertyLabel)
+        {
             var propertyHashFactory = new PropertyHashFactory();
             var propertyNames = properties.Select(property => property.Name).ToArray();
             var hashFunction = propertyHashFactory.FindBestHash(propertyNames);
 
-            _hashLocal = hashFunction.EmitHash(_generator, _propertyNameLocal);
+            var hashLocal = hashFunction.EmitHash(_generator, _propertyNameLocal);
             var hashesQuery =
                 from property in properties
                 let hash = hashFunction.Hash(property.Name)
@@ -135,26 +146,19 @@ namespace Jsonics.FromJson
             
             var hashes = hashesQuery.ToArray();
             var switchGroups = FindSwitchGroups(hashes);
-            var propertyHandlers = new List<Action>();
             
             foreach(var switchGroup in switchGroups)
             {
                 if(switchGroup.Count <= 2)
                 {
-                    EmitIfGroup(switchGroup, propertyHandlers, unknownPropertyLabel, loopCheckLabel);
+                    EmitIfGroup(switchGroup, propertyHandlers, unknownPropertyLabel, loopCheckLabel, hashLocal);
                     continue;
                 }
-                EmitSwitchGroup(switchGroup, propertyHandlers, unknownPropertyLabel, loopCheckLabel);
-            }
-            
-            _generator.Branch(unknownPropertyLabel);
-            foreach(var propertyHandler in propertyHandlers)
-            {
-                propertyHandler();
+                EmitSwitchGroup(switchGroup, propertyHandlers, unknownPropertyLabel, loopCheckLabel, hashLocal);
             }
         }
 
-        void EmitSwitchGroup(SwitchGroup switchGroup, List<Action> propertyHandlers, Label unknownPropertyLabel, Label loopCheckLabel)
+        void EmitSwitchGroup(SwitchGroup switchGroup, List<Action> propertyHandlers, Label unknownPropertyLabel, Label loopCheckLabel, LocalBuilder hashLocal)
         {
             var jumpTable = new List<Label>();
             int tableIndex = 0;
@@ -185,7 +189,7 @@ namespace Jsonics.FromJson
                 tableIndex++;
             }
             //substract
-            _generator.LoadLocal(_hashLocal);
+            _generator.LoadLocal(hashLocal);
             if(offset != 0)
             {
                 _generator.LoadConstantInt32(offset);
@@ -205,7 +209,9 @@ namespace Jsonics.FromJson
             var subProperties = propertyHash.ToArray();
             if(subProperties.Length != 1)
             {
-                throw new NotImplementedException("need to nest because there is a hash collision");
+                //there was a hash collision so need to nest
+                EmitProperties(subProperties, loopCheckLabel, unknownPropertyLabel);
+                return;
             }
             var property = subProperties[0];
             _generator.LoadLocalAddress(_propertyNameLocal);
@@ -230,7 +236,7 @@ namespace Jsonics.FromJson
 
         void EmitIfGroup(
             SwitchGroup ifGroup, List<Action> propertyHandlers, 
-            Label unknownPropertyLabel, Label loopCheckLabel)
+            Label unknownPropertyLabel, Label loopCheckLabel, LocalBuilder hashLocal)
         {
             foreach(var hashGroup in ifGroup)
             {
@@ -241,7 +247,7 @@ namespace Jsonics.FromJson
                 }
                 int hash = hashGroup.Key;
                 var propertyLabel = _generator.DefineLabel();
-                _generator.LoadLocal(_hashLocal);
+                _generator.LoadLocal(hashLocal);
                 if(hash == 0)
                 {
                     _generator.BranchIfFalse(propertyLabel);

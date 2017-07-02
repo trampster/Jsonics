@@ -83,5 +83,41 @@ namespace JsonicsTests.FromJsonTests
             Assert.That(instance.Second, Is.EqualTo(2));
             Assert.That(instance.Third, Is.EqualTo(3));
         }
+
+        public class CollisionProperties
+        {
+            public int AAA
+            {
+                get;
+                set;
+            }
+
+            public int AAB
+            {
+                get;
+                set;
+            }
+
+            public int BAA
+            {
+                get;
+                set;
+            }
+        }
+
+        [Test]
+        public void FromJson_HashCollision_PropertiesSetCorrectly()
+        {
+            //arrange
+            var jsonConverter = JsonFactory.Compile<CollisionProperties>();
+
+            //act
+            var instance = jsonConverter.FromJson("{\"AAA\":1,\"AAB\":2,\"BAA\":3}");
+
+            //assert
+            Assert.That(instance.AAA, Is.EqualTo(1));
+            Assert.That(instance.AAB, Is.EqualTo(2));
+            Assert.That(instance.BAA, Is.EqualTo(3));
+        }
     }
 }
