@@ -61,46 +61,10 @@ namespace Jsonics
             jsonILGenerator.LoadConstantInt32(0);
             jsonILGenerator.StoreLocal(indexLocal);
 
-
-            if(type == typeof(string))
-            {
-            }
-            else if(type == typeof(int) || type.GetTypeInfo().IsEnum)
-            {
-            }
-            else if(type == typeof(uint) ||
-                type == typeof(long) || type == typeof(ulong) ||
-                type == typeof(byte) || type == typeof(sbyte) ||
-                type == typeof(short) || type == typeof(ushort) ||
-                type == typeof(float) || type == typeof(double))
-            {
-            }
-            else if(type == typeof(bool))
-            {
-            }
-            else if(type.IsArray)
-            {
-            }
-            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
-            {
-            }
-            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-            {
-            }
-            else if(type == typeof(DateTime))
-            {
-            }
-            else if(type == typeof(Guid))
-            {
-            }
-            else if(type.GetTypeInfo().IsValueType)
-            {
-            }
-            else
-            {
-                var objectEmitter = new ObjectFromJsonEmitter(type, lazyStringLocal, jsonILGenerator, indexLocal);
-                objectEmitter.EmitObject();
-            }
+            var emitters = new FromJsonEmitters(type, lazyStringLocal, jsonILGenerator);
+            emitters.Emit(indexLocal, type);
+            
+            jsonILGenerator.Return();
         }
 
         static void CreateToJsonMethod<T>(TypeBuilder typeBuilder, FieldBuilder builderField)

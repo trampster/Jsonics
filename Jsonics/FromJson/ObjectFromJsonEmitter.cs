@@ -7,29 +7,26 @@ using Jsonics.PropertyHashing;
 
 namespace Jsonics.FromJson
 {
-    internal class ObjectFromJsonEmitter
+    internal class ObjectFromJsonEmitter : FromJsonEmitter
     {
         LocalBuilder _propertyNameLocal;
         LocalBuilder _jsonObjectLocal;
-        readonly LocalBuilder _lazyStringLocal;
-        LocalBuilder _propertyValueStartLocal;
         LocalBuilder _indexLocal;
         LocalBuilder _propertyStartLocal;
         LocalBuilder _propertyEndLocal;
-        readonly Type _jsonObjectType;
-        readonly JsonILGenerator _generator;
+        Type _jsonObjectType;
 
-        public ObjectFromJsonEmitter(Type jsonObjectType, LocalBuilder lazyStringLocal, JsonILGenerator generator, LocalBuilder indexLocal)
+        public ObjectFromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+            : base(lazyStringLocal, generator, emitters)
         {
-            _jsonObjectType = jsonObjectType;
             _lazyStringLocal = lazyStringLocal;
             _generator = generator;
-            _indexLocal = indexLocal;
         }
 
-        public void EmitObject()
+        public override void Emit(LocalBuilder indexLocal, Type jsonObjectType)
         {
-            
+            _jsonObjectType = jsonObjectType;
+            _indexLocal = indexLocal;
             //construct object
             var constructor = _jsonObjectType.GetTypeInfo().GetConstructor(new Type[0]);
             _generator.NewObject(constructor);
@@ -85,8 +82,7 @@ namespace Jsonics.FromJson
             _generator.Call(readToMethod);
             _generator.LoadConstantInt32(1);
             _generator.Add();
-            _propertyValueStartLocal = _generator.DeclareLocal<int>();
-            _generator.StoreLocal(_propertyValueStartLocal);
+            _generator.StoreLocal(_indexLocal);
 
             //properties
             var unknownPropertyLabel = _generator.DefineLabel();
@@ -100,7 +96,7 @@ namespace Jsonics.FromJson
             //unknown property
             _generator.Mark(unknownPropertyLabel);
             _generator.LoadLocalAddress(_lazyStringLocal);
-            _generator.LoadLocal(_propertyValueStartLocal);
+            _generator.LoadLocal(_indexLocal);
             _generator.Call(typeof(LazyString).GetRuntimeMethod("ReadToPropertyValueEnd", new Type[]{typeof(int)}));
             _generator.StoreLocal(_indexLocal);
 
@@ -114,7 +110,6 @@ namespace Jsonics.FromJson
 
             //return
             _generator.LoadLocal(_jsonObjectLocal);
-            _generator.Return();
         }
 
         public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
@@ -220,15 +215,8 @@ namespace Jsonics.FromJson
             _generator.BranchIfFalse(unknownPropertyLabel);
             //Parse property value
             _generator.LoadLocal(_jsonObjectLocal);
-            _generator.LoadLocalAddress(_lazyStringLocal);
-            _generator.LoadLocal(_propertyValueStartLocal);
-            Type tupleType = LazyStringCallToX<int>("ToInt", _generator);
-            _generator.Duplicate();
 
-            _generator.LoadField(tupleType.GetRuntimeField("Item2"));
-            _generator.StoreLocal(_indexLocal);
-
-            _generator.LoadField(tupleType.GetRuntimeField("Item1"));
+            _emitters.Emit(_indexLocal, property.PropertyType);
             
             _generator.CallVirtual(_jsonObjectType.GetRuntimeMethod($"set_{property.Name}", new Type[]{property.PropertyType}));
             _generator.Branch(loopCheckLabel);
@@ -291,6 +279,31 @@ namespace Jsonics.FromJson
         {
             generator.Call(typeof(LazyString).GetRuntimeMethod(methodName, new Type[]{typeof(T)}));
             return typeof(ValueTuple<T,int>);
+        }
+
+        public override bool TypeSupported(Type type)
+        {
+            if(type.GetTypeInfo().IsValueType)
+            {
+                return false;
+            }
+            if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                return false;
+            }
+            if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                return false;
+            }
+            if(type.IsArray)
+            {
+                return false;
+            }
+            if(type == typeof(string))
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

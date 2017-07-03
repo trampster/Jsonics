@@ -29,7 +29,7 @@ namespace JsonicsTest
         [TestCase("JsonString","\"JsonString\"")]
         [TestCase("Json\"String","\"Json\\\"String\"")]
         [TestCase("","\"\"")]
-        public void ToJson_Int_CorrectJson(string input, string expectedJson)
+        public void ToJson_String_CorrectJson(string input, string expectedJson)
         {
             //arrange
             var converter = JsonFactory.Compile<string>();

@@ -23,7 +23,7 @@ namespace JsonicsTests.FromJsonTests
         public void FixtureSetup()
         {
             _propertyFactory = JsonFactory.Compile<IntClass>();
-            //_valueFactory = JsonFactory.Compile<int>();
+            _valueFactory = JsonFactory.Compile<int>();
         }
 
         [TestCase(0)]
@@ -39,6 +39,21 @@ namespace JsonicsTests.FromJsonTests
 
             //assert
             Assert.That(result.Property, Is.EqualTo(expected));
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(-1)]
+        [TestCase(int.MaxValue)]
+        [TestCase(int.MinValue)]
+        public void IntValue_CorrectlyDeserialized(int expected)
+        {
+            //arrange
+            //act
+            int result = _valueFactory.FromJson($"{expected}");
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
         }
     }
 }
