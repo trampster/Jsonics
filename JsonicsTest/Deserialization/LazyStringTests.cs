@@ -168,5 +168,21 @@ namespace JsonicsTest.Deserialization
             //assert
             Assert.That(index, Is.EqualTo(11));
         }
+
+        [TestCase("\"test\"", 0, 6, 0, "test")] // most basic example
+        [TestCase("\"te\\\"st\"", 0, 7, 0, "te\"st")] //with escaping
+        [TestCase("\"propety:\"name\",", 0, 16, 9, "name")] //index not at start
+        [TestCase("\"extrapropety:\"name\",", 5, 16, 9, "name")] //lazy string not at start
+        public void ToString_CorrectString(string lazy, int start, int length, int index, string expected)
+        {
+            //arrange
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (string result, int endIndex) = lazyString.ToString(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+        }
     }
 }

@@ -228,11 +228,6 @@ namespace Jsonics.FromJson
         {
             foreach(var hashGroup in ifGroup)
             {
-                if(hashGroup.ToArray()[0].PropertyType != typeof(int))
-                {
-                    //only support int at this time
-                    continue;
-                }
                 int hash = hashGroup.Key;
                 var propertyLabel = _generator.DefineLabel();
                 _generator.LoadLocal(hashLocal);
@@ -274,12 +269,6 @@ namespace Jsonics.FromJson
         }
 
         class SwitchGroup : List<IGrouping<int, PropertyInfo>>{}
-
-        Type LazyStringCallToX<T>(string methodName, JsonILGenerator generator)
-        {
-            generator.Call(typeof(LazyString).GetRuntimeMethod(methodName, new Type[]{typeof(T)}));
-            return typeof(ValueTuple<T,int>);
-        }
 
         public override bool TypeSupported(Type type)
         {

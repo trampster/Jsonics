@@ -12,7 +12,8 @@ namespace Jsonics.FromJson
         {
             _emitters = new List<FromJsonEmitter>();
             _emitters.Add(new IntEmitter(lazyStringLocal, generator, this));
-            _emitters.Add(new ObjectFromJsonEmitter(lazyStringLocal, generator, this));
+            _emitters.Add(new StringEmitter(lazyStringLocal, generator, this));
+            _emitters.Add(new ObjectFromJsonEmitterFactory(lazyStringLocal, generator, this));
         }
 
         public void Emit(LocalBuilder indexLocal, Type type)

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace Jsonics
 {
@@ -111,6 +112,41 @@ namespace Jsonics
         bool IsNumber(char character)
         {
             return character >= '0' && character <= '9';
+        }
+        static StringBuilder _builder = new StringBuilder();
+
+        public (string, int) ToString(int start)
+        {
+            _builder.Clear();
+            start = _start + start;
+
+            int index = start+1; //first char must be a " so we will skip it
+            while(true)
+            {
+                if(index > _start + _length)
+                {
+                    throw new Exception("Missing end of string value");
+                }
+                char value = _buffer[index];
+                if(value == '\\')
+                {
+                    //excape character which means the next char should always be included
+                    index++;
+                    _builder.Append(_buffer[index]);
+                    index++;
+                    continue;
+                }
+                if(value == '\"')
+                {
+                    //end of string value
+                    return (_builder.ToString(), _start + index);
+                }
+                _builder.Append(value);
+                index++;
+                
+            }
+            //we got to the end of the lazy string without finding the end of string character
+            throw new Exception("Missing end of string value");
         }
 
         public (int,int) ToInt(int start)
