@@ -90,7 +90,7 @@ namespace JsonicsTest.Deserialization
             var index = lazyString.ReadTo(0, 't');
 
             //assert
-            Assert.That(index, Is.EqualTo(3));
+            Assert.That(index, Is.EqualTo(1));
         }
 
         [Test]
@@ -171,8 +171,11 @@ namespace JsonicsTest.Deserialization
 
         [TestCase("\"test\"", 0, 6, 0, "test")] // most basic example
         [TestCase("\"te\\\"st\"", 0, 7, 0, "te\"st")] //with escaping
-        [TestCase("\"propety:\"name\",", 0, 16, 9, "name")] //index not at start
-        [TestCase("\"extrapropety:\"name\",", 5, 16, 9, "name")] //lazy string not at start
+        [TestCase("\"propety\":\"name\",", 0, 16, 9, "name")] //index not at start
+        [TestCase("\"extrapropety\":\"name\",", 6, 16, 9, "name")] //lazy string not at start
+        [TestCase("   \"test\"", 0, 6, 0, "test")] // whitespace at start
+        [TestCase("null", 0, 4, 0, null)] // null at start
+        [TestCase(" null", 0, 4, 0, null)] // null with whitespace at start
         public void ToString_CorrectString(string lazy, int start, int length, int index, string expected)
         {
             //arrange

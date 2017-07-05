@@ -22,9 +22,13 @@ namespace JsonicsTest
             // Console.WriteLine($"AAAB: {hash.Hash("AAAB")}");
             // Console.WriteLine($"BAAA: {hash.Hash("BAAA")}");
 
+            //var tests = new StringTests();
+            //tests.ThreeStringProperties_CorrectlyDeserialized();
+
             new AutoRun(typeof(JsonicsTest).GetTypeInfo().Assembly).Execute(args);
 
-            // string json = "{\"First\":1,\"Extra\":1,\"Secon\":2}";
+            // string json = "{\"First\":\"one\",\"Secon\":\"two\",\"Third\":\"three\"}";
+
             // var example = new Example();
 
             // Time("Example", () => 
@@ -73,19 +77,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public int First
+        public string First
         {
             get;
             set;
         }
 
-        public int Secon
+        public string Secon
         {
             get;
             set;
         }
 
-        public int Third
+        public string Third
         {
             get;
             set;
@@ -107,7 +111,7 @@ namespace JsonicsTest
 
             return _builder
                 .Clear()
-                .AppendInt((int)jsonObject.First)
+                .Append(jsonObject.First)
                 .ToString(); 
         }
 
@@ -161,7 +165,7 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = json.ToInt(intStart);
+                            (testClass.Third, inputIndex) = json.ToString(intStart);
                         }
                         else
                         {
@@ -171,7 +175,7 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = json.ToInt(intStart);
+                            (testClass.Secon, inputIndex) = json.ToString(intStart);
                         }
                         else
                         {
@@ -181,7 +185,7 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = json.ToInt(intStart);
+                            (testClass.First, inputIndex) = json.ToString(intStart);
                         }
                         else
                         {

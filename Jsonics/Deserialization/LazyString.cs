@@ -48,7 +48,7 @@ namespace Jsonics
             {
                 if(_buffer[index] == value)
                 {
-                    return index;
+                    return index - _start;
                 }
             }
             return -1;
@@ -113,20 +113,32 @@ namespace Jsonics
         {
             return character >= '0' && character <= '9';
         }
+        
+        [ThreadStatic]
         static StringBuilder _builder = new StringBuilder();
 
         public (string, int) ToString(int start)
         {
-            _builder.Clear();
-            start = _start + start;
-
-            int index = start+1; //first char must be a " so we will skip it
+            int index = start + _start;
             while(true)
             {
-                if(index > _start + _length)
+                var value = _buffer[index];
+                if(value == 'n')
                 {
-                    throw new Exception("Missing end of string value");
+                    //null
+                    return (null, index + 4);
                 }
+                else if(value == '\"')
+                {
+                    break;
+                }
+                index++;
+            }
+            _builder.Clear();
+
+            index++;
+            while(true)
+            {
                 char value = _buffer[index];
                 if(value == '\\')
                 {
@@ -136,10 +148,10 @@ namespace Jsonics
                     index++;
                     continue;
                 }
-                if(value == '\"')
+                else if(value == '\"')
                 {
                     //end of string value
-                    return (_builder.ToString(), _start + index);
+                    return (_builder.ToString(), _start + index + 1);
                 }
                 _builder.Append(value);
                 index++;

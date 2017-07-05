@@ -161,11 +161,6 @@ namespace Jsonics.FromJson
 
             foreach(var hashGroup in switchGroup)
             {
-                if(hashGroup.ToArray()[0].PropertyType != typeof(int))
-                {
-                    //only support int at this time
-                    continue;
-                }
                 int hashValueIndex = hashGroup.Key - offset;
                 while(tableIndex != hashValueIndex)
                 {
