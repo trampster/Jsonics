@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Jsonics.FromJson;
 
 namespace Jsonics
 {
@@ -85,7 +86,7 @@ namespace Jsonics
                     return index;
                 }
             }
-            return -1;
+            throw new InvalidJsonException("Property starting at {start + _start} didn't end.");
         }
 
         public char At(int index)
@@ -126,7 +127,7 @@ namespace Jsonics
                 if(value == 'n')
                 {
                     //null
-                    return (null, index + 4);
+                    return (null, index + 4 - _start);
                 }
                 else if(value == '\"')
                 {
@@ -151,14 +152,32 @@ namespace Jsonics
                 else if(value == '\"')
                 {
                     //end of string value
-                    return (_builder.ToString(), _start + index + 1);
+                    return (_builder.ToString(), index + 1 - _start);
                 }
                 _builder.Append(value);
                 index++;
                 
             }
             //we got to the end of the lazy string without finding the end of string character
-            throw new Exception("Missing end of string value");
+            throw new InvalidJsonException("Missing end of string value");
+        }
+
+        public (bool,int) ToBool(int start)
+        {
+            int index = start + _start;
+            while(true)
+            {
+                var value = _buffer[index];
+                if(value == 't')
+                {
+                    return (true, index + 4 - _start);
+                }
+                else if(value == 'f')
+                {
+                    return (false, index + 5 - _start);
+                }
+                index++;
+            }
         }
 
         public (int,int) ToInt(int start)

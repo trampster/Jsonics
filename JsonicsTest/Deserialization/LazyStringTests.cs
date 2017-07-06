@@ -187,5 +187,23 @@ namespace JsonicsTest.Deserialization
             //assert
             Assert.That(result, Is.EqualTo(expected));
         }
+
+
+        [TestCase("true", 0, 4, 0, true)]
+        [TestCase("false", 0, 5, 0, false)]
+        [TestCase(" true", 0, 5, 0, true)]
+        [TestCase(" false", 0, 6, 0, false)]
+        [TestCase("\"property\":true", 11, 4, 0, true)]
+        [TestCase("\"property\":false", 11, 5, 0, false)]
+        public void ToBool_CorrectBool(string lazy, int start, int length, int index, bool expected)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (bool result, int endIndex) = lazyString.ToBool(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+        }
     }
 }

@@ -16,53 +16,47 @@ namespace JsonicsTest
     {
         public static void Main(string[] args)
         {
-            // var hash = new Jsonics.PropertyHashing.PropertyHashFactory().FindBestHash(new string[]{"AAAA", "AAAB", "BAAA"});
-            // Console.WriteLine($"Collisions: {hash.CollisionCount}");
-            // Console.WriteLine($"AAAA: {hash.Hash("AAAA")}");
-            // Console.WriteLine($"AAAB: {hash.Hash("AAAB")}");
-            // Console.WriteLine($"BAAA: {hash.Hash("BAAA")}");
-
-            //var tests = new StringTests();
-            //tests.ThreeStringProperties_CorrectlyDeserialized();
-
             new AutoRun(typeof(JsonicsTest).GetTypeInfo().Assembly).Execute(args);
+        }
 
-            // string json = "{\"First\":\"one\",\"Secon\":\"two\",\"Third\":\"three\"}";
+        public static void Benchmark()
+        {
+            string json = "{\"First\":true,\"Secon\":false,\"Third\":true}";
 
-            // var example = new Example();
+            var example = new Example();
 
-            // Time("Example", () => 
-            // {
-            //     for(int index = 0; index < 1000000; index ++)
-            //     {
-            //         example.FromJson(json);
-            //     }
-            // });
+            Time("Example", () => 
+            {
+                for(int index = 0; index < 1000000; index ++)
+                {
+                    example.FromJson(json);
+                }
+            });
 
-            // var compiled = JsonFactory.Compile<TestClass>();
-            // Time("Compiled", () => 
-            // {
-            //     for(int index = 0; index < 1000000; index ++)
-            //     {
-            //         compiled.FromJson(json);
-            //     }
-            // });
+            var compiled = JsonFactory.Compile<TestClass>();
+            Time("Compiled", () => 
+            {
+                for(int index = 0; index < 1000000; index ++)
+                {
+                    compiled.FromJson(json);
+                }
+            });
 
-            // Time("Newtonsoft", () => 
-            // {
-            //     for(int index = 0; index < 1000000; index ++)
-            //     {
-            //         Newtonsoft.Json.JsonConvert.DeserializeObject<TestClass>(json);
-            //     }
-            // });
+            Time("Newtonsoft", () => 
+            {
+                for(int index = 0; index < 1000000; index ++)
+                {
+                    Newtonsoft.Json.JsonConvert.DeserializeObject<TestClass>(json);
+                }
+            });
 
-            // Time("NetJson", () => 
-            // {
-            //     for(int index = 0; index < 1000000; index ++)
-            //     {
-            //         NetJSON.NetJSON.Deserialize(typeof(TestClass), json);
-            //     }
-            // });
+            Time("NetJson", () => 
+            {
+                for(int index = 0; index < 1000000; index ++)
+                {
+                    NetJSON.NetJSON.Deserialize(typeof(TestClass), json);
+                }
+            });
         }
 
         static void Time(string name, Action action)
@@ -77,19 +71,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public string First
+        public bool First
         {
             get;
             set;
         }
 
-        public string Secon
+        public bool Secon
         {
             get;
             set;
         }
 
-        public string Third
+        public bool Third
         {
             get;
             set;
@@ -165,7 +159,7 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = json.ToString(intStart);
+                            (testClass.Third, inputIndex) = json.ToBool(intStart);
                         }
                         else
                         {
@@ -175,7 +169,7 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = json.ToString(intStart);
+                            (testClass.Secon, inputIndex) = json.ToBool(intStart);
                         }
                         else
                         {
@@ -185,7 +179,7 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = json.ToString(intStart);
+                            (testClass.First, inputIndex) = json.ToBool(intStart);
                         }
                         else
                         {
