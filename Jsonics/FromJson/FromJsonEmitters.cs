@@ -11,9 +11,10 @@ namespace Jsonics.FromJson
         public FromJsonEmitters(Type jsonObjectType, LocalBuilder lazyStringLocal, JsonILGenerator generator)
         {
             _emitters = new List<FromJsonEmitter>();
-            _emitters.Add(new IntEmitter(lazyStringLocal, generator, this));
-            _emitters.Add(new BoolEmitter(lazyStringLocal, generator, this));
-            _emitters.Add(new StringEmitter(lazyStringLocal, generator, this));
+            _emitters.Add(new LazyStringEmitter<byte>(lazyStringLocal, generator, this, "ToByte"));
+            _emitters.Add(new LazyStringEmitter<int>(lazyStringLocal, generator, this, "ToInt"));
+            _emitters.Add(new LazyStringEmitter<bool>(lazyStringLocal, generator, this, "ToBool"));
+            _emitters.Add(new LazyStringEmitter<string>(lazyStringLocal, generator, this, "ToString"));
             _emitters.Add(new ObjectFromJsonEmitterFactory(lazyStringLocal, generator, this));
         }
 

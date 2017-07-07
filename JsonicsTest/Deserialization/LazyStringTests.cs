@@ -131,6 +131,7 @@ namespace JsonicsTest.Deserialization
         [TestCase("123456789",123456789)]
         [TestCase("2147483647", int.MaxValue)]
         [TestCase("-2147483648", int.MinValue)]
+        [TestCase(" 123", 123)]
         public void ToInt_JustValue_ReturnsValue(string numberString, int expected)
         {
             //arrange
@@ -201,6 +202,24 @@ namespace JsonicsTest.Deserialization
 
             //act
             (bool result, int endIndex) = lazyString.ToBool(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [TestCase("123", 0, 3, 0, 123)]
+        [TestCase(" 123", 0, 4, 1, 123)]
+        [TestCase(" 123", 0, 4, 0, 123)]
+        [TestCase("1", 0, 1, 0, 1)]
+        [TestCase("\"property\":255,", 11, 4, 0, 255)]
+        [TestCase("0", 0, 1, 0, 0)]
+        [TestCase("42", 0, 2, 0, 42)]
+        public void ToByte_CorrectBool(string lazy, int start, int length, int index, byte expected)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (byte result, int endIndex) = lazyString.ToByte(index);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));

@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace JsonicsTest
 
         public static void Benchmark()
         {
-            string json = "{\"First\":true,\"Secon\":false,\"Third\":true}";
+            string json = "{\"First\":1,\"Secon\":255,\"Third\":2}";
 
             var example = new Example();
 
@@ -71,19 +71,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public bool First
+        public byte First
         {
             get;
             set;
         }
 
-        public bool Secon
+        public byte Secon
         {
             get;
             set;
         }
 
-        public bool Third
+        public byte Third
         {
             get;
             set;
@@ -159,7 +159,7 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = json.ToBool(intStart);
+                            (testClass.Third, inputIndex) = json.ToByte(intStart);
                         }
                         else
                         {
@@ -169,7 +169,7 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = json.ToBool(intStart);
+                            (testClass.Secon, inputIndex) = json.ToByte(intStart);
                         }
                         else
                         {
@@ -179,7 +179,7 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = json.ToBool(intStart);
+                            (testClass.First, inputIndex) = json.ToByte(intStart);
                         }
                         else
                         {

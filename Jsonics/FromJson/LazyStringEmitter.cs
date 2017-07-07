@@ -4,18 +4,21 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson
 {
-    public class IntEmitter : FromJsonEmitter
+    public class LazyStringEmitter<T> : FromJsonEmitter
     {
-        public IntEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+        readonly string _methodName;
+
+        public LazyStringEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, string methodName)
             : base(lazyStringLocal, generator, emitters)
         {
+            _methodName = methodName;
         }
         
         public override void Emit(LocalBuilder indexLocal, Type type)
         {
             _generator.LoadLocalAddress(_lazyStringLocal);
             _generator.LoadLocal(indexLocal);
-            Type tupleType = LazyStringCallToX<int>("ToInt", _generator);
+            Type tupleType = LazyStringCallToX<T>(_methodName, _generator);
             _generator.Duplicate();
 
             _generator.LoadField(tupleType.GetRuntimeField("Item2"));
@@ -26,7 +29,7 @@ namespace Jsonics.FromJson
 
         public override bool TypeSupported(Type type)
         {
-            return type == typeof(int);
+            return type == typeof(T);
         }
     }
 }

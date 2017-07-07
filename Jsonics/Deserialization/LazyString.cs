@@ -180,78 +180,132 @@ namespace Jsonics
             }
         }
 
-        public (int,int) ToInt(int start)
+         public (byte,int) ToByte(int start)
         {
-            start = start + _start;
-            int sign = 1;
-            if(_buffer[start] == '-')
+            int index = start + _start;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
             {
-                start++;
-                sign = -1;
+                character = _buffer[index];
+                if(IsNumber(character))
+                {
+                    break;
+                }
+                index++;
             }
-            int soFar = 0;
 
-            char character = _buffer[start];
+            int end = _start + _length;
+            //read byte
+            int soFar = 0;
             if(!IsNumber(character)) goto Return;
             soFar += character - '0';
 
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
             if(!IsNumber(character)) goto Return;
             soFar = (soFar*10) + character - '0';
 
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
             if(!IsNumber(character)) goto Return;
             soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-
-            start++;
-            if(start >= _length) goto Return;
-            character = _buffer[start];
-            if(!IsNumber(character)) goto Return;
-            soFar = (soFar*10) + character - '0';
-            start++;
+            
+            index++;
 
             Return:
-            return (soFar * sign, start - _start) ;
+            return ((byte)soFar, index - _start) ;
+        }    
+
+        public (int,int) ToInt(int start)
+        {
+            int index = start + _start;
+            int sign = 1;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(IsNumber(character))
+                {
+                    break;
+                }
+                else if(character == '-')
+                {
+                    index++;
+                    sign = -1;
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+            int soFar = 0;
+            
+
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar += character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+            index++;
+
+            Return:
+            return (soFar * sign, index - _start) ;
         }
     }
 }
