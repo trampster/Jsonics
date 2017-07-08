@@ -180,7 +180,7 @@ namespace Jsonics
             }
         }
 
-         public (byte,int) ToByte(int start)
+        public (byte,int) ToByte(int start)
         {
             int index = start + _start;
             //skip any whitespace at start
@@ -217,7 +217,13 @@ namespace Jsonics
 
             Return:
             return ((byte)soFar, index - _start) ;
-        }    
+        }
+
+        public (short, int) ToShort(int start)
+        {
+            (int result, int index) = ToInt(start);
+            return ((short)result, index);
+        }
 
         public (int,int) ToInt(int start)
         {

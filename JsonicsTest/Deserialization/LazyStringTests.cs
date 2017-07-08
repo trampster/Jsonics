@@ -224,5 +224,27 @@ namespace JsonicsTest.Deserialization
             //assert
             Assert.That(result, Is.EqualTo(expected));
         }
+
+        [TestCase("1",1,1)]
+        [TestCase("12",12,2)]
+        [TestCase("123",123,3)]
+        [TestCase("-123",-123,4)]
+        [TestCase("1234",1234,4)]
+        [TestCase("12345",12345,5)]
+        [TestCase("32767", short.MaxValue,5)]
+        [TestCase("-32768", short.MinValue,6)]
+        [TestCase(" 123", 123, 4)]
+        public void ToShort_JustValue_ReturnsValue(string numberString, int expectedValue, int expectedIndex)
+        {
+            //arrange
+            var lazyString = new LazyString(numberString);
+
+            //act
+            (int number, int index) = lazyString.ToShort(0);
+
+            //assert
+            Assert.That(number, Is.EqualTo(expectedValue));
+            Assert.That(index, Is.EqualTo(expectedIndex));
+        }
     }
 }
