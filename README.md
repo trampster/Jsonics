@@ -9,7 +9,7 @@ High performance Json Library for c#. Jsonics stands for JSON In C Sharp. Jsonic
     string jsonstring = jsonCoverter.ToJson(new Person(){FirstName="Luke", LastName="Skywalker"});
     
     //deserialize a person json string
-    Person person = jsonCoverter.ToJson(jsonString);
+    Person person = jsonCoverter.FromJson(jsonString);
 
 
 
