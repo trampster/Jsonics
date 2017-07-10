@@ -45,11 +45,11 @@ namespace JsonicsTests.FromJsonTests
         [TestCase(-1)]
         [TestCase(short.MaxValue)]
         [TestCase(short.MinValue)]
-        public void IntValue_CorrectlyDeserialized(int expected)
+        public void ShortValue_CorrectlyDeserialized(short expected)
         {
             //arrange
             //act
-            int result = _valueFactory.FromJson($"{expected}");
+            short result = _valueFactory.FromJson($"{expected}");
 
             //assert
             Assert.That(result, Is.EqualTo(expected));

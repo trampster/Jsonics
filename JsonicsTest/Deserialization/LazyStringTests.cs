@@ -272,5 +272,27 @@ namespace JsonicsTest.Deserialization
             Assert.That(result, Is.EqualTo(expected));
             Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
+
+        [TestCase("1", 0, 1, 0, (ushort)1, 1)]
+        [TestCase("12", 0, 2, 0, (ushort)12, 2)]
+        [TestCase("123", 0, 3, 0, (ushort)123, 3)]
+        [TestCase("1234", 0, 4, 0, (ushort)1234, 4)]
+        [TestCase("12345", 0, 5, 0, (ushort)12345, 5)]
+        [TestCase("65535", 0, 5, 0, ushort.MaxValue, 5)]
+        [TestCase("0", 0, 1, 0, ushort.MinValue, 1)]
+        [TestCase("\"property\":42,", 11, 2, 0, (ushort)42, 2)]
+        [TestCase(" 42", 0, 3, 0, (ushort)42, 3)]
+        [TestCase(" 42", 0, 3, 1, (ushort)42, 3)]
+        public void ToUShort_CorrectResult(string lazy, int start, int length, int index, ushort expected, int expectedEndIndex)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (ushort result, int endIndex) = lazyString.ToUShort(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
     }
 }

@@ -225,6 +225,12 @@ namespace Jsonics
             return ((short)result, index);
         }
 
+        public (ushort, int) ToUShort(int start)
+        {
+            (uint result, int index) = ToUInt(start);
+            return ((ushort)result, index);
+        }
+
         public (int,int) ToInt(int start)
         {
             int index = start + _start;
