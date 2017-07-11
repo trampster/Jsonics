@@ -294,5 +294,41 @@ namespace JsonicsTest.Deserialization
             Assert.That(result, Is.EqualTo(expected));
             Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
+
+        [TestCase("1", 0, 1, 0, (long)1, 1)]
+        [TestCase("-1", 0, 2, 0, (long)-1, 2)]
+        [TestCase("12", 0, 2, 0, (long)12, 2)]
+        [TestCase("123", 0, 3, 0, (long)123, 3)]
+        [TestCase("1234", 0, 4, 0, (long)1234, 4)]
+        [TestCase("12345", 0, 5, 0, (long)12345, 5)]
+        [TestCase("123456", 0, 6, 0, (long)123456, 6)]
+        [TestCase("1234567", 0, 7, 0, (long)1234567, 7)]
+        [TestCase("12345678", 0, 8, 0, (long)12345678, 8)]
+        [TestCase("123456789", 0, 9, 0, (long)123456789, 9)]
+        [TestCase("1234567890", 0, 10, 0, (long)1234567890, 10)]
+        [TestCase("12345678901", 0, 11, 0, (long)12345678901, 11)]
+        [TestCase("123456789012", 0, 12, 0, (long)123456789012, 12)]
+        [TestCase("1234567890123", 0, 13, 0, (long)1234567890123, 13)]
+        [TestCase("12345678901234", 0, 14, 0, (long)12345678901234, 14)]
+        [TestCase("123456789012345", 0, 15, 0, (long)123456789012345, 15)]
+        [TestCase("1234567890123456", 0, 16, 0, (long)1234567890123456, 16)]
+        [TestCase("12345678901234567", 0, 17, 0, (long)12345678901234567, 17)]
+        [TestCase("123456789012345678", 0, 18, 0, (long)123456789012345678, 18)]
+        [TestCase("9223372036854775807", 0, 19, 0, long.MaxValue, 19)]
+        [TestCase("-9223372036854775808", 0, 20, 0, long.MinValue, 20)]
+        [TestCase("\"property\":42,", 11, 2, 0, (long)42, 2)]
+        [TestCase(" 42", 0, 3, 0, (long)42, 3)]
+        [TestCase(" 42", 0, 3, 1, (long)42, 3)]
+        public void ToLong_CorrectResult(string lazy, int start, int length, int index, long expected, int expectedEndIndex)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (long result, int endIndex) = lazyString.ToLong(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
     }
 }

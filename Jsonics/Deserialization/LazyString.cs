@@ -401,5 +401,41 @@ namespace Jsonics
             Return:
             return (soFar, index - _start) ;
         }
+
+        public (long, int) ToLong(int start)
+        {
+            int index = start + _start;
+            int sign = 1;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(IsNumber(character))
+                {
+                    break;
+                }
+                else if(character == '-')
+                {
+                    index++;
+                    sign = -1;
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+            long soFar = 0;
+        
+            for(index = index+0; index < end; index++)
+            {
+                character = _buffer[index];
+                if(!IsNumber(character)) goto Return;
+                soFar = (soFar*10) + character - '0';
+            }
+
+            Return:
+            return (soFar * sign, index - _start) ;
+        }
     }
 }
