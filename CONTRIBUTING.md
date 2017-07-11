@@ -16,14 +16,14 @@ If you have questions about Jsoncs, please check out our wiki, or ask a question
 
 ## <a name="issue"></a> Issues and Bugs
 
-If you find a issue or bug in jsonics please submit and issue on the [Issue Tracker](https://github.com/trampster/Jsonics/issues)
+If you find a issue or bug in jsonics please submit and issue on the [Issue Tracker](https://github.com/trampster/Jsonics/issues). Make sure you add the bug label. If you have the skills to fix the problem yourself then you are welcome to submit a pull request.
 
 ## <a name="feature"></a> Feature Requests
-If you have a feature please submit and issue on the github Issue [Issue Tracker](https://github.com/trampster/Jsonics/issues)
+If you have a feature please submit and issue on the github Issue [Issue Tracker](https://github.com/trampster/Jsonics/issues) Make sure you add the enhancement label.
 
 ## <a name="pullrequest"></a> Submitting a Pull Request
 
-When submitting a pull request to the [GitHub Repository][github] make sure to do the following:
+When submitting a pull request make sure to do the following:
 
 - Match your code style to the existing code.
 - Check all the unit tests still pass.
