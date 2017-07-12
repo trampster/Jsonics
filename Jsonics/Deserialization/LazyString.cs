@@ -437,5 +437,34 @@ namespace Jsonics
             Return:
             return (soFar * sign, index - _start) ;
         }
+
+        public (ulong, int) ToULong(int start)
+        {
+            int index = start + _start;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(IsNumber(character))
+                {
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+            ulong soFar = 0;
+        
+            for(index = index+0; index < end; index++)
+            {
+                character = _buffer[index];
+                if(!IsNumber(character)) goto Return;
+                soFar = (soFar*10) + character - '0';
+            }
+
+            Return:
+            return (soFar, index - _start) ;
+        }
     }
 }
