@@ -430,11 +430,49 @@ namespace Jsonics
             for(index = index+0; index < end; index++)
             {
                 character = _buffer[index];
-                if(!IsNumber(character)) goto Return;
+                if(!IsNumber(character)) break;
                 soFar = (soFar*10) + character - '0';
             }
 
-            Return:
+            return (soFar * sign, index - _start) ;
+        }
+
+        public (long?, int) ToNullableLong(int start)
+        {
+            int index = start + _start;
+            int sign = 1;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(character == 'n')
+                {
+                    return (null, index + 4 - _start);
+                }
+                else if(IsNumber(character))
+                {
+                    break;
+                }
+                else if(character == '-')
+                {
+                    index++;
+                    sign = -1;
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+            long soFar = 0;
+        
+            for(index = index+0; index < end; index++)
+            {
+                character = _buffer[index];
+                if(!IsNumber(character)) break;
+                soFar = (soFar*10) + character - '0';
+            }
+
             return (soFar * sign, index - _start) ;
         }
 
@@ -459,11 +497,10 @@ namespace Jsonics
             for(index = index+0; index < end; index++)
             {
                 character = _buffer[index];
-                if(!IsNumber(character)) goto Return;
+                if(!IsNumber(character)) break;
                 soFar = (soFar*10) + character - '0';
             }
 
-            Return:
             return (soFar, index - _start) ;
         }
 
@@ -479,7 +516,7 @@ namespace Jsonics
                 {
                     return (null, index + 4 - _start);
                 }
-                if(IsNumber(character))
+                else if(IsNumber(character))
                 {
                     break;
                 }
@@ -492,11 +529,10 @@ namespace Jsonics
             for(index = index+0; index < end; index++)
             {
                 character = _buffer[index];
-                if(!IsNumber(character)) goto Return;
+                if(!IsNumber(character)) break;
                 soFar = (soFar*10) + character - '0';
             }
 
-            Return:
             return (soFar, index - _start) ;
         }
     }
