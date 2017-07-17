@@ -237,6 +237,12 @@ namespace Jsonics
             return ((ushort)result, index);
         }
 
+        public (ushort?, int) ToNullableUShort(int start)
+        {
+            (uint? result, int index) = ToNullableUInt(start);
+            return ((ushort?)result, index);
+        }
+
         public (int,int) ToInt(int start)
         {
             int index = start + _start;
