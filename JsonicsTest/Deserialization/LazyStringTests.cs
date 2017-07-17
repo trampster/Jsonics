@@ -190,13 +190,13 @@ namespace JsonicsTest.Deserialization
         }
 
 
-        [TestCase("true", 0, 4, 0, true)]
-        [TestCase("false", 0, 5, 0, false)]
-        [TestCase(" true", 0, 5, 0, true)]
-        [TestCase(" false", 0, 6, 0, false)]
-        [TestCase("\"property\":true", 11, 4, 0, true)]
-        [TestCase("\"property\":false", 11, 5, 0, false)]
-        public void ToBool_CorrectBool(string lazy, int start, int length, int index, bool expected)
+        [TestCase("true", 0, 4, 0, true, 4)]
+        [TestCase("false", 0, 5, 0, false, 5)]
+        [TestCase(" true", 0, 5, 0, true, 5)]
+        [TestCase(" false", 0, 6, 0, false, 6)]
+        [TestCase("\"property\":true", 11, 4, 0, true, 4)]
+        [TestCase("\"property\":false", 11, 5, 0, false, 5)]
+        public void ToBool_CorrectBool(string lazy, int start, int length, int index, bool expected, int expectedEndIndex)
         {
             var lazyString = new LazyString(lazy, start, length);
 
@@ -205,6 +205,28 @@ namespace JsonicsTest.Deserialization
 
             //assert
             Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
+
+        [TestCase("true", 0, 4, 0, true, 4)]
+        [TestCase("false", 0, 5, 0, false, 5)]
+        [TestCase(" true", 0, 5, 0, true, 5)]
+        [TestCase(" false", 0, 6, 0, false, 6)]
+        [TestCase("\"property\":true", 11, 4, 0, true, 4)]
+        [TestCase("\"property\":false", 11, 5, 0, false, 5)]
+        [TestCase("null", 0, 4, 0, null, 4)]
+        [TestCase(" null", 0, 5, 1, null, 5)]
+        [TestCase(" null", 1, 4, 0, null, 4)]
+        public void ToNullableBool_CorrectBool(string lazy, int start, int length, int index, bool? expected, int expectedEndIndex)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (bool? result, int endIndex) = lazyString.ToNullableBool(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
 
         [TestCase("123", 0, 3, 0, 123, 3)]
@@ -225,6 +247,7 @@ namespace JsonicsTest.Deserialization
 
             //assert
             Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
 
         [TestCase("123", 0, 3, 0, 123, 3)]
@@ -248,6 +271,7 @@ namespace JsonicsTest.Deserialization
 
             //assert
             Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
 
         [TestCase("1",1,1)]

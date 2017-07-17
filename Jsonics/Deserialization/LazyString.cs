@@ -180,6 +180,28 @@ namespace Jsonics
             }
         }
 
+        public (bool?, int) ToNullableBool(int start)
+        {
+            int index = start + _start;
+            while(true)
+            {
+                var character = _buffer[index];
+                if(character == 'n')
+                {
+                    return (null, index + 4 - _start);
+                }
+                else if(character == 't')
+                {
+                    return (true, index + 4 - _start);
+                }
+                else if(character == 'f')
+                {
+                    return (false, index + 5 - _start);
+                }
+                index++;
+            }
+        }
+
         public (byte,int) ToByte(int start)
         {
             int index = start + _start;
