@@ -162,7 +162,7 @@ namespace Jsonics
             throw new InvalidJsonException("Missing end of string value");
         }
 
-        public (bool,int) ToBool(int start)
+        public (bool, int) ToBool(int start)
         {
             int index = start + _start;
             while(true)
@@ -189,6 +189,49 @@ namespace Jsonics
             {
                 character = _buffer[index];
                 if(IsNumber(character))
+                {
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+            //read byte
+            int soFar = 0;
+            if(!IsNumber(character)) goto Return;
+            soFar += character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+            
+            index++;
+
+            Return:
+            return ((byte)soFar, index - _start) ;
+        }
+
+        public (byte?,int) ToNullableByte(int start)
+        {
+            int index = start + _start;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(character == 'n')
+                {
+                    return (null, index + 4 - _start);
+                }
+                else if(IsNumber(character))
                 {
                     break;
                 }

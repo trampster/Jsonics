@@ -207,19 +207,44 @@ namespace JsonicsTest.Deserialization
             Assert.That(result, Is.EqualTo(expected));
         }
 
-        [TestCase("123", 0, 3, 0, 123)]
-        [TestCase(" 123", 0, 4, 1, 123)]
-        [TestCase(" 123", 0, 4, 0, 123)]
-        [TestCase("1", 0, 1, 0, 1)]
-        [TestCase("\"property\":255,", 11, 4, 0, 255)]
-        [TestCase("0", 0, 1, 0, 0)]
-        [TestCase("42", 0, 2, 0, 42)]
-        public void ToByte_CorrectResult(string lazy, int start, int length, int index, byte expected)
+        [TestCase("123", 0, 3, 0, 123, 3)]
+        [TestCase(" 123", 0, 4, 1, 123, 4)]
+        [TestCase(" 123", 0, 4, 0, 123, 4)]
+        [TestCase("1", 0, 1, 0, 1, 1)]
+        [TestCase("\"property\":255,", 11, 4, 0, 255, 3)]
+        [TestCase("0", 0, 1, 0, 0, 1)]
+        [TestCase("42", 0, 2, 0, 42, 2)]
+        [TestCase("0", 0, 1, 0, byte.MinValue, 1)]
+        [TestCase("255", 0, 3, 0, byte.MaxValue, 3)]
+        public void ToByte_CorrectResult(string lazy, int start, int length, int index, byte expected, int expectedEndIndex)
         {
             var lazyString = new LazyString(lazy, start, length);
 
             //act
             (byte result, int endIndex) = lazyString.ToByte(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [TestCase("123", 0, 3, 0, 123, 3)]
+        [TestCase(" 123", 0, 4, 1, 123, 4)]
+        [TestCase(" 123", 0, 4, 0, 123, 4)]
+        [TestCase("1", 0, 1, 0, 1, 1)]
+        [TestCase("\"property\":255,", 11, 4, 0, 255, 3)]
+        [TestCase("0", 0, 1, 0, 0, 1)]
+        [TestCase("42", 0, 2, 0, 42, 2)]
+        [TestCase("0", 0, 1, 0, byte.MinValue, 1)]
+        [TestCase("255", 0, 3, 0, byte.MaxValue, 3)]
+        [TestCase("null", 0, 4, 0, null, 4)]
+        [TestCase(" null", 0, 5, 1, null, 5)]
+        [TestCase(" null", 1, 4, 0, null, 4)]
+        public void ToNullableByte_CorrectResult(string lazy, int start, int length, int index, byte? expected, int expectedEndIndex)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (byte? result, int endIndex) = lazyString.ToNullableByte(index);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));
