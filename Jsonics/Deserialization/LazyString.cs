@@ -320,6 +320,99 @@ namespace Jsonics
             return (soFar * sign, index - _start) ;
         }
 
+        public (int?,int) ToNullableInt(int start)
+        {
+            int index = start + _start;
+            int sign = 1;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(character == 'n')
+                {
+                    return (null, index + 4 - _start);
+                }
+                else if(IsNumber(character))
+                {
+                    break;
+                }
+                else if(character == '-')
+                {
+                    index++;
+                    sign = -1;
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+            int soFar = 0;
+            
+
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar += character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+
+            index++;
+            if(index >= end) goto Return;
+            character = _buffer[index];
+            if(!IsNumber(character)) goto Return;
+            soFar = (soFar*10) + character - '0';
+            index++;
+
+            Return:
+            return (soFar * sign, index - _start) ;
+        }
+
         public (uint,int) ToUInt(int start)
         {
             int index = start + _start;
