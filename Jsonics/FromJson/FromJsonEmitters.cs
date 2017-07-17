@@ -17,6 +17,7 @@ namespace Jsonics.FromJson
             _emitters.Add(new LazyStringEmitter<int>(lazyStringLocal, generator, this, "ToInt"));
             _emitters.Add(new LazyStringEmitter<int?>(lazyStringLocal, generator, this, "ToNullableInt"));
             _emitters.Add(new LazyStringEmitter<uint>(lazyStringLocal, generator, this, "ToUInt"));
+            _emitters.Add(new LazyStringEmitter<uint?>(lazyStringLocal, generator, this, "ToNullableUInt"));
             _emitters.Add(new LazyStringEmitter<long>(lazyStringLocal, generator, this, "ToLong"));
             _emitters.Add(new LazyStringEmitter<long?>(lazyStringLocal, generator, this, "ToNullableLong"));
             _emitters.Add(new LazyStringEmitter<ulong>(lazyStringLocal, generator, this, "ToULong"));

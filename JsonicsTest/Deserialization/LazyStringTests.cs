@@ -475,5 +475,35 @@ namespace JsonicsTest.Deserialization
             Assert.That(result, Is.EqualTo(expected));
             Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
+
+        [TestCase("1", 0, 1, 0, (uint)1, 1)]
+        [TestCase("12", 0, 2, 0, (uint)12, 2)]
+        [TestCase("123", 0, 3, 0, (uint)123, 3)]
+        [TestCase("1234", 0, 4, 0, (uint)1234, 4)]
+        [TestCase("12345", 0, 5, 0, (uint)12345, 5)]
+        [TestCase("123456", 0, 6, 0, (uint)123456, 6)]
+        [TestCase("1234567", 0, 7, 0, (uint)1234567, 7)]
+        [TestCase("12345678", 0, 8, 0, (uint)12345678, 8)]
+        [TestCase("123456789", 0, 9, 0, (uint)123456789, 9)]
+        [TestCase("1234567890", 0, 10, 0, (uint)1234567890, 10)]
+        [TestCase("4294967295", 0, 10, 0, uint.MaxValue, 10)]
+        [TestCase("0", 0, 1, 0, uint.MinValue, 1)]
+        [TestCase("\"property\":42,", 11, 2, 0, (uint)42, 2)]
+        [TestCase(" 42", 0, 3, 0, (uint)42, 3)]
+        [TestCase(" 42", 0, 3, 1, (uint)42, 3)]
+        [TestCase("null", 0, 4, 0, null, 4)]
+        [TestCase(" null", 0, 5, 1, null, 5)]
+        [TestCase(" null", 1, 4, 0, null, 4)]
+        public void ToNullableUInt_CorrectResult(string lazy, int start, int length, int index, uint? expected, int expectedEndIndex)
+        {
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (ulong? result, int endIndex) = lazyString.ToNullableUInt(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
     }
 }
