@@ -791,5 +791,89 @@ namespace Jsonics
 
             return (soFar, index - _start) ;
         }
+
+        public (double, int) ToDouble(int start)
+        {
+            int index = start + _start;
+            int sign = 1;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(IsNumber(character))
+                {
+                    break;
+                }
+                else if(character == '-')
+                {
+                    index++;
+                    sign = -1;
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+
+
+            double wholePart = 0;
+            for(index = index+0; index < end; index++)
+            {
+                character = _buffer[index];
+                if(!IsNumber(character)) break;
+                wholePart = (wholePart*10) + character - '0';
+            }
+
+            double fractionalPart = 0;
+            if(character == '.')
+            {
+                long fractionalValue = 0;
+                int factionalLength = 0;
+                for(index = index+1; index < end; index++)
+                {
+                    character = _buffer[index];
+                    if(!IsNumber(character)) break;
+                    fractionalValue = (fractionalValue*10) + character - '0';
+                    factionalLength++;
+                }
+                double divisor = Math.Pow(10, factionalLength);
+                fractionalPart = fractionalValue/divisor;
+            }
+            
+
+            int exponentPart = 0;
+            if(character == 'E' || character == 'e')
+            {
+                index++;
+                character = _buffer[index];
+                int exponentSign = 1;
+                if(character == '-')
+                {
+                    index++;
+                    exponentSign = -1;
+                }
+                else if(character == '+')
+                {
+                    index++;
+                }
+
+                for(index = index+0; index < end; index++)
+                {
+                    character = _buffer[index];
+                    if(!IsNumber(character)) break;
+                    exponentPart = (exponentPart*10) + character - '0';
+                }
+
+                exponentPart *= exponentSign;
+            }
+            else
+            {
+                return (sign*(wholePart + fractionalPart), index - _start);
+            }
+            double value = sign*(wholePart + fractionalPart) * Math.Pow(10, exponentPart);
+            return (value, index - _start);
+
+        }
     }
 }

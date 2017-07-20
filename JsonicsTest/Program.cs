@@ -21,7 +21,7 @@ namespace JsonicsTest
 
         public static void Benchmark()
         {
-            string json = "{\"First\":9223372036854775807,\"Secon\":0,\"Third\":-9223372036854775808}";
+            string json = "{\"First\":-12345.12345E54,\"Secon\":0,\"Third\":0.1234E-100}";
 
             var example = new Example();
 
@@ -71,19 +71,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public long First
+        public double First
         {
             get;
             set;
         }
 
-        public long Secon
+        public double Secon
         {
             get;
             set;
         }
 
-        public long Third
+        public double Third
         {
             get;
             set;
@@ -159,7 +159,7 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = json.ToLong(intStart);
+                            (testClass.Third, inputIndex) = json.ToDouble(intStart);
                         }
                         else
                         {
@@ -169,7 +169,7 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = json.ToLong(intStart);
+                            (testClass.Secon, inputIndex) = json.ToDouble(intStart);
                         }
                         else
                         {
@@ -179,7 +179,7 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = json.ToLong(intStart);
+                            (testClass.First, inputIndex) = json.ToDouble(intStart);
                         }
                         else
                         {
