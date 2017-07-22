@@ -965,5 +965,11 @@ namespace Jsonics
             (double value, int index) = ToDouble(start);
             return ((float)value, index);
         }
+
+        public (float?, int) ToNullableFloat(int start)
+        {
+            (double? value, int index) = ToNullableDouble(start);
+            return ((float?)value, index);
+        }
     }
 }
