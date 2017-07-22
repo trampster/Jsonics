@@ -634,5 +634,36 @@ namespace JsonicsTest.Deserialization
             Assert.That(result, Is.EqualTo(expected));
             Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
+
+        [TestCase("0", 0, 1, 0, (double)0, 1)]
+        [TestCase("1", 0, 1, 0, (double)1, 1)]
+        [TestCase("-1", 0, 2, 0, (double)-1, 2)]
+        [TestCase("123", 0, 3, 0, (double)123, 3)]
+        [TestCase("12.3", 0, 4, 0, (double)12.3, 4)]
+        [TestCase("123e12", 0, 6, 0, (double)123e12, 6)]
+        [TestCase("123e-12", 0, 7, 0, (double)123e-12, 7)]
+        [TestCase("123e+12", 0, 7, 0, (double)123e+12, 7)]
+        [TestCase("-123e-12", 0, 8, 0, (double)-123e-12, 8)]
+        [TestCase("-0.123e-12", 0, 10, 0, (double)-0.123e-12, 10)]
+        [TestCase("1.7976931348623157E+308", 0, 23, 0, double.MaxValue, 23)]
+        [TestCase("-1.7976931348623157E+308", 0, 24, 0, double.MinValue, 24)]
+        [TestCase(" 123e-12", 0, 8, 0, (double)123e-12, 8)]
+        [TestCase(" 123e-12", 1, 7, 0, (double)123e-12, 7)]
+        [TestCase(" 123e-12", 0, 8, 1, (double)123e-12, 8)]
+        [TestCase("null", 0, 4, 0, null, 4)]
+        [TestCase(" null", 0, 5, 1, null, 5)]
+        [TestCase(" null", 1, 4, 0, null, 4)]
+        public void ToNullableDouble_CorrectResult(string lazy, int start, int length, int index, double? expected, int expectedEndIndex)
+        {
+            //arrange
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (double? result, int endIndex) = lazyString.ToNullableDouble(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
     }
 }
