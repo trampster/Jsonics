@@ -959,5 +959,11 @@ namespace Jsonics
             double value = sign*(wholePart + fractionalPart) * Math.Pow(10, exponentPart);
             return (value, index - _start);
         }
+
+        public (float, int) ToFloat(int start)
+        {
+            (double value, int index) = ToDouble(start);
+            return ((float)value, index);
+        }
     }
 }
