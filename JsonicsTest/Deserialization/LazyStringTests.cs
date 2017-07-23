@@ -177,6 +177,15 @@ namespace JsonicsTest.Deserialization
         [TestCase("   \"test\"", 0, 6, 0, "test")] // whitespace at start
         [TestCase("null", 0, 4, 0, null)] // null at start
         [TestCase(" null", 0, 4, 0, null)] // null with whitespace at start
+        [TestCase("\"\\\\\"", 0, 4, 0, "\\")] // escaped backslash
+        [TestCase("\"\\\"\"", 0, 4, 0, "\"")] // escaped quote
+        [TestCase("\"\\/\"", 0, 4, 0, "/")] // escaped forward slash
+        [TestCase("\"\\b\"", 0, 4, 0, "\b")] // escaped backspace
+        [TestCase("\"\\f\"", 0, 4, 0, "\f")] // escaped formfeed
+        [TestCase("\"\\n\"", 0, 4, 0, "\n")] // escaped newline
+        [TestCase("\"\\r\"", 0, 4, 0, "\r")] // escaped carrage return
+        [TestCase("\"\\t\"", 0, 4, 0, "\t")] // escaped tab
+        [TestCase("\"\\u1234\"", 0, 8, 0, "\u1234")] // escaped tab
         public void ToString_CorrectString(string lazy, int start, int length, int index, string expected)
         {
             //arrange
