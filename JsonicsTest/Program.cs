@@ -21,7 +21,7 @@ namespace JsonicsTest
 
         public static void Benchmark()
         {
-            string json = "{\"First\":-12345.12345E54,\"Secon\":0,\"Third\":0.1234E-100}";
+            string json = "{\"First\":\"00000000-0000-0000-0000-000000000000\",\"Secon\":\"01234567-8901-2345-6789-ABCDEF012345\",\"Third\":\"FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF\"}";
 
             var example = new Example();
 
@@ -71,19 +71,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public double First
+        public Guid First
         {
             get;
             set;
         }
 
-        public double Secon
+        public Guid Secon
         {
             get;
             set;
         }
 
-        public double Third
+        public Guid Third
         {
             get;
             set;
@@ -159,7 +159,7 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = json.ToDouble(intStart);
+                            (testClass.Third, inputIndex) = json.ToGuid(intStart);
                         }
                         else
                         {
@@ -169,7 +169,7 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = json.ToDouble(intStart);
+                            (testClass.Secon, inputIndex) = json.ToGuid(intStart);
                         }
                         else
                         {
@@ -179,7 +179,7 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = json.ToDouble(intStart);
+                            (testClass.First, inputIndex) = json.ToGuid(intStart);
                         }
                         else
                         {

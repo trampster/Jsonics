@@ -1,3 +1,4 @@
+using System;
 using Jsonics;
 using NUnit.Framework;
 
@@ -728,6 +729,27 @@ namespace JsonicsTest.Deserialization
 
             //act
             (float? result, int endIndex) = lazyString.ToNullableFloat(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
+
+        [TestCase("\"00000001-0002-0003-0405-060708090a0b\"", 0, 38, 0, 38)]
+        [TestCase("\"FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF\"", 0, 38, 0, 38)]
+        [TestCase("\"00000000-0000-0000-0000-000000000000\"", 0, 38, 0, 38)]
+        [TestCase("\"01234567-8901-2345-6789-ABCDEF012345\"", 0, 38, 0, 38)]
+        [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 0, 39, 0, 39)]
+        [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 1, 38, 0, 38)]
+        [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 0, 39, 1, 39)]
+        public void ToGuide_CorrectResult(string lazy, int start, int length, int index, int expectedEndIndex)
+        {
+            //arrange
+            var lazyString = new LazyString(lazy, start, length);
+            var expected = new Guid(lazy.Substring(start, length).Substring(index).TrimStart().Substring(1, 36));
+
+            //act
+            (Guid result, int endIndex) = lazyString.ToGuid(index);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));

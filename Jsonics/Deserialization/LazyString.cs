@@ -1041,5 +1041,56 @@ namespace Jsonics
             (double? value, int index) = ToNullableDouble(start);
             return ((float?)value, index);
         }
+
+        public (Guid, int) ToGuid(int start)
+        {
+            start += _start;
+
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[start];
+                start++;
+                if(character ==  '\"')
+                {
+                    break;
+                }
+            }
+            uint a =
+                ((uint)FromHexChar(_buffer[start]) << 28) + 
+                ((uint)FromHexChar(_buffer[start + 1]) << 24) + 
+                (uint)(FromHexChar(_buffer[start + 2]) << 20) +
+                (uint)(FromHexChar(_buffer[start + 3]) << 16) +
+                (uint)(FromHexChar(_buffer[start + 4]) << 12) +
+                (uint)(FromHexChar(_buffer[start + 5]) << 8) +
+                (uint)(FromHexChar(_buffer[start + 6]) << 4) +
+                (uint)FromHexChar(_buffer[start + 7]);
+            
+            ushort b = (ushort)
+                ((FromHexChar(_buffer[start + 9]) << 12) +
+                (FromHexChar(_buffer[start + 10]) << 8) +
+                (FromHexChar(_buffer[start + 11]) << 4) +
+                FromHexChar(_buffer[start + 12]));
+
+            ushort c = (ushort)
+                ((FromHexChar(_buffer[start + 14]) << 12) +
+                (FromHexChar(_buffer[start + 15]) << 8) +
+                (FromHexChar(_buffer[start + 16]) << 4) +
+                FromHexChar(_buffer[start + 17]));
+
+            byte d = (byte)((FromHexChar(_buffer[start + 19]) << 4) + FromHexChar(_buffer[start + 20]));
+            byte e = (byte)((FromHexChar(_buffer[start + 21]) << 4) + FromHexChar(_buffer[start + 22]));
+
+            byte f = (byte)((FromHexChar(_buffer[start + 24]) << 4) + FromHexChar(_buffer[start + 25]));
+            byte g = (byte)((FromHexChar(_buffer[start + 26]) << 4) + FromHexChar(_buffer[start + 27]));
+            byte h = (byte)((FromHexChar(_buffer[start + 28]) << 4) + FromHexChar(_buffer[start + 29]));
+            byte i = (byte)((FromHexChar(_buffer[start + 30]) << 4) + FromHexChar(_buffer[start + 31]));
+            byte j = (byte)((FromHexChar(_buffer[start + 32]) << 4) + FromHexChar(_buffer[start + 33]));
+            byte k = (byte)((FromHexChar(_buffer[start + 34]) << 4) + FromHexChar(_buffer[start + 35]));
+
+            var guid = new Guid(a, b, c, d, e, f, g, h, i, j, k);
+            return (guid, start + 37 - _start);
+        }
     }
 }
