@@ -742,7 +742,33 @@ namespace JsonicsTest.Deserialization
         [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 0, 39, 0, 39)]
         [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 1, 38, 0, 38)]
         [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 0, 39, 1, 39)]
-        public void ToGuide_CorrectResult(string lazy, int start, int length, int index, int expectedEndIndex)
+        [TestCase("null", 0, 4, 0, 4)]
+        [TestCase(" null", 0, 5, 1, 5)]
+        [TestCase(" null", 1, 4, 0, 4)]
+        public void ToGuid_CorrectResult(string lazy, int start, int length, int index, int expectedEndIndex)
+        {
+            //arrange
+            var lazyString = new LazyString(lazy, start, length);
+            Guid? expected = lazy.Contains("null") ? 
+                (Guid?)null 
+                : new Guid(lazy.Substring(start, length).Substring(index).TrimStart().Substring(1, 36));
+
+            //act
+            (Guid? result, int endIndex) = lazyString.ToNullableGuid(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
+
+        [TestCase("\"00000001-0002-0003-0405-060708090a0b\"", 0, 38, 0, 38)]
+        [TestCase("\"FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF\"", 0, 38, 0, 38)]
+        [TestCase("\"00000000-0000-0000-0000-000000000000\"", 0, 38, 0, 38)]
+        [TestCase("\"01234567-8901-2345-6789-ABCDEF012345\"", 0, 38, 0, 38)]
+        [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 0, 39, 0, 39)]
+        [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 1, 38, 0, 38)]
+        [TestCase(" \"01234567-8901-2345-6789-ABCDEF012345\"", 0, 39, 1, 39)]
+        public void ToNullableGuid_CorrectResult(string lazy, int start, int length, int index, int expectedEndIndex)
         {
             //arrange
             var lazyString = new LazyString(lazy, start, length);

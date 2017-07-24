@@ -14,10 +14,9 @@ namespace JsonicsTest
 {
     public class JsonicsTest
     {
-        public static void Main(string[] args)
-        {
-            new AutoRun(typeof(JsonicsTest).GetTypeInfo().Assembly).Execute(args);
-        }
+        // public static void Main(string[] args)
+        // {
+        // }
 
         public static void Benchmark()
         {

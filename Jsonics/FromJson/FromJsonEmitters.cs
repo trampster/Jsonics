@@ -32,6 +32,7 @@ namespace Jsonics.FromJson
             _emitters.Add(new LazyStringEmitter<bool>(lazyStringLocal, generator, this, "ToBool"));
             _emitters.Add(new LazyStringEmitter<bool?>(lazyStringLocal, generator, this, "ToNullableBool"));
             _emitters.Add(new LazyStringEmitter<Guid>(lazyStringLocal, generator, this, "ToGuid"));
+            _emitters.Add(new LazyStringEmitter<Guid?>(lazyStringLocal, generator, this, "ToNullableGuid"));
             _emitters.Add(new LazyStringEmitter<string>(lazyStringLocal, generator, this, "ToString"));
             _emitters.Add(new ObjectFromJsonEmitterFactory(lazyStringLocal, generator, this));
         }

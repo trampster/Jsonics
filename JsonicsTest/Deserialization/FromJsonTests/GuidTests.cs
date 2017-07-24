@@ -13,7 +13,7 @@ namespace JsonicsTests.FromJsonTests
             {
                 yield return new TestCaseData(new Guid("01234567-8901-2345-6789-ABCDEF012345"));
                 yield return new TestCaseData(new Guid("00000000-0000-0000-0000-000000000000"));
-                yield return new TestCaseData(new Guid("01234567-8901-2345-6789-ABCDEF012345"));
+                yield return new TestCaseData(new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"));
             }
         }  
     }
@@ -41,23 +41,23 @@ namespace JsonicsTests.FromJsonTests
             _valueFactory = JsonFactory.Compile<Guid>();
         }
 
-        [TestCaseSource(typeof(GuidTestCaseData))]
+        [Test, TestCaseSource(typeof(GuidTestCaseData))]
         public void GuidProperty_CorrectlyDeserialized(Guid expected)
         {
             //arrange
             //act
-            var result = _propertyFactory.FromJson($"{{\"Property\":{expected}}}");
+            var result = _propertyFactory.FromJson($"{{\"Property\":\"{expected}\"}}");
 
             //assert
             Assert.That(result.Property, Is.EqualTo(expected));
         }
 
-        [TestCaseSource(typeof(GuidTestCaseData))]
-        public void GuidValue_CorrectlyDeserialized(int expected)
+        [Test, TestCaseSource(typeof(GuidTestCaseData), "TestCases")]
+        public void GuidValue_CorrectlyDeserialized(Guid expected)
         {
             //arrange
             //act
-            Guid result = _valueFactory.FromJson($"{expected}");
+            Guid result = _valueFactory.FromJson($"\"{expected}\"");
 
             //assert
             Assert.That(result, Is.EqualTo(expected));
