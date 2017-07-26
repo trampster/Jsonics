@@ -17,19 +17,15 @@ namespace Jsonics
             _length = buffer.Length;
         }
 
+        public string Buffer => _buffer;
+        public int Start => _start;
+        public int Length => _length;
+
         public LazyString(string buffer, int start, int length)
         {
             _buffer = buffer;
             _start = start;
             _length = length;
-        }
-
-        public int Length
-        {
-            get
-            {
-                return _length;
-            }
         }
 
         public LazyString SubString(int start, int length)

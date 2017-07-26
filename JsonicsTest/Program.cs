@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Jsonics;
+using Jsonics.FromJson;
 using Jsonics.PropertyHashing;
 using JsonicsTest.Deserialization;
 using JsonicsTests.FromJsonTests;
@@ -14,13 +15,14 @@ namespace JsonicsTest
 {
     public class JsonicsTest
     {
-        // public static void Main(string[] args)
-        // {
-        // }
+        public static void Main(string[] args)
+        {
+            Benchmark();
+        }
 
         public static void Benchmark()
         {
-            string json = "{\"First\":\"00000000-0000-0000-0000-000000000000\",\"Secon\":\"01234567-8901-2345-6789-ABCDEF012345\",\"Third\":\"FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF\"}";
+            string json = "{\"First\":\"2017-07-25T23:59:58.12345678Z\",\"Secon\":\"2017-07-25T23:59:58.12345678Z\",\"Third\":\"2017-07-25T23:59:58.12345678Z\"}";
 
             var example = new Example();
 
@@ -70,19 +72,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public Guid First
+        public DateTime First
         {
             get;
             set;
         }
 
-        public Guid Secon
+        public DateTime Secon
         {
             get;
             set;
         }
 
-        public Guid Third
+        public DateTime Third
         {
             get;
             set;
@@ -158,7 +160,7 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = json.ToGuid(intStart);
+                            (testClass.Third, inputIndex) = DateTimeEmitter.ToDateTime(json, intStart);
                         }
                         else
                         {
@@ -168,7 +170,7 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = json.ToGuid(intStart);
+                            (testClass.Secon, inputIndex) = DateTimeEmitter.ToDateTime(json, intStart);
                         }
                         else
                         {
@@ -178,7 +180,7 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = json.ToGuid(intStart);
+                            (testClass.First, inputIndex) = DateTimeEmitter.ToDateTime(json, intStart);
                         }
                         else
                         {

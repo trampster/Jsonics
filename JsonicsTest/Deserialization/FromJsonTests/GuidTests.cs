@@ -41,7 +41,7 @@ namespace JsonicsTests.FromJsonTests
             _valueFactory = JsonFactory.Compile<Guid>();
         }
 
-        [Test, TestCaseSource(typeof(GuidTestCaseData))]
+        [Test, TestCaseSource(typeof(GuidTestCaseData), "TestCases")]
         public void GuidProperty_CorrectlyDeserialized(Guid expected)
         {
             //arrange
