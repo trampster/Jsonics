@@ -11,7 +11,20 @@ namespace JsonicsTests.FromJsonTests
     {
         public class DateTimeCaseData
         {
-            public static IEnumerable TestCases
+            public static IEnumerable NullableDateTimeTestCases
+            {
+                get
+                {
+                    foreach(var testCase in DateTimeTestCases)
+                    {
+                        yield return testCase;
+                    }
+                    yield return new TestCaseData("null", 0, 4, 0, null, 4, DateTimeKind.Unspecified);
+                    yield return new TestCaseData(" null", 0, 5, 0, null, 5, DateTimeKind.Unspecified);
+                }
+            }
+
+            public static IEnumerable DateTimeTestCases
             {
                 get
                 {
@@ -40,7 +53,7 @@ namespace JsonicsTests.FromJsonTests
             }
         }
 
-        [Test, TestCaseSource(typeof(DateTimeCaseData), "TestCases")]
+        [Test, TestCaseSource(typeof(DateTimeCaseData), "DateTimeTestCases")]
         public void ToDateTime_CorrectResult(string lazy, int start, int length, int index, DateTime expected, int expectedEndIndex, DateTimeKind expectedKind)
         {
             //arrange
@@ -53,6 +66,20 @@ namespace JsonicsTests.FromJsonTests
             Assert.That(result, Is.EqualTo(expected));
             Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
             Assert.That(result.Kind, Is.EqualTo(expectedKind));
+        }
+
+        [Test, TestCaseSource(typeof(DateTimeCaseData), "NullableDateTimeTestCases")]
+        public void ToNullableDateTime_CorrectResult(string lazy, int start, int length, int index, DateTime? expected, int expectedEndIndex, DateTimeKind expectedKind)
+        {
+            //arrange
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (DateTime? result, int endIndex) = DateTimeEmitter.ToNullableDateTime(lazyString, index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
         }
     }
 }
