@@ -17,12 +17,13 @@ namespace JsonicsTest
     {
         public static void Main(string[] args)
         {
+            var typeName = Guid.NewGuid().ToString();
             Benchmark();
         }
 
         public static void Benchmark()
         {
-            string json = "{\"First\":\"2017-07-25T23:59:58.12345678Z\",\"Secon\":\"2017-07-25T23:59:58.12345678Z\",\"Third\":\"2017-07-25T23:59:58.12345678Z\"}";
+            string json = "{\"First\":[1,2,3, 4],\"Secon\":[1,2,3, 4],\"Third\":[1,2,3, 4]}";
 
             var example = new Example();
 
@@ -34,14 +35,14 @@ namespace JsonicsTest
                 }
             });
 
-            var compiled = JsonFactory.Compile<TestClass>();
-            Time("Compiled", () => 
-            {
-                for(int index = 0; index < 1000000; index ++)
-                {
-                    compiled.FromJson(json);
-                }
-            });
+            // var compiled = JsonFactory.Compile<TestClass>();
+            // Time("Compiled", () => 
+            // {
+            //     for(int index = 0; index < 1000000; index ++)
+            //     {
+            //         compiled.FromJson(json);
+            //     }
+            // });
 
             Time("Newtonsoft", () => 
             {
@@ -72,19 +73,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public DateTime First
+        public  int[] First
         {
             get;
             set;
         }
 
-        public DateTime Secon
+        public  int[] Secon
         {
             get;
             set;
         }
 
-        public DateTime Third
+        public int[] Third
         {
             get;
             set;
@@ -110,35 +111,8 @@ namespace JsonicsTest
                 .ToString(); 
         }
 
-        static PropertyHash _propertyHash = new PropertyHash()
-        {
-            Column = 0,
-            ModValue = 2
-        };
-
-        public int TestSwitch(int input)
-        {
-            switch(input)
-            {
-                case 0:
-                    return 0;
-                case 1:
-                    return 1;
-                case 3:
-                    return 3;
-                case 5:
-                    return 5;
-                case 11:
-                    return 11;
-                case 12:
-                    return 12;
-                case 13:
-                    return 13;
-                case 14:
-                    return 14;
-            }
-            return -1;
-        }
+        [ThreadStatic]
+        static List<int> _arrayBuilder = new List<int>();
 
         public TestClass FromJson(string input)
         {
@@ -160,7 +134,22 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            (testClass.Third, inputIndex) = DateTimeEmitter.ToDateTime(json, intStart);
+                            _arrayBuilder.Clear();
+                            inputIndex = json.ReadTo(intStart, '[');
+                            while(true)
+                            {
+                                int arrayValue;
+                                (arrayValue, inputIndex) = json.ToInt(inputIndex);
+                                _arrayBuilder.Add(arrayValue);
+                                char currentValue;
+                                (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                if(currentValue == ']')
+                                {
+                                    inputIndex++;
+                                    testClass.Third = _arrayBuilder.ToArray();
+                                    break;
+                                }
+                            }
                         }
                         else
                         {
@@ -170,7 +159,25 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            (testClass.Secon, inputIndex) = DateTimeEmitter.ToDateTime(json, intStart);
+                            char currentValue;
+                            (inputIndex, currentValue) = json.ReadToAny(intStart, '[', 'n');
+                            if(currentValue == 'n')
+                            {
+                                inputIndex += 4;
+                                testClass.Secon = null;
+                            }
+                            _arrayBuilder.Clear();
+                            inputIndex++;
+                            currentValue = json.At(inputIndex);
+                            while(currentValue != ']')
+                            {
+                                int arrayValue;
+                                (arrayValue, inputIndex) = json.ToInt(inputIndex);
+                                _arrayBuilder.Add(arrayValue);
+                                (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                            }
+                            inputIndex++;
+                            testClass.Secon = _arrayBuilder.ToArray();
                         }
                         else
                         {
@@ -180,7 +187,22 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            (testClass.First, inputIndex) = DateTimeEmitter.ToDateTime(json, intStart);
+                            _arrayBuilder.Clear();
+                            inputIndex = json.ReadTo(intStart, '[');
+                            while(true)
+                            {
+                                int arrayValue;
+                                (arrayValue, inputIndex) = json.ToInt(inputIndex);
+                                _arrayBuilder.Add(arrayValue);
+                                char currentValue;
+                                (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                if(currentValue == ']')
+                                {
+                                    inputIndex++;
+                                    testClass.First = _arrayBuilder.ToArray();
+                                    break;
+                                }
+                            }
                         }
                         else
                         {

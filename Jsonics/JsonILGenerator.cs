@@ -62,6 +62,12 @@ namespace Jsonics
             return _generator.DeclareLocal(type);
         }
 
+        public void LoadNull()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Ldnull);
+        }
+
         public void StoreLocal(LocalBuilder localBuilder)
         {
             EmitQueuedAppends();

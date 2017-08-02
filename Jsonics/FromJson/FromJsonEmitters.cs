@@ -8,7 +8,7 @@ namespace Jsonics.FromJson
     {
         List<FromJsonEmitter> _emitters;
 
-        public FromJsonEmitters(Type jsonObjectType, LocalBuilder lazyStringLocal, JsonILGenerator generator)
+        public FromJsonEmitters(Type jsonObjectType, LocalBuilder lazyStringLocal, JsonILGenerator generator, Func<Type, FieldBuilder> addStaticField)
         {
             _emitters = new List<FromJsonEmitter>();
             _emitters.Add(new LazyStringEmitter<byte>(lazyStringLocal, generator, this, "ToByte"));
@@ -34,6 +34,7 @@ namespace Jsonics.FromJson
             _emitters.Add(new LazyStringEmitter<Guid>(lazyStringLocal, generator, this, "ToGuid"));
             _emitters.Add(new LazyStringEmitter<Guid?>(lazyStringLocal, generator, this, "ToNullableGuid"));
             _emitters.Add(new DateTimeEmitter(lazyStringLocal, generator, this));
+            _emitters.Add(new ArrayEmitter(lazyStringLocal, generator, this, addStaticField));
             _emitters.Add(new LazyStringEmitter<string>(lazyStringLocal, generator, this, "ToString"));
             _emitters.Add(new ObjectFromJsonEmitterFactory(lazyStringLocal, generator, this));
         }

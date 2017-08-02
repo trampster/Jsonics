@@ -19,6 +19,13 @@ namespace Jsonics.FromJson
 
         public abstract bool TypeSupported(Type type);
 
+        /// <summary>
+        /// Create the IL required to parse this property
+        /// Should set the indexLocal to the character after the property
+        /// Should finish with the property value on the stack.
+        /// </summary>
+        /// <param name="indexLocal"></param>
+        /// <param name="type"></param>
         public abstract void Emit(LocalBuilder indexLocal, Type type);
 
         internal Type LazyStringCallToX<T>(string methodName, JsonILGenerator generator)

@@ -141,7 +141,7 @@ namespace JsonicsTest
         }
 
         [Test]
-        public void ToJson_StringArrayEmtpy_CorrectJson()
+        public void ToJson_StringArrayEmpty_CorrectJson()
         {
             //arrange
             var jsonConverter = JsonFactory.Compile<StringArrayObject>();

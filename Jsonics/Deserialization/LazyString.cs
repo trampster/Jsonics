@@ -51,6 +51,23 @@ namespace Jsonics
             return -1;
         }
 
+        public (int, char) ReadToAny(int start, char value1, char value2)
+        {
+            int end = _start + _length;
+            for(int index = _start + start; index < end; index++)
+            {
+                if(_buffer[index] == value1)
+                {
+                    return (index - _start, value1);
+                }
+                else if(_buffer[index] == value2)
+                {
+                    return (index - _start, value2);
+                }
+            }
+            return (-1, ' ');
+        }
+
         public int ReadToPropertyValueEnd(int start)
         {
             int unclosedBrakets = 0;

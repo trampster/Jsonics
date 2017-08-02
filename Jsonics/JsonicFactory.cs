@@ -30,6 +30,9 @@ namespace Jsonics
 
             CreateFromJsonMethod<T>(typeBuilder);
 
+            var defaultConstructor = typeBuilder.DefineConstructor(MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, CallingConventions.Standard, new Type[0]);
+            var defautlConstructorGenerator = new JsonILGenerator(defaultConstructor.GetILGenerator(), new StringBuilder());
+            defautlConstructorGenerator.Return();
 
             var typeInfo = typeBuilder.CreateTypeInfo();
             var myType = typeInfo.AsType();
@@ -61,10 +64,39 @@ namespace Jsonics
             jsonILGenerator.LoadConstantInt32(0);
             jsonILGenerator.StoreLocal(indexLocal);
 
-            var emitters = new FromJsonEmitters(type, lazyStringLocal, jsonILGenerator);
+            //define static constructor
+            var staticConstructor = typeBuilder.DefineConstructor(MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, CallingConventions.Standard, new Type[]{});
+            var staticConstructorGenerator = new JsonILGenerator(staticConstructor.GetILGenerator(), new StringBuilder());
+            var staticFields = new Dictionary<Type, FieldBuilder>();
+            var emitters = new FromJsonEmitters(
+                type, lazyStringLocal, jsonILGenerator, 
+                staticFieldType => AddStaticField(staticFieldType, typeBuilder, staticConstructorGenerator, staticFields));
             emitters.Emit(indexLocal, type);
+
+            //finish static constructor
+            staticConstructorGenerator.Return();
             
             jsonILGenerator.Return();
+        }
+
+        static FieldBuilder AddStaticField(Type type, TypeBuilder typeBuilder, JsonILGenerator generator, Dictionary<Type, FieldBuilder> staticFields)
+        {
+            if(staticFields.TryGetValue(type, out FieldBuilder fieldBuilder))
+            {
+                return fieldBuilder;
+            }
+
+            //add field
+            var fieldName = Guid.NewGuid().ToString().Replace("-","");
+            var field = typeBuilder.DefineField(fieldName, type, FieldAttributes.Static | FieldAttributes.Private);
+            ConstructorInfo attributeConstructor = typeof(ThreadStaticAttribute).GetTypeInfo().GetConstructor(new Type[]{});
+            field.SetCustomAttribute(attributeConstructor, new byte[]{01,00,00,00});
+
+            //add to static constructor
+            generator.NewObject(type.GetTypeInfo().GetConstructor(new Type[0]));
+            generator.StoreStaticField(field);
+            staticFields.Add(type, field);
+            return field;
         }
 
         static void CreateToJsonMethod<T>(TypeBuilder typeBuilder, FieldBuilder builderField)
