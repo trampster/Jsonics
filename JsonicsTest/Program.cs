@@ -17,7 +17,6 @@ namespace JsonicsTest
     {
         public static void Main(string[] args)
         {
-            var typeName = Guid.NewGuid().ToString();
             Benchmark();
         }
 
@@ -35,14 +34,14 @@ namespace JsonicsTest
                 }
             });
 
-            // var compiled = JsonFactory.Compile<TestClass>();
-            // Time("Compiled", () => 
-            // {
-            //     for(int index = 0; index < 1000000; index ++)
-            //     {
-            //         compiled.FromJson(json);
-            //     }
-            // });
+            var compiled = JsonFactory.Compile<TestClass>();
+            Time("Compiled", () => 
+            {
+                for(int index = 0; index < 1000000; index ++)
+                {
+                    compiled.FromJson(json);
+                }
+            });
 
             Time("Newtonsoft", () => 
             {
@@ -73,19 +72,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public  int[] First
+        public  List<int> First
         {
             get;
             set;
         }
 
-        public  int[] Secon
+        public  List<int> Secon
         {
             get;
             set;
         }
 
-        public int[] Third
+        public List<int> Third
         {
             get;
             set;
@@ -134,21 +133,27 @@ namespace JsonicsTest
                     case 0:
                         if(propertyName.EqualsString("Third"))
                         {
-                            _arrayBuilder.Clear();
-                            inputIndex = json.ReadTo(intStart, '[');
-                            while(true)
+                            char currentValue;
+                            (inputIndex, currentValue) = json.ReadToAny(intStart, '[', 'n');
+                            if(currentValue == 'n')
                             {
-                                int arrayValue;
-                                (arrayValue, inputIndex) = json.ToInt(inputIndex);
-                                _arrayBuilder.Add(arrayValue);
-                                char currentValue;
-                                (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
-                                if(currentValue == ']')
+                                inputIndex += 4;
+                                testClass.Third = null;
+                            }
+                            else
+                            {
+                                inputIndex++;
+                                var list = new List<int>();
+                                currentValue = json.At(inputIndex);
+                                while(currentValue != ']')
                                 {
-                                    inputIndex++;
-                                    testClass.Third = _arrayBuilder.ToArray();
-                                    break;
+                                    int arrayValue;
+                                    (arrayValue, inputIndex) = json.ToInt(inputIndex);
+                                   list.Add(arrayValue);
+                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
                                 }
+                                inputIndex++;
+                                testClass.Third = list;
                             }
                         }
                         else
@@ -166,18 +171,21 @@ namespace JsonicsTest
                                 inputIndex += 4;
                                 testClass.Secon = null;
                             }
-                            _arrayBuilder.Clear();
-                            inputIndex++;
-                            currentValue = json.At(inputIndex);
-                            while(currentValue != ']')
+                            else
                             {
-                                int arrayValue;
-                                (arrayValue, inputIndex) = json.ToInt(inputIndex);
-                                _arrayBuilder.Add(arrayValue);
-                                (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                inputIndex++;
+                                var list = new List<int>();
+                                currentValue = json.At(inputIndex);
+                                while(currentValue != ']')
+                                {
+                                    int arrayValue;
+                                    (arrayValue, inputIndex) = json.ToInt(inputIndex);
+                                   list.Add(arrayValue);
+                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                }
+                                inputIndex++;
+                                testClass.Secon = list;
                             }
-                            inputIndex++;
-                            testClass.Secon = _arrayBuilder.ToArray();
                         }
                         else
                         {
@@ -187,21 +195,27 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            _arrayBuilder.Clear();
-                            inputIndex = json.ReadTo(intStart, '[');
-                            while(true)
+                            char currentValue;
+                            (inputIndex, currentValue) = json.ReadToAny(intStart, '[', 'n');
+                            if(currentValue == 'n')
                             {
-                                int arrayValue;
-                                (arrayValue, inputIndex) = json.ToInt(inputIndex);
-                                _arrayBuilder.Add(arrayValue);
-                                char currentValue;
-                                (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
-                                if(currentValue == ']')
+                                inputIndex += 4;
+                                testClass.First = null;
+                            }
+                            else
+                            {
+                                inputIndex++;
+                                var list = new List<int>();
+                                currentValue = json.At(inputIndex);
+                                while(currentValue != ']')
                                 {
-                                    inputIndex++;
-                                    testClass.First = _arrayBuilder.ToArray();
-                                    break;
+                                    int arrayValue;
+                                    (arrayValue, inputIndex) = json.ToInt(inputIndex);
+                                   list.Add(arrayValue);
+                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
                                 }
+                                inputIndex++;
+                                testClass.First = list;
                             }
                         }
                         else
