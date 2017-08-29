@@ -22,5 +22,7 @@ namespace Jsonics.FromJson
         {
             return new ObjectFromJsonEmitter(_lazyStringLocal, _generator, _emitters).TypeSupported(type);
         }
+
+        public override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
     }
 }

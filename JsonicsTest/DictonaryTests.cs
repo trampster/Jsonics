@@ -44,25 +44,6 @@ namespace JsonicsTest
 
             //assert
             Assert.That(json, Is.EqualTo("{\"1\":9001,\"2\":3474,\"3\":11926}"));
-        } 
-
-        [Test]
-        public void ToJson_DictionaryObjectInt_CorrectJson()
-        {
-            //arrange
-            var dictionary = new Dictionary<object, int>()
-            {
-                { new object(), 9001 },
-                { new object(), 3474 },
-                { new object(), 11926 }
-            };
-            var converter = JsonFactory.Compile<Dictionary<object, int>>();
-
-            //act
-            var json = converter.ToJson(dictionary);
-
-            //assert
-            Assert.That(json, Is.EqualTo("{\"System.Object\":9001,\"System.Object\":3474,\"System.Object\":11926}"));
         }
 
         public struct TestStruct

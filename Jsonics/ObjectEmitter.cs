@@ -62,6 +62,10 @@ namespace Jsonics
                 {
                     CreateListProperty(property, jsonILGenerator, getTypeOnStack);
                 }
+                else if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType .GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                {
+                    //TODO handle dictionary properties
+                }
                 else if(property.PropertyType == typeof(DateTime))
                 {
                     CreateDateTimeProperty(property, jsonILGenerator, getTypeOnStack);
@@ -159,7 +163,7 @@ namespace Jsonics
             generator.LoadString($"\"{property.Name}\":false");
             generator.Branch(callAppend);
 
-            //true calse
+            //true case
             generator.Mark(trueLabel);
             generator.LoadString($"\"{property.Name}\":true");
 

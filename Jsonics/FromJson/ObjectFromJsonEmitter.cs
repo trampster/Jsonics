@@ -289,5 +289,7 @@ namespace Jsonics.FromJson
             }
             return true;
         }
+
+        public override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
     }
 }

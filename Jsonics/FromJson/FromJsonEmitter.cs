@@ -33,5 +33,7 @@ namespace Jsonics.FromJson
             generator.Call(typeof(LazyString).GetRuntimeMethod(methodName, new Type[]{typeof(int)}));
             return typeof(ValueTuple<T,int>);
         }
+
+        public abstract JsonPrimitive PrimitiveType {get;}
     }
 }

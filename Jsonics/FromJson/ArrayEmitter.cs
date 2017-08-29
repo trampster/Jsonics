@@ -118,5 +118,7 @@ namespace Jsonics.FromJson
         {
             return type.IsArray;
         }
+
+        public override JsonPrimitive PrimitiveType => JsonPrimitive.Array;
     }
 }

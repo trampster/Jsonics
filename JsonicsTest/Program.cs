@@ -22,7 +22,7 @@ namespace JsonicsTest
 
         public static void Benchmark()
         {
-            string json = "{\"First\":[1,2,3, 4],\"Secon\":[1,2,3, 4],\"Third\":[1,2,3, 4]}";
+            string json = "{\"First\":{\"1\":\"one\",\"2\":\"two\"},\"Secon\":{\"1\":\"one\",\"2\":\"two\"},\"Third\":{\"1\":\"one\",\"2\":\"two\"}}";
 
             var example = new Example();
 
@@ -72,19 +72,19 @@ namespace JsonicsTest
 
     public class TestClass
     {
-        public  List<int> First
+        public Dictionary<int, string> First
         {
             get;
             set;
         }
 
-        public  List<int> Secon
+        public Dictionary<int, string> Secon
         {
             get;
             set;
         }
 
-        public List<int> Third
+        public Dictionary<int, string> Third
         {
             get;
             set;
@@ -134,7 +134,7 @@ namespace JsonicsTest
                         if(propertyName.EqualsString("Third"))
                         {
                             char currentValue;
-                            (inputIndex, currentValue) = json.ReadToAny(intStart, '[', 'n');
+                            (inputIndex, currentValue) = json.ReadToAny(intStart, '{', 'n');
                             if(currentValue == 'n')
                             {
                                 inputIndex += 4;
@@ -143,17 +143,27 @@ namespace JsonicsTest
                             else
                             {
                                 inputIndex++;
-                                var list = new List<int>();
+                                var dictionary = new Dictionary<int, string>();
                                 currentValue = json.At(inputIndex);
-                                while(currentValue != ']')
+                                while(currentValue != '}')
                                 {
-                                    int arrayValue;
-                                    (arrayValue, inputIndex) = json.ToInt(inputIndex);
-                                   list.Add(arrayValue);
-                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                    //read key
+                                    inputIndex = json.ReadTo(inputIndex,'\"') + 1;
+                                    int key;
+                                    (key, inputIndex) = json.ToInt(inputIndex);
+
+                                    //read to :
+                                    inputIndex = json.ReadTo(inputIndex, ':') + 1;
+
+                                    //read value
+                                    string value;
+                                    (value, inputIndex) = json.ToString(inputIndex);
+                                    dictionary.Add(key, value);
+
+                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', '}');
                                 }
                                 inputIndex++;
-                                testClass.Third = list;
+                                testClass.Third = dictionary;
                             }
                         }
                         else
@@ -164,27 +174,37 @@ namespace JsonicsTest
                     case 2:
                         if(propertyName.EqualsString("Secon"))
                         {
-                            char currentValue;
-                            (inputIndex, currentValue) = json.ReadToAny(intStart, '[', 'n');
+                             char currentValue;
+                            (inputIndex, currentValue) = json.ReadToAny(intStart, '{', 'n');
                             if(currentValue == 'n')
                             {
                                 inputIndex += 4;
-                                testClass.Secon = null;
+                                testClass.Third = null;
                             }
                             else
                             {
                                 inputIndex++;
-                                var list = new List<int>();
+                                var dictionary = new Dictionary<int, string>();
                                 currentValue = json.At(inputIndex);
-                                while(currentValue != ']')
+                                while(currentValue != '}')
                                 {
-                                    int arrayValue;
-                                    (arrayValue, inputIndex) = json.ToInt(inputIndex);
-                                   list.Add(arrayValue);
-                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                    //read key
+                                    inputIndex = json.ReadTo(inputIndex,'\"') + 1;
+                                    int key;
+                                    (key, inputIndex) = json.ToInt(inputIndex);
+
+                                    //read to :
+                                    inputIndex = json.ReadTo(inputIndex, ':') + 1;
+
+                                    //read value
+                                    string value;
+                                    (value, inputIndex) = json.ToString(inputIndex);
+                                    dictionary.Add(key, value);
+
+                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', '}');
                                 }
                                 inputIndex++;
-                                testClass.Secon = list;
+                                testClass.Secon = dictionary;
                             }
                         }
                         else
@@ -195,27 +215,37 @@ namespace JsonicsTest
                     case 1:
                         if(propertyName.EqualsString("First"))
                         {
-                            char currentValue;
-                            (inputIndex, currentValue) = json.ReadToAny(intStart, '[', 'n');
+                             char currentValue;
+                            (inputIndex, currentValue) = json.ReadToAny(intStart, '{', 'n');
                             if(currentValue == 'n')
                             {
                                 inputIndex += 4;
-                                testClass.First = null;
+                                testClass.Third = null;
                             }
                             else
                             {
                                 inputIndex++;
-                                var list = new List<int>();
+                                var dictionary = new Dictionary<int, string>();
                                 currentValue = json.At(inputIndex);
-                                while(currentValue != ']')
+                                while(currentValue != '}')
                                 {
-                                    int arrayValue;
-                                    (arrayValue, inputIndex) = json.ToInt(inputIndex);
-                                   list.Add(arrayValue);
-                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', ']');
+                                    //read key
+                                    inputIndex = json.ReadTo(inputIndex,'\"') + 1;
+                                    int key;
+                                    (key, inputIndex) = json.ToInt(inputIndex);
+
+                                    //read to :
+                                    inputIndex = json.ReadTo(inputIndex, ':') + 1;
+
+                                    //read value
+                                    string value;
+                                    (value, inputIndex) = json.ToString(inputIndex);
+                                    dictionary.Add(key, value);
+
+                                    (inputIndex, currentValue) = json.ReadToAny(inputIndex, ',', '}');
                                 }
                                 inputIndex++;
-                                testClass.First = list;
+                                testClass.First = dictionary;
                             }
                         }
                         else

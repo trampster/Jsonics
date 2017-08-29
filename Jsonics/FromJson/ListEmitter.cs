@@ -112,5 +112,8 @@ namespace Jsonics.FromJson
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
+
+        public override JsonPrimitive PrimitiveType => JsonPrimitive.Array;
+
     }
 }

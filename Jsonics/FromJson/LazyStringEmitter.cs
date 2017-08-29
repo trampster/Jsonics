@@ -7,11 +7,13 @@ namespace Jsonics.FromJson
     public class LazyStringEmitter<T> : FromJsonEmitter
     {
         readonly string _methodName;
+        readonly JsonPrimitive _jsonPrimitive;
 
-        public LazyStringEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, string methodName)
+        public LazyStringEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, string methodName, JsonPrimitive jsonPrimitive)
             : base(lazyStringLocal, generator, emitters)
         {
             _methodName = methodName;
+            _jsonPrimitive  = jsonPrimitive;
         }
         
         public override void Emit(LocalBuilder indexLocal, Type type)
@@ -31,5 +33,7 @@ namespace Jsonics.FromJson
         {
             return type == typeof(T);
         }
+
+        public override JsonPrimitive PrimitiveType => _jsonPrimitive;
     }
 }

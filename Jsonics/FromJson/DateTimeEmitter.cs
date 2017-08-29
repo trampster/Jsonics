@@ -322,5 +322,8 @@ namespace Jsonics.FromJson
                 type == typeof(DateTime) ||
                 type == typeof(DateTime?);
         }
+
+        public override JsonPrimitive PrimitiveType => JsonPrimitive.String;
+
     }
 }
