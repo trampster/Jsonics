@@ -283,6 +283,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Newobj, constructorInfo);
         }
 
+        public void InitObject(Type type)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Initobj, type);
+        }
+
         public void CallVirtual(MethodInfo methodInfo)
         {
             EmitQueuedAppends();

@@ -38,6 +38,7 @@ namespace Jsonics.FromJson
             _emitters.Add(new ListEmitter(lazyStringLocal, generator, this, addStaticField));
             _emitters.Add(new DictionaryEmitter(lazyStringLocal, generator, this, addStaticField));
             _emitters.Add(new LazyStringEmitter<string>(lazyStringLocal, generator, this, "ToString", JsonPrimitive.String));
+            _emitters.Add(new StructFromJsonEmitterFactory(lazyStringLocal, generator, this));
             _emitters.Add(new ObjectFromJsonEmitterFactory(lazyStringLocal, generator, this));
         }
 
