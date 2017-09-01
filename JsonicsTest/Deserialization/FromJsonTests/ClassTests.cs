@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace JsonicsTests.FromJsonTests
 {
     [TestFixture]
-    public class PropertyTests
+    public class ClassTests
     {
         [Test]
         public void FromJson_TwoProperties_ReturnsClassInstance()
@@ -46,6 +46,21 @@ namespace JsonicsTests.FromJsonTests
             //assert
             Assert.That(instance.First, Is.EqualTo(1));
             Assert.That(instance.Secon, Is.EqualTo(2));
+        }
+
+        [TestCase("null")]
+        [TestCase(" null")]
+        [TestCase("\tnull")]
+        public void FromJson_Null_ReturnsNull(string json)
+        {
+            //arrange
+            var jsonConverter = JsonFactory.Compile<TwoProperties>();
+
+            //act
+            var instance = jsonConverter.FromJson(json);
+
+            //assert
+            Assert.That(instance, Is.Null);
         }
 
         public class ThreeProperties

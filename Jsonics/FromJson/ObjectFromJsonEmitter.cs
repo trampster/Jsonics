@@ -33,9 +33,32 @@ namespace Jsonics.FromJson
             _jsonObjectLocal = _generator.DeclareLocal(_jsonObjectType);
             _generator.StoreLocal(_jsonObjectLocal);
 
-            Label loopCheck =  _generator.DefineLabel();
             
-            _generator.Branch(loopCheck);
+            //null check
+            //(inputIndex, character) = json.ReadToAny(inputIndex, '{', 'n');
+            _generator.LoadLocalAddress(_lazyStringLocal);
+            _generator.LoadLocal(_indexLocal);
+            _generator.LoadConstantInt32('{');
+            _generator.LoadConstantInt32('n');
+            var readToAnyMethod = typeof(LazyString).GetRuntimeMethod("ReadToAny", new Type[]{typeof(int), typeof(char), typeof(char)});
+            _generator.Call(readToAnyMethod);
+            _generator.Duplicate();
+            Type tupleType = typeof(ValueTuple<int,char>);
+            _generator.LoadField(tupleType.GetRuntimeField("Item1"));
+            _generator.StoreLocal(_indexLocal);
+            //check for null
+            _generator.LoadField(tupleType.GetRuntimeField("Item2"));
+            _generator.LoadConstantInt32('n');
+            Label loopCheck =  _generator.DefineLabel();
+            _generator.BranchIfNotEqualUnsigned(loopCheck);
+            //it's null
+            _generator.LoadLocal(_indexLocal);
+            _generator.LoadConstantInt32(4);
+            _generator.Add();
+            _generator.StoreLocal(_indexLocal);
+            _generator.LoadNull();
+            var endLabel = _generator.DefineLabel();
+            _generator.Branch(endLabel);
             
             //loop start
             Label loopStart =  _generator.DefineLabel();
@@ -110,6 +133,7 @@ namespace Jsonics.FromJson
 
             //return
             _generator.LoadLocal(_jsonObjectLocal);
+            _generator.Mark(endLabel);
         }
 
         public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)

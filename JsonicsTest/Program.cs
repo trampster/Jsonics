@@ -70,7 +70,7 @@ namespace JsonicsTest
         }
     }
 
-    public struct TestClass
+    public class TestClass
     {
         public int First
         {
@@ -119,6 +119,15 @@ namespace JsonicsTest
 
             var testClass = new TestClass();
             int inputIndex = 0;
+
+            char character;
+            (inputIndex, character) = json.ReadToAny(inputIndex, '{', 'n');
+            if(character == 'n' )
+            {
+                inputIndex += 4;
+                return null;
+            }
+
             while(input[inputIndex] != '}')
             {
                 //read to start of first property
