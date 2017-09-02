@@ -70,7 +70,7 @@ namespace JsonicsTest
         }
     }
 
-    public class TestClass
+    public struct TestClass
     {
         public int First
         {
@@ -91,13 +91,13 @@ namespace JsonicsTest
         }
     }
 
-    public class Example : IJsonConverter<TestClass>
+    public class Example : IJsonConverter<TestClass?>
     {
 
         [ThreadStatic]
         static StringBuilder _builder;
 
-        public string ToJson(TestClass jsonObject)
+        public string ToJson(TestClass? jsonObject)
         {
             if(_builder == null)
             {
@@ -106,14 +106,14 @@ namespace JsonicsTest
 
             return _builder
                 .Clear()
-                .Append(jsonObject.First)
+                .Append(jsonObject.Value.First)
                 .ToString(); 
         }
 
         [ThreadStatic]
         static List<int> _arrayBuilder = new List<int>();
 
-        public TestClass FromJson(string input)
+        public TestClass? FromJson(string input)
         {
             var json = new LazyString(input);
 

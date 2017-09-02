@@ -4,13 +4,13 @@ using NUnit.Framework;
 namespace JsonicsTests.FromJsonTests
 {
     [TestFixture]
-    public class StructTests
+    public class NullableStructTests
     {
         [Test]
         public void FromJson_TwoProperties_ReturnsClassInstance()
         {
             //arrange
-            var jsonConverter = JsonFactory.Compile<TwoProperties>();
+            var jsonConverter = JsonFactory.Compile<TwoProperties?>();
 
             //act
             var instance = jsonConverter.FromJson("{\"FirstName\":\"Ob\\t Won\",\"LastName\":\"Ken\\noby\",\"Age\":60,\"PowerFactor\":104.6789,\"IsJedi\":true}");
@@ -38,14 +38,14 @@ namespace JsonicsTests.FromJsonTests
         public void FromJson_TestClass_PropertiesSetCorrectly()
         {
             //arrange
-            var jsonConverter = JsonFactory.Compile<TwoProperties>();
+            var jsonConverter = JsonFactory.Compile<TwoProperties?>();
 
             //act
             var instance = jsonConverter.FromJson("{\"First\":1,\"Secon\":2}");
 
             //assert
-            Assert.That(instance.First, Is.EqualTo(1));
-            Assert.That(instance.Secon, Is.EqualTo(2));
+            Assert.That(instance?.First, Is.EqualTo(1));
+            Assert.That(instance?.Secon, Is.EqualTo(2));
         }
 
         public struct ThreeProperties
@@ -73,15 +73,15 @@ namespace JsonicsTests.FromJsonTests
         public void FromJson_ThreeProperties_PropertiesSetCorrectly()
         {
             //arrange
-            var jsonConverter = JsonFactory.Compile<ThreeProperties>();
+            var jsonConverter = JsonFactory.Compile<ThreeProperties?>();
 
             //act
             var instance = jsonConverter.FromJson("{\"First\":1,\"Second\":2,\"Third\":3}");
 
             //assert
-            Assert.That(instance.First, Is.EqualTo(1));
-            Assert.That(instance.Second, Is.EqualTo(2));
-            Assert.That(instance.Third, Is.EqualTo(3));
+            Assert.That(instance?.First, Is.EqualTo(1));
+            Assert.That(instance?.Second, Is.EqualTo(2));
+            Assert.That(instance?.Third, Is.EqualTo(3));
         }
 
         public struct CollisionProperties
@@ -109,15 +109,30 @@ namespace JsonicsTests.FromJsonTests
         public void FromJson_HashCollision_PropertiesSetCorrectly()
         {
             //arrange
-            var jsonConverter = JsonFactory.Compile<CollisionProperties>();
+            var jsonConverter = JsonFactory.Compile<CollisionProperties?>();
 
             //act
             var instance = jsonConverter.FromJson("{\"AAA\":1,\"AAB\":2,\"BAA\":3}");
 
             //assert
-            Assert.That(instance.AAA, Is.EqualTo(1));
-            Assert.That(instance.AAB, Is.EqualTo(2));
-            Assert.That(instance.BAA, Is.EqualTo(3));
+            Assert.That(instance?.AAA, Is.EqualTo(1));
+            Assert.That(instance?.AAB, Is.EqualTo(2));
+            Assert.That(instance?.BAA, Is.EqualTo(3));
+        }
+
+        [TestCase("null")]
+        [TestCase(" null")]
+        [TestCase("\tnull")]
+        public void FromJson_Null_ReturnsNull(string json)
+        {
+            //arrange
+            var jsonConverter = JsonFactory.Compile<TwoProperties?>();
+
+            //act
+            var instance = jsonConverter.FromJson(json);
+
+            //assert
+            Assert.That(instance, Is.Null);
         }
     }
 }

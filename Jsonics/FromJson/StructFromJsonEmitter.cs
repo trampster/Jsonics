@@ -15,6 +15,7 @@ namespace Jsonics.FromJson
         LocalBuilder _propertyStartLocal;
         LocalBuilder _propertyEndLocal;
         Type _jsonObjectType;
+        bool _isNullable;
 
         public StructFromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
             : base(lazyStringLocal, generator, emitters)
@@ -22,18 +23,60 @@ namespace Jsonics.FromJson
             _lazyStringLocal = lazyStringLocal;
             _generator = generator;
         }
+        Type _underlyingType;
 
         public override void Emit(LocalBuilder indexLocal, Type jsonObjectType)
         {
             _jsonObjectType = jsonObjectType;
+            
+            _underlyingType = Nullable.GetUnderlyingType(_jsonObjectType);
+            _isNullable = _underlyingType != null;
+            if(!_isNullable)
+            {
+                _underlyingType = _jsonObjectType;
+            }
+
             _indexLocal = indexLocal;
             //construct object
-            _jsonObjectLocal = _generator.DeclareLocal(_jsonObjectType);
+            _jsonObjectLocal = _generator.DeclareLocal(_underlyingType);
             _generator.LoadLocalAddress(_jsonObjectLocal);
-            _generator.InitObject(jsonObjectType);
+            _generator.InitObject(_underlyingType);
 
+            //null check
             Label loopCheck =  _generator.DefineLabel();
+            var endLabel = _generator.DefineLabel();
             
+            if(_isNullable)
+            {
+                //(inputIndex, character) = json.ReadToAny(inputIndex, '{', 'n');
+                _generator.LoadLocalAddress(_lazyStringLocal);
+                _generator.LoadLocal(_indexLocal);
+                _generator.LoadConstantInt32('{');
+                _generator.LoadConstantInt32('n');
+                var readToAnyMethod = typeof(LazyString).GetRuntimeMethod("ReadToAny", new Type[]{typeof(int), typeof(char), typeof(char)});
+                _generator.Call(readToAnyMethod);
+                _generator.Duplicate();
+                Type tupleType = typeof(ValueTuple<int,char>);
+                _generator.LoadField(tupleType.GetRuntimeField("Item1"));
+                _generator.StoreLocal(_indexLocal);
+                //check for null
+                _generator.LoadField(tupleType.GetRuntimeField("Item2"));
+                _generator.LoadConstantInt32('n');
+                _generator.BranchIfNotEqualUnsigned(loopCheck);
+                //it's null
+                _generator.LoadLocal(_indexLocal);
+                _generator.LoadConstantInt32(4);
+                _generator.Add();
+                _generator.StoreLocal(_indexLocal);
+                
+                var nullLocal = _generator.DeclareLocal(_jsonObjectType);
+                _generator.LoadLocalAddress(nullLocal);
+                _generator.InitObject(_jsonObjectType);
+                _generator.LoadLocal(nullLocal);
+
+                _generator.Branch(endLabel);
+            }
+
             _generator.Branch(loopCheck);
             
             //loop start
@@ -86,7 +129,7 @@ namespace Jsonics.FromJson
             //properties
             var unknownPropertyLabel = _generator.DefineLabel();
             var propertiesQuery = 
-                from property in _jsonObjectType.GetRuntimeProperties()
+                from property in _underlyingType.GetRuntimeProperties()
                 where property.CanRead && property.CanWrite
                 select property;
             var properties = propertiesQuery.ToArray();
@@ -109,6 +152,11 @@ namespace Jsonics.FromJson
 
             //return
             _generator.LoadLocal(_jsonObjectLocal);
+            if(_isNullable)
+            {
+                _generator.NewObject(_jsonObjectType.GetTypeInfo().GetConstructor(new []{_underlyingType}));
+            }
+            _generator.Mark(endLabel);
         }
 
         public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
@@ -212,7 +260,7 @@ namespace Jsonics.FromJson
 
             _emitters.Emit(_indexLocal, property.PropertyType);
             
-            _generator.Call(_jsonObjectType.GetRuntimeMethod($"set_{property.Name}", new Type[]{property.PropertyType}));
+            _generator.Call(_underlyingType.GetRuntimeMethod($"set_{property.Name}", new Type[]{property.PropertyType}));
             _generator.Branch(loopCheckLabel);
         }
 
