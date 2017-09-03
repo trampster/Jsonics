@@ -473,5 +473,10 @@ namespace Jsonics
             _generator.Emit(OpCodes.Switch, labels);          
         }
 
+        public void Box(Type type)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Box, type);          
+        }
     }
 }
