@@ -13,6 +13,13 @@ namespace Jsonics.FromJson
         
         public override void Emit(LocalBuilder indexLocal, Type type)
         {
+            Type underlyingType = Nullable.GetUnderlyingType(type);
+            if(underlyingType != null)
+            {
+                EmitNullable(indexLocal, type);
+                return;
+            }
+
             _generator.LoadLocalAddress(_lazyStringLocal);
             _generator.LoadLocal(indexLocal);
             Type tupleType = LazyStringCallToX<int>("ToInt", _generator);
@@ -24,9 +31,54 @@ namespace Jsonics.FromJson
             _generator.LoadField(tupleType.GetRuntimeField("Item1"));
         }
 
+        void EmitNullable(LocalBuilder indexLocal, Type type)
+        {
+            _generator.LoadLocalAddress(_lazyStringLocal);
+            _generator.LoadLocal(indexLocal);
+            Type tupleType = LazyStringCallToX<int?>("ToNullableInt", _generator);
+            _generator.Duplicate();
+
+            _generator.LoadField(tupleType.GetRuntimeField("Item2"));
+            _generator.StoreLocal(indexLocal);
+
+            _generator.LoadField(tupleType.GetRuntimeField("Item1"));
+            var nullableIntLocal = _generator.DeclareLocal<int?>();
+            _generator.StoreLocal(nullableIntLocal);
+            _generator.LoadLocalAddress(nullableIntLocal);
+
+            _generator.Call(typeof(int?).GetRuntimeMethod("get_HasValue", new Type[0]));
+            var hasValueLabel = _generator.DefineLabel();
+            _generator.BrIfTrue(hasValueLabel);
+
+            //it's null
+            var resultLocal = _generator.DeclareLocal(type);
+            _generator.LoadLocalAddress(resultLocal);
+            _generator.InitObject(type);
+            _generator.LoadLocal(resultLocal);
+            var endLabel = _generator.DefineLabel();
+            _generator.Branch(endLabel);
+
+            //it's not null
+            _generator.Mark(hasValueLabel);
+            _generator.LoadLocalAddress(nullableIntLocal);
+            _generator.Call(typeof(int?).GetRuntimeMethod("GetValueOrDefault", new Type[0]));
+            _generator.NewObject(type.GetTypeInfo().GetConstructor(new []{Nullable.GetUnderlyingType(type)}));
+            
+            _generator.Mark(endLabel);
+        }
+
         public override bool TypeSupported(Type type)
         {
-            return type.GetTypeInfo().IsEnum;
+            if(type.GetTypeInfo().IsEnum)
+            {
+                return true;
+            }
+            Type underlyingType = Nullable.GetUnderlyingType(type);
+            if(underlyingType != null)
+            {
+                return underlyingType.GetTypeInfo().IsEnum;
+            }
+            return false;
         }
 
         public override JsonPrimitive PrimitiveType => JsonPrimitive.Number;

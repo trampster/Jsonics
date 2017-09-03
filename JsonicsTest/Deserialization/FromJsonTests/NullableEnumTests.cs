@@ -4,10 +4,10 @@ using NUnit.Framework;
 namespace JsonicsTests.FromJsonTests
 {
     [TestFixture]
-    public class EnumTests
+    public class NullableEnumTests
     {
         IJsonConverter<EnumClass> _propertyFactory;
-        IJsonConverter<TestEnum> _valueFactory;
+        IJsonConverter<TestEnum?> _valueFactory;
 
         public enum TestEnum
         {
@@ -18,7 +18,7 @@ namespace JsonicsTests.FromJsonTests
 
         public class EnumClass
         {
-            public TestEnum Property
+            public TestEnum? Property
             {
                 get;
                 set;
@@ -29,7 +29,7 @@ namespace JsonicsTests.FromJsonTests
         public void FixtureSetup()
         {
             _propertyFactory = JsonFactory.Compile<EnumClass>();
-            _valueFactory = JsonFactory.Compile<TestEnum>();
+            _valueFactory = JsonFactory.Compile<TestEnum?>();
         }
 
         [TestCase("0", TestEnum.Zero)]
@@ -37,7 +37,9 @@ namespace JsonicsTests.FromJsonTests
         [TestCase("2", TestEnum.Two)]
         [TestCase(" 1", TestEnum.One)]
         [TestCase("\n 1", TestEnum.One)]
-        public void EnumProperty_CorrectlyDeserialized(string jsonValue, TestEnum expected)
+        [TestCase("null", null)]
+        [TestCase(" null", null)]
+        public void NullableEnumProperty_CorrectlyDeserialized(string jsonValue, TestEnum? expected)
         {
             //arrange
             //act
@@ -52,11 +54,13 @@ namespace JsonicsTests.FromJsonTests
         [TestCase("2", TestEnum.Two)]
         [TestCase(" 1", TestEnum.One)]
         [TestCase("\n 1", TestEnum.One)]
-        public void EnumValue_CorrectlyDeserialized(string jsonValue, TestEnum expected)
+        [TestCase("null", null)]
+        [TestCase(" null", null)]
+        public void NullableEnumValue_CorrectlyDeserialized(string jsonValue, TestEnum? expected)
         {
             //arrange
             //act
-            TestEnum result = _valueFactory.FromJson(jsonValue);
+            TestEnum? result = _valueFactory.FromJson(jsonValue);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));

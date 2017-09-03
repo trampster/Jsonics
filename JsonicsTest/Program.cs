@@ -10,6 +10,7 @@ using Jsonics.PropertyHashing;
 using JsonicsTest.Deserialization;
 using JsonicsTests.FromJsonTests;
 using NUnitLite;
+using static JsonicsTests.FromJsonTests.NullableEnumTests;
 
 namespace JsonicsTest
 {
@@ -18,6 +19,14 @@ namespace JsonicsTest
         public static void Main(string[] args)
         {
             Benchmark();
+        }
+
+        public TestEnum? TestEnummethod(LazyString lazy)
+        {
+            int? nullableInt;
+            int index = 0;
+            (nullableInt, index) = lazy.ToNullableInt(index);
+            return (TestEnum?)nullableInt;
         }
 
         public static void Benchmark()
