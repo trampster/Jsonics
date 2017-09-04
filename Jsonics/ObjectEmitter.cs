@@ -4,14 +4,18 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using Jsonics.ToJson;
 
 namespace Jsonics
 {
     public class ObjectEmitter : Emitter
     {
-        public ObjectEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField)
+        readonly ToJsonEmitters _toJsonEmitters;
+
+        public ObjectEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField, ToJsonEmitters toJsonEmitters)
             : base(typeBuilder, appendQueue, emitters, stringBuilderField)
         {
+            _toJsonEmitters = toJsonEmitters;
         }
 
         public void GenerateObject(Type type, JsonILGenerator jsonILGenerator, Action<JsonILGenerator> getTypeOnStack)
@@ -33,7 +37,10 @@ namespace Jsonics
                     jsonILGenerator.Append(",");
                 }
                 isFirstProperty = false;
-
+                if(_toJsonEmitters.EmitProperty(property, getTypeOnStack))
+                {
+                    continue;
+                }
                 if(property.PropertyType == typeof(string))
                 {
                     CreateStringProperty(property, jsonILGenerator, getTypeOnStack);

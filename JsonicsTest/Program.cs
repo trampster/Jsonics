@@ -21,14 +21,6 @@ namespace JsonicsTest
             Benchmark();
         }
 
-        public TestEnum? TestEnummethod(LazyString lazy)
-        {
-            int? nullableInt;
-            int index = 0;
-            (nullableInt, index) = lazy.ToNullableInt(index);
-            return (TestEnum?)nullableInt;
-        }
-
         public static void Benchmark()
         {
             string json = "{\"First\":1,\"Secon\":2,\"Third\":3}";

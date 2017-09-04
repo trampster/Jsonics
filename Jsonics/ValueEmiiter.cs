@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
@@ -21,6 +22,25 @@ namespace Jsonics
         {
             getValueOnStack(generator);
             generator.AppendInt();
+        }
+
+        public void CreateNullableInt(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
+        {
+            getValueOnStack(generator);
+            var hasValueLabel = generator.DefineLabel();
+            var endLabel = generator.DefineLabel();
+
+            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
+            generator.BrIfTrue(hasValueLabel);
+
+            generator.Append("null");
+            generator.Branch(endLabel);
+
+            generator.Mark(hasValueLabel);
+            getValueOnStack(generator);
+            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
+            generator.AppendInt();
+            generator.Mark(endLabel);
         }
 
         public void CreateNumber(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack, Type numberType)

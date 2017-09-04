@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using Jsonics.ToJson;
 
 namespace Jsonics
 {
@@ -11,12 +12,16 @@ namespace Jsonics
         readonly TypeBuilder _typeBuilder;
         readonly StringBuilder _appendQueue;
         readonly FieldBuilder _stringBuilderField;
+        readonly JsonILGenerator _generator;
+        readonly ToJsonEmitters _toJsonEmitters;
 
-        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
+        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField, JsonILGenerator generator)
         {
             _typeBuilder = typeBuilder;
             _appendQueue = appendQueue;
             _stringBuilderField = stringBuilderField;
+            _generator = generator;
+            _toJsonEmitters = new ToJsonEmitters(_generator);
         }
 
         public ListEmitter ListEmitter
@@ -39,7 +44,7 @@ namespace Jsonics
         {
             get
             {
-                return new TypeEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
+                return new TypeEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField, _toJsonEmitters);
             }
         }
 
@@ -47,7 +52,7 @@ namespace Jsonics
         {
             get
             {
-                return new ObjectEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
+                return new ObjectEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField, _toJsonEmitters);
             }
         }
 

@@ -3,18 +3,27 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using Jsonics.ToJson;
 
 namespace Jsonics
 {
     public class TypeEmitter : Emitter 
     {
-        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder builderField)
+        readonly ToJsonEmitters _toJsonEmitters;
+
+        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder builderField, ToJsonEmitters toJsonEmitters)
             : base(typeBuilder, appendQueue, emitters, builderField)
         {
+            _toJsonEmitters = toJsonEmitters;
         }
 
-         public void EmitType(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
-         {
+        public void EmitType(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
+        {
+            if(_toJsonEmitters.EmitValue(type, getTypeOnStack))
+            {
+                return;
+            }
+
             var valueEmitter = _emitters.ValueEmitter;
             if(type == typeof(string))
             {
