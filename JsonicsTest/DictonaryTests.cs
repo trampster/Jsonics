@@ -109,6 +109,31 @@ namespace JsonicsTest
                 "\"three\":{\"FirstName\":\"Gandalf\",\"LastName\":\"Gray\"}" +
                 "}"
                 ));
-        } 
+        }
+
+        public class ClassWithDictionaryProperty
+        {
+            public Dictionary<int, string> DictionaryProperty{get;set;}
+        }
+
+        [Test]
+        public void ToJson_ClassWithDictionaryProperty_CorrectJson()
+        {
+            //arrange
+            var classWithDictionaryProperty = new ClassWithDictionaryProperty
+            {
+                DictionaryProperty = new Dictionary<int, string>
+                {
+                    [1] = "one"
+                }
+            };
+            var converter = JsonFactory.Compile<ClassWithDictionaryProperty>();
+
+            //act
+            var json = converter.ToJson(classWithDictionaryProperty);
+
+            //assert
+            Assert.That(json, Is.EqualTo("{\"DictionaryProperty\":{\"1\":\"one\"}}"));
+        }
     }
 }

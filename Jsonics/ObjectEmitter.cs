@@ -64,7 +64,7 @@ namespace Jsonics
                 }
                 else if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType .GetGenericTypeDefinition() == typeof(Dictionary<,>))
                 {
-                    //TODO handle dictionary properties
+                    CreateDictionaryProperty(property, jsonILGenerator, getTypeOnStack);
                 }
                 else if(property.PropertyType == typeof(DateTime))
                 {
@@ -222,7 +222,32 @@ namespace Jsonics
             _emitters.ValueEmitter.CreateListValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
 
             generator.Mark(endLabel);
+        }
+
+        void CreateDictionaryProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
+        {
+            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
+            var endLabel = generator.DefineLabel();
+            var nonNullLabel = generator.DefineLabel();
+
+            loadType(generator);
+            generator.GetProperty(property);
+            generator.StoreLocal(propertyValueLocal);
+            generator.LoadLocal(propertyValueLocal);
+
+            //check for null
+            generator.BrIfTrue(nonNullLabel);
             
+            //property is null
+            generator.Append($"\"{property.Name}\":null");
+            generator.Branch(endLabel);
+
+            //property is not null
+            generator.Mark(nonNullLabel);
+            generator.Append($"\"{property.Name}\":");
+            _emitters.ValueEmitter.CreateDictionaryValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
+
+            generator.Mark(endLabel);
         }
     }
 }
