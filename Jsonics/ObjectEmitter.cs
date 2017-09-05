@@ -37,17 +37,13 @@ namespace Jsonics
                     jsonILGenerator.Append(",");
                 }
                 isFirstProperty = false;
-                if(_toJsonEmitters.EmitProperty(property, getTypeOnStack))
+                if(_toJsonEmitters.EmitProperty(property, getTypeOnStack, jsonILGenerator))
                 {
                     continue;
                 }
                 if(property.PropertyType == typeof(string))
                 {
                     CreateStringProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if (property.PropertyType == typeof(int) || property.PropertyType.GetTypeInfo().IsEnum)
-                {
-                    CreateIntProperty(property, jsonILGenerator, getTypeOnStack);
                 }
                 else if(property.PropertyType == typeof(uint) ||
                    property.PropertyType == typeof(long) || property.PropertyType == typeof(ulong) ||
@@ -109,17 +105,6 @@ namespace Jsonics
             {
                 loadType(gen);
                 gen.GetProperty(property);
-            });
-        }
-
-        void CreateIntProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            generator.Append($"\"{property.Name}\":");
-
-            _emitters.ValueEmitter.CreateInt(generator, gen =>
-            {
-                loadType(generator);
-                generator.GetProperty(property);
             });
         }
 

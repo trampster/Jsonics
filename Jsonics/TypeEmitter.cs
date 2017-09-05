@@ -19,7 +19,7 @@ namespace Jsonics
 
         public void EmitType(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
         {
-            if(_toJsonEmitters.EmitValue(type, getTypeOnStack))
+            if(_toJsonEmitters.EmitValue(type, getTypeOnStack, generator))
             {
                 return;
             }
@@ -28,10 +28,6 @@ namespace Jsonics
             if(type == typeof(string))
             {
                 valueEmitter.CreateString(generator, getTypeOnStack);
-            }
-            else if(type == typeof(int) || type.GetTypeInfo().IsEnum)
-            {
-                valueEmitter.CreateInt(generator, getTypeOnStack);
             }
             else if(type == typeof(uint) ||
                 type == typeof(long) || type == typeof(ulong) ||

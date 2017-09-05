@@ -12,16 +12,14 @@ namespace Jsonics
         readonly TypeBuilder _typeBuilder;
         readonly StringBuilder _appendQueue;
         readonly FieldBuilder _stringBuilderField;
-        readonly JsonILGenerator _generator;
         readonly ToJsonEmitters _toJsonEmitters;
 
-        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField, JsonILGenerator generator)
+        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
         {
             _typeBuilder = typeBuilder;
             _appendQueue = appendQueue;
             _stringBuilderField = stringBuilderField;
-            _generator = generator;
-            _toJsonEmitters = new ToJsonEmitters(_generator);
+            _toJsonEmitters = new ToJsonEmitters();
         }
 
         public ListEmitter ListEmitter

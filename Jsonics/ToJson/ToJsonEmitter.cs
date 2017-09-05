@@ -5,16 +5,9 @@ namespace Jsonics.ToJson
 {
     public abstract class ToJsonEmitter
     {
-        protected readonly JsonILGenerator _generator;
+        public abstract void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator);
 
-        public ToJsonEmitter(JsonILGenerator generator)
-        {
-            _generator = generator;
-        }
-
-        public abstract void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack);
-
-        public abstract void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack);
+        public abstract void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator);
 
         public abstract bool TypeSupported(Type type);
     }

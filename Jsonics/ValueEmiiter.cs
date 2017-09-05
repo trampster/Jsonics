@@ -18,12 +18,6 @@ namespace Jsonics
             generator.EmitAppendEscaped();
         }
 
-        public void CreateInt(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
-        {
-            getValueOnStack(generator);
-            generator.AppendInt();
-        }
-
         public void CreateNumber(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack, Type numberType)
         {
             getValueOnStack(generator);

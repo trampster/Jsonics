@@ -7,34 +7,35 @@ namespace Jsonics.ToJson
     {
         readonly ToJsonEmitter[] _emitters;
 
-        public ToJsonEmitters(JsonILGenerator generator)
+        public ToJsonEmitters()
         {
             _emitters = new ToJsonEmitter[]
             {
-                new NullableIntEmitter(generator)
+                new NullableIntEmitter(),
+                new IntEmitter(),
             };
         }
 
-        public bool EmitValue(Type type, Action<JsonILGenerator> getValueOnStack)
+        public bool EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             foreach(var emitter in _emitters)
             {
                 if(emitter.TypeSupported(type))
                 {
-                    emitter.EmitValue(type, getValueOnStack);
+                    emitter.EmitValue(type, getValueOnStack, generator);
                     return true;
                 }
             }
             return false;
         }
 
-        public bool EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack)
+        public bool EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             foreach(var emitter in _emitters)
             {
                 if(emitter.TypeSupported(property.PropertyType))
                 {
-                    emitter.EmitProperty(property, getValueOnStack);
+                    emitter.EmitProperty(property, getValueOnStack, generator);
                     return true;
                 }
             }

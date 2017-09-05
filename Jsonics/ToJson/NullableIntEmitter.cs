@@ -5,55 +5,51 @@ namespace Jsonics.ToJson
 {
     public class NullableIntEmitter : ToJsonEmitter
     {
-        public NullableIntEmitter(JsonILGenerator generator) : base(generator)
+        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
-        }
+            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
+            var endLabel = generator.DefineLabel();
+            var nonNullLabel = generator.DefineLabel();
 
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack)
-        {
-            var propertyValueLocal = _generator.DeclareLocal(property.PropertyType);
-            var endLabel = _generator.DefineLabel();
-            var nonNullLabel = _generator.DefineLabel();
-
-            getValueOnStack(_generator);
-            _generator.GetProperty(property);
-            _generator.StoreLocal(propertyValueLocal);
-            _generator.LoadLocalAddress(propertyValueLocal);
+            getValueOnStack(generator);
+            generator.GetProperty(property);
+            generator.StoreLocal(propertyValueLocal);
+            generator.LoadLocalAddress(propertyValueLocal);
 
             //check for null
-            _generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
-            _generator.BrIfTrue(nonNullLabel);
+            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
+            generator.BrIfTrue(nonNullLabel);
             
             //property is null
-            _generator.Append($"\"{property.Name}\":null");
-            _generator.Branch(endLabel);
+            generator.Append($"\"{property.Name}\":null");
+            generator.Branch(endLabel);
 
             //property is not null
-            _generator.Mark(nonNullLabel);
-            _generator.Append($"\"{property.Name}\":");
-            _generator.LoadLocalAddress(propertyValueLocal);
-            _generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
-            _generator.AppendInt();
-            _generator.Mark(endLabel);
+            generator.Mark(nonNullLabel);
+            generator.Append($"\"{property.Name}\":");
+            generator.LoadLocalAddress(propertyValueLocal);
+            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
+            generator.AppendInt();
+            generator.Mark(endLabel);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack)
+        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
-            getValueOnStack(_generator);
-            var hasValueLabel = _generator.DefineLabel();
-            var endLabel = _generator.DefineLabel();
+            getValueOnStack(generator);
+            var hasValueLabel = generator.DefineLabel();
+            var endLabel = generator.DefineLabel();
 
-            _generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
-            _generator.BrIfTrue(hasValueLabel);
+            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
+            generator.BrIfTrue(hasValueLabel);
 
-            _generator.Append("null");
-            _generator.Branch(endLabel);
+            generator.Append("null");
+            generator.Branch(endLabel);
 
-            _generator.Mark(hasValueLabel);
-            getValueOnStack(_generator);
-            _generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
-            _generator.AppendInt();
-            _generator.Mark(endLabel);
+            generator.Mark(hasValueLabel);
+            getValueOnStack(generator);
+            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
+            generator.AppendInt();
+            generator.Mark(endLabel);
         }
 
         public override bool TypeSupported(Type type)
