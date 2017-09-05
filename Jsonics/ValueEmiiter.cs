@@ -11,12 +11,6 @@ namespace Jsonics
             : base(typeBuilder, appendQueue, emitters, stringBuilderField)
         {
         }
-        
-        public void CreateString(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
-        {
-            getValueOnStack(generator);
-            generator.EmitAppendEscaped();
-        }
 
         public void CreateNumber(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack, Type numberType)
         {

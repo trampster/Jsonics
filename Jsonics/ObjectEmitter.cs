@@ -41,11 +41,7 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType == typeof(string))
-                {
-                    CreateStringProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if(property.PropertyType == typeof(uint) ||
+                if(property.PropertyType == typeof(uint) ||
                    property.PropertyType == typeof(long) || property.PropertyType == typeof(ulong) ||
                    property.PropertyType == typeof(byte) || property.PropertyType == typeof(sbyte) ||
                    property.PropertyType == typeof(short) || property.PropertyType == typeof(ushort) ||
@@ -91,17 +87,6 @@ namespace Jsonics
             generator.Append($"\"{property.Name}\":");
 
             GenerateObject(property.PropertyType, generator, gen => 
-            {
-                loadType(gen);
-                gen.GetProperty(property);
-            });
-        }
-
-        void CreateStringProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            generator.Append($"\"{property.Name}\":");
-
-            _emitters.ValueEmitter.CreateString(generator, gen => 
             {
                 loadType(gen);
                 gen.GetProperty(property);

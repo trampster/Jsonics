@@ -25,11 +25,8 @@ namespace Jsonics
             }
 
             var valueEmitter = _emitters.ValueEmitter;
-            if(type == typeof(string))
-            {
-                valueEmitter.CreateString(generator, getTypeOnStack);
-            }
-            else if(type == typeof(uint) ||
+
+            if(type == typeof(uint) ||
                 type == typeof(long) || type == typeof(ulong) ||
                 type == typeof(byte) || type == typeof(sbyte) ||
                 type == typeof(short) || type == typeof(ushort) ||
