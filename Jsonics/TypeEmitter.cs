@@ -26,15 +26,7 @@ namespace Jsonics
 
             var valueEmitter = _emitters.ValueEmitter;
 
-            if(type == typeof(uint) ||
-                type == typeof(long) || type == typeof(ulong) ||
-                type == typeof(byte) || type == typeof(sbyte) ||
-                type == typeof(short) || type == typeof(ushort) ||
-                type == typeof(float) || type == typeof(double))
-            {
-                valueEmitter.CreateNumber(generator, getTypeOnStack, type);
-            }
-            else if(type == typeof(bool))
+            if(type == typeof(bool))
             {
                 valueEmitter.CreateBool(generator, getTypeOnStack);
             }

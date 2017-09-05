@@ -13,6 +13,8 @@ namespace Jsonics.FromJson
             _emitters = new List<FromJsonEmitter>();
             _emitters.Add(new LazyStringEmitter<byte>(lazyStringLocal, generator, this, "ToByte", JsonPrimitive.Number));
             _emitters.Add(new LazyStringEmitter<byte?>(lazyStringLocal, generator, this, "ToNullableByte", JsonPrimitive.Number));
+            _emitters.Add(new LazyStringEmitter<sbyte>(lazyStringLocal, generator, this, "ToSByte", JsonPrimitive.Number));
+            _emitters.Add(new LazyStringEmitter<sbyte?>(lazyStringLocal, generator, this, "ToNullableSByte", JsonPrimitive.Number));
             _emitters.Add(new LazyStringEmitter<short>(lazyStringLocal, generator, this, "ToShort", JsonPrimitive.Number));
             _emitters.Add(new LazyStringEmitter<short?>(lazyStringLocal, generator, this, "ToNullableShort", JsonPrimitive.Number));
             _emitters.Add(new LazyStringEmitter<ushort>(lazyStringLocal, generator, this, "ToUShort", JsonPrimitive.Number));

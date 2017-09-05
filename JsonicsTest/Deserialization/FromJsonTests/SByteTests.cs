@@ -4,14 +4,14 @@ using NUnit.Framework;
 namespace JsonicsTests.FromJsonTests
 {
     [TestFixture]
-    public class ByteTests
+    public class SByteTests
     {
-        IJsonConverter<ByteClass> _propertyFactory;
-        IJsonConverter<byte> _valueFactory;
+        IJsonConverter<SByteClass> _propertyFactory;
+        IJsonConverter<sbyte> _valueFactory;
 
-        public class ByteClass
+        public class SByteClass
         {
-            public byte Property
+            public sbyte Property
             {
                 get;
                 set;
@@ -21,15 +21,17 @@ namespace JsonicsTests.FromJsonTests
         [OneTimeSetUp]
         public void FixtureSetup()
         {
-            _propertyFactory = JsonFactory.Compile<ByteClass>();
-            _valueFactory = JsonFactory.Compile<byte>();
+            _propertyFactory = JsonFactory.Compile<SByteClass>();
+            _valueFactory = JsonFactory.Compile<sbyte>();
         }
 
         [TestCase("1", 1)]
+        [TestCase("-1", -1)]
         [TestCase(" 9", 9)]
-        [TestCase("\n 255", 255)]
+        [TestCase("\n 127", 127)]
+        [TestCase("\n -128", -128)]
         [TestCase(" 0", 0)]
-        public void ByteProperty_CorrectlyDeserialized(string jsonValue, byte expected)
+        public void SByteProperty_CorrectlyDeserialized(string jsonValue, sbyte expected)
         {
             //arrange
             //act
@@ -40,14 +42,16 @@ namespace JsonicsTests.FromJsonTests
         }
 
         [TestCase("1", 1)]
+        [TestCase("-1", -1)]
         [TestCase(" 9", 9)]
-        [TestCase("\n 255", 255)]
+        [TestCase("\n 127", 127)]
+        [TestCase("\n -128", -128)]
         [TestCase(" 0", 0)]
-        public void ByteValue_CorrectlyDeserialized(string jsonValue, byte expected)
+        public void SByteValue_CorrectlyDeserialized(string jsonValue, sbyte expected)
         {
             //arrange
             //act
-            byte result = _valueFactory.FromJson(jsonValue);
+            sbyte result = _valueFactory.FromJson(jsonValue);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));

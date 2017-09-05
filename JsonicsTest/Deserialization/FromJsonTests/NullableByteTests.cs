@@ -11,7 +11,7 @@ namespace JsonicsTests.FromJsonTests
         
         public class NullableByteClass
         {
-            public ushort? Property
+            public byte? Property
             {
                 get;
                 set;

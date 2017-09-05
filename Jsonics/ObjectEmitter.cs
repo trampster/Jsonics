@@ -41,15 +41,7 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType == typeof(uint) ||
-                   property.PropertyType == typeof(long) || property.PropertyType == typeof(ulong) ||
-                   property.PropertyType == typeof(byte) || property.PropertyType == typeof(sbyte) ||
-                   property.PropertyType == typeof(short) || property.PropertyType == typeof(ushort) ||
-                   property.PropertyType == typeof(float) || property.PropertyType == typeof(double))
-                {
-                    CreateNumberProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if(property.PropertyType == typeof(bool))
+                if(property.PropertyType == typeof(bool))
                 {
                     CreateBoolProperty(property, jsonILGenerator, getTypeOnStack);
                 }
@@ -91,18 +83,6 @@ namespace Jsonics
                 loadType(gen);
                 gen.GetProperty(property);
             });
-        }
-
-        void CreateNumberProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            generator.Append($"\"{property.Name}\":");
-
-            _emitters.ValueEmitter.CreateNumber(generator, gen => 
-            {
-                loadType(generator);
-                generator.GetProperty(property);
-            },
-            property.PropertyType);
         }
 
         void CreateDateTimeProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)

@@ -13,6 +13,7 @@ namespace Jsonics.ToJson
             {
                 new NullableIntEmitter(),
                 new IntEmitter(),
+                new NumberEmitter(),
                 new StringEmitter()
             };
         }

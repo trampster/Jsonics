@@ -12,12 +12,6 @@ namespace Jsonics
         {
         }
 
-        public void CreateNumber(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack, Type numberType)
-        {
-            getValueOnStack(generator);
-            generator.EmitAppend(numberType);
-        }
-
         public void CreateBool(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
         {
             Label trueLabel = generator.DefineLabel();

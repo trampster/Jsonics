@@ -285,6 +285,12 @@ namespace Jsonics
             }
         }
 
+        public (sbyte, int) ToSByte(int start)
+        {
+            (int result, int index) = ToInt(start);
+            return ((sbyte)result, index);
+        }
+
         public (byte,int) ToByte(int start)
         {
             int index = start + _start;
@@ -389,6 +395,12 @@ namespace Jsonics
         {
             (uint? result, int index) = ToNullableUInt(start);
             return ((ushort?)result, index);
+        }
+
+        public (sbyte?, int) ToNullableSByte(int start)
+        {
+            (int? result, int index) = ToNullableInt(start);
+            return ((sbyte?)result, index);
         }
 
         public (int,int) ToInt(int start)
