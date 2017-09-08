@@ -41,11 +41,7 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType == typeof(bool))
-                {
-                    CreateBoolProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if(property.PropertyType.IsArray)
+                if(property.PropertyType.IsArray)
                 {
                     CreateArrayProperty(property, jsonILGenerator, getTypeOnStack);
                 }
@@ -105,27 +101,6 @@ namespace Jsonics
                 loadType(gen);
                 gen.GetProperty(property);
             });
-        }
-
-        void CreateBoolProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            Label trueLabel = generator.DefineLabel();
-            Label callAppend = generator.DefineLabel();
-
-            loadType(generator);
-            generator.GetProperty(property);
-            generator.BrIfTrue(trueLabel);
-
-            //false case
-            generator.LoadString($"\"{property.Name}\":false");
-            generator.Branch(callAppend);
-
-            //true case
-            generator.Mark(trueLabel);
-            generator.LoadString($"\"{property.Name}\":true");
-
-            generator.Mark(callAppend);
-            generator.EmitAppend(typeof(string));
         }
 
         void CreateArrayProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)

@@ -8,20 +8,6 @@ namespace JsonicsTest
     [TestFixture]
     public class JsonPrimitivesTests
     {
-        [TestCase(true,"true")]
-        [TestCase(false,"false")]
-        public void ToJson_Bool_CorrectJson(bool input, string expectedJson)
-        {
-            //arrange
-            var converter = JsonFactory.Compile<bool>();
-
-            //act
-            string json = converter.ToJson(input);
-
-            //assert
-            Assert.That(json, Is.EqualTo(expectedJson));
-        }
-
         [Test]
         public void ToJson_StringArray_CorrectJson()
         {

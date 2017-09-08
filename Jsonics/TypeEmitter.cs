@@ -26,11 +26,7 @@ namespace Jsonics
 
             var valueEmitter = _emitters.ValueEmitter;
 
-            if(type == typeof(bool))
-            {
-                valueEmitter.CreateBool(generator, getTypeOnStack);
-            }
-            else if(type.IsArray)
+            if(type.IsArray)
             {
                 valueEmitter.CreateArrayValue(type, generator, getTypeOnStack);
             }

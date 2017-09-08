@@ -12,26 +12,6 @@ namespace Jsonics
         {
         }
 
-        public void CreateBool(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
-        {
-            Label trueLabel = generator.DefineLabel();
-            Label callAppend = generator.DefineLabel();
-
-            getValueOnStack(generator);
-            generator.BrIfTrue(trueLabel);
-
-            //false case
-            generator.LoadString("false");
-            generator.Branch(callAppend);
-
-            //true calse
-            generator.Mark(trueLabel);
-            generator.LoadString($"true");
-
-            generator.Mark(callAppend);
-            generator.EmitAppend(typeof(string));
-        }
-
         public void CreateArrayValue(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
         {
             var methodInfo = _emitters.GetMethod(type, generator.AppendQueue, (gen, getElementOnStack) => _emitters.TypeEmitter.EmitType(type.GetElementType(), gen, getElementOnStack));
