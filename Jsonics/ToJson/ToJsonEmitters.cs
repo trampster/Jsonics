@@ -12,6 +12,7 @@ namespace Jsonics.ToJson
             _emitters = new ToJsonEmitter[]
             {
                 new BoolEmitter(),
+                new NullableBoolEmitter(),
                 new IntEmitter(),
                 new NullableIntEmitter(),
                 new NumberEmitter(),
