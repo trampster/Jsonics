@@ -109,7 +109,7 @@ namespace Jsonics
 
             var jsonILGenerator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
             
-            var emitters = new Emitters(typeBuilder, jsonILGenerator.AppendQueue, builderField);
+            var emitters = new ListMethods(typeBuilder, jsonILGenerator.AppendQueue, builderField);
             //lazy construct a StringBuilder
             jsonILGenerator.LoadStaticField(builderField);
             

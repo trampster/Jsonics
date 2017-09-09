@@ -12,8 +12,8 @@ namespace Jsonics
     {
         readonly ToJsonEmitters _toJsonEmitters;
 
-        public ObjectEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField, ToJsonEmitters toJsonEmitters)
-            : base(typeBuilder, appendQueue, emitters, stringBuilderField)
+        public ObjectEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, ListMethods listMethods, FieldBuilder stringBuilderField, ToJsonEmitters toJsonEmitters)
+            : base(typeBuilder, appendQueue, listMethods, stringBuilderField)
         {
             _toJsonEmitters = toJsonEmitters;
         }
@@ -41,11 +41,7 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType.IsArray)
-                {
-                    CreateArrayProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     CreateListProperty(property, jsonILGenerator, getTypeOnStack);
                 }
@@ -85,7 +81,7 @@ namespace Jsonics
         {
             generator.Append($"\"{property.Name}\":");
 
-            _emitters.ValueEmitter.CreateDateTime(generator, gen =>
+            _listMethods.ValueEmitter.CreateDateTime(generator, gen =>
             {
                 loadType(gen);
                 gen.GetProperty(property);
@@ -96,38 +92,11 @@ namespace Jsonics
         {
             generator.Append($"\"{property.Name}\":");
 
-            _emitters.ValueEmitter.CreateGuid(generator, gen =>
+            _listMethods.ValueEmitter.CreateGuid(generator, gen =>
             {
                 loadType(gen);
                 gen.GetProperty(property);
             });
-        }
-
-        void CreateArrayProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
-            var endLabel = generator.DefineLabel();
-            var nonNullLabel = generator.DefineLabel();
-
-            loadType(generator);
-            generator.GetProperty(property);
-            generator.StoreLocal(propertyValueLocal);
-            generator.LoadLocal(propertyValueLocal);
-
-            //check for null
-            generator.BrIfTrue(nonNullLabel);
-            
-            //property is null
-            generator.Append($"\"{property.Name}\":null");
-            generator.Branch(endLabel);
-
-            //property is not null
-            generator.Mark(nonNullLabel);
-            generator.Append($"\"{property.Name}\":");
-            _emitters.ValueEmitter.CreateArrayValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
-
-            generator.Mark(endLabel);
-            
         }
 
         void CreateListProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
@@ -151,7 +120,7 @@ namespace Jsonics
             //property is not null
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
-            _emitters.ValueEmitter.CreateListValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
+            _listMethods.ValueEmitter.CreateListValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
 
             generator.Mark(endLabel);
         }
@@ -177,7 +146,7 @@ namespace Jsonics
             //property is not null
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
-            _emitters.ValueEmitter.CreateDictionaryValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
+            _listMethods.ValueEmitter.CreateDictionaryValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
 
             generator.Mark(endLabel);
         }

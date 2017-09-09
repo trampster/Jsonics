@@ -11,8 +11,8 @@ namespace Jsonics
     {
         readonly ToJsonEmitters _toJsonEmitters;
 
-        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder builderField, ToJsonEmitters toJsonEmitters)
-            : base(typeBuilder, appendQueue, emitters, builderField)
+        public TypeEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, ListMethods listMethods, FieldBuilder builderField, ToJsonEmitters toJsonEmitters)
+            : base(typeBuilder, appendQueue, listMethods, builderField)
         {
             _toJsonEmitters = toJsonEmitters;
         }
@@ -24,13 +24,9 @@ namespace Jsonics
                 return;
             }
 
-            var valueEmitter = _emitters.ValueEmitter;
+            var valueEmitter = _listMethods.ValueEmitter;
 
-            if(type.IsArray)
-            {
-                valueEmitter.CreateArrayValue(type, generator, getTypeOnStack);
-            }
-            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 valueEmitter.CreateListValue(type, generator, getTypeOnStack);
             }
@@ -48,7 +44,7 @@ namespace Jsonics
             }
             else
             {
-                _emitters.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack);
+                _listMethods.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack);
             }
         }
     }

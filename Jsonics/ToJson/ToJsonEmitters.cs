@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Jsonics.ToJson
 {
@@ -7,7 +8,7 @@ namespace Jsonics.ToJson
     {
         readonly ToJsonEmitter[] _emitters;
 
-        public ToJsonEmitters()
+        public ToJsonEmitters(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder)
         {
             _emitters = new ToJsonEmitter[]
             {
@@ -17,7 +18,8 @@ namespace Jsonics.ToJson
                 new NullableIntEmitter(),
                 new NumberEmitter(),
                 new NullableNumberEmitter(),
-                new StringEmitter()
+                new StringEmitter(),
+                new ArrayEmitter(listMethods, stringBuilderField, typeBuilder)
             };
         }
 

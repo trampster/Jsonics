@@ -7,14 +7,14 @@ namespace Jsonics
     {
         protected readonly TypeBuilder _typeBuilder;
         protected readonly StringBuilder _appendQueue;
-        protected readonly Emitters _emitters;
+        protected readonly ListMethods _listMethods;
         protected readonly FieldBuilder _stringBuilderField;
 
-        public Emitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField)
+        public Emitter(TypeBuilder typeBuilder, StringBuilder appendQueue, ListMethods listMethods, FieldBuilder stringBuilderField)
         {
             _typeBuilder = typeBuilder;
             _appendQueue = appendQueue;
-            _emitters = emitters;
+            _listMethods = listMethods;
             _stringBuilderField = stringBuilderField;
         }
     }

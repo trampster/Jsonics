@@ -7,19 +7,19 @@ using Jsonics.ToJson;
 
 namespace Jsonics
 {
-    public class Emitters
+    public class ListMethods
     {
         readonly TypeBuilder _typeBuilder;
         readonly StringBuilder _appendQueue;
         readonly FieldBuilder _stringBuilderField;
         readonly ToJsonEmitters _toJsonEmitters;
 
-        public Emitters(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
+        public ListMethods(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
         {
             _typeBuilder = typeBuilder;
             _appendQueue = appendQueue;
             _stringBuilderField = stringBuilderField;
-            _toJsonEmitters = new ToJsonEmitters();
+            _toJsonEmitters = new ToJsonEmitters(this, stringBuilderField, typeBuilder);
         }
 
         public ListEmitter ListEmitter
@@ -56,13 +56,13 @@ namespace Jsonics
 
         Dictionary<Type, MethodInfo> _methodLookup = new Dictionary<Type, MethodInfo>();
 
-        public MethodInfo GetMethod(Type type, StringBuilder appendQueue, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        public MethodInfo GetMethod(Type type, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement, Func<MethodBuilder> getMethodBuilder)
         {
             if(!_methodLookup.ContainsKey(type))
             {
                 if(type.IsArray)
                 {
-                    _methodLookup[type] = ListEmitter.EmitArrayMethod(type.GetElementType(), emitElement);
+                    _methodLookup[type] = getMethodBuilder();
                 }
                 else if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
                 {

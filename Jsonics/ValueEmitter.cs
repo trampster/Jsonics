@@ -7,24 +7,14 @@ namespace Jsonics
 {
     public class ValueEmitter : Emitter
     {
-        public ValueEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, Emitters emitters, FieldBuilder stringBuilderField)
-            : base(typeBuilder, appendQueue, emitters, stringBuilderField)
+        public ValueEmitter(TypeBuilder typeBuilder, StringBuilder appendQueue, ListMethods listMethods, FieldBuilder stringBuilderField)
+            : base(typeBuilder, appendQueue, listMethods, stringBuilderField)
         {
-        }
-
-        public void CreateArrayValue(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
-        {
-            var methodInfo = _emitters.GetMethod(type, generator.AppendQueue, (gen, getElementOnStack) => _emitters.TypeEmitter.EmitType(type.GetElementType(), gen, getElementOnStack));
-            generator.Pop(); //remove StringBuilder from the stack
-            generator.LoadArg(typeof(object), 0);  //load this
-            generator.LoadStaticField(_stringBuilderField);
-            getTypeOnStack(generator);
-            generator.Call(methodInfo);
         }
 
         public void CreateListValue(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
         {
-            var methodInfo = _emitters.GetMethod(type, generator.AppendQueue, (gen, getElementOnStack) => _emitters.TypeEmitter.EmitType(type.GenericTypeArguments[0], gen, getElementOnStack));
+            var methodInfo = _listMethods.GetMethod(type, (gen, getElementOnStack) => _listMethods.TypeEmitter.EmitType(type.GenericTypeArguments[0], gen, getElementOnStack), null);
             generator.Pop();     //remove StringBuilder from the stack
             generator.LoadArg(typeof(object), 0);
             generator.LoadStaticField(_stringBuilderField);
@@ -34,7 +24,7 @@ namespace Jsonics
 
         public void CreateDictionaryValue(Type type, JsonILGenerator generator, Action<JsonILGenerator> getTypeOnStack)
         {
-            var methodInfo = _emitters.GetMethod(type, generator.AppendQueue, (gen, getElementOnStack) => _emitters.TypeEmitter.EmitType(type.GenericTypeArguments[0], gen, getElementOnStack));
+            var methodInfo = _listMethods.GetMethod(type, (gen, getElementOnStack) => _listMethods.TypeEmitter.EmitType(type.GenericTypeArguments[0], gen, getElementOnStack), null);
             generator.Pop();     //remove StringBuilder from the stack
             generator.LoadArg(typeof(object), 0);
             generator.LoadStaticField(_stringBuilderField);
