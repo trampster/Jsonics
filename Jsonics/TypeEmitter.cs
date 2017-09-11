@@ -26,11 +26,7 @@ namespace Jsonics
 
             var valueEmitter = _listMethods.ValueEmitter;
 
-            if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                valueEmitter.CreateListValue(type, generator, getTypeOnStack);
-            }
-            else if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            if(type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
                 valueEmitter.CreateDictionaryValue(type, generator, getTypeOnStack);
             }
