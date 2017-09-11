@@ -41,11 +41,7 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
-                {
-                    CreateListProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType .GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                if(property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType .GetGenericTypeDefinition() == typeof(Dictionary<,>))
                 {
                     CreateDictionaryProperty(property, jsonILGenerator, getTypeOnStack);
                 }
@@ -97,32 +93,6 @@ namespace Jsonics
                 loadType(gen);
                 gen.GetProperty(property);
             });
-        }
-
-        void CreateListProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
-            var endLabel = generator.DefineLabel();
-            var nonNullLabel = generator.DefineLabel();
-
-            loadType(generator);
-            generator.GetProperty(property);
-            generator.StoreLocal(propertyValueLocal);
-            generator.LoadLocal(propertyValueLocal);
-
-            //check for null
-            generator.BrIfTrue(nonNullLabel);
-            
-            //property is null
-            generator.Append($"\"{property.Name}\":null");
-            generator.Branch(endLabel);
-
-            //property is not null
-            generator.Mark(nonNullLabel);
-            generator.Append($"\"{property.Name}\":");
-            _listMethods.ValueEmitter.CreateListValue(property.PropertyType, generator, gen => gen.LoadLocal(propertyValueLocal));
-
-            generator.Mark(endLabel);
         }
 
         void CreateDictionaryProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
