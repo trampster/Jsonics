@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using Jsonics.FromJson;
 
-namespace Jsonics
+namespace Jsonics.FromJson
 {
     public struct LazyString
     {

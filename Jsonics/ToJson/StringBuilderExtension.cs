@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Jsonics
+namespace Jsonics.ToJson
 {
     public static class StringBuilderExtension
     {

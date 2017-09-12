@@ -10,13 +10,15 @@ namespace Jsonics.ToJson
         readonly ListMethods _listMethods;
         readonly FieldBuilder _stringBuilderField;
         readonly TypeBuilder _typeBuilder;
+        readonly ToJsonEmitters _toJsonEmitters;
 
 
-        public ArrayEmitter(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder)
+        public ArrayEmitter(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder, ToJsonEmitters toJsonEmitters)
         {
             _listMethods = listMethods;
             _stringBuilderField = stringBuilderField;
             _typeBuilder = typeBuilder;
+            _toJsonEmitters = toJsonEmitters;
         }
 
         public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
@@ -47,9 +49,9 @@ namespace Jsonics.ToJson
 
         public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
-            var methodInfo = _listMethods.GetMethod(type,
-                (gen, getElementOnStack) => _listMethods.TypeEmitter.EmitType(type.GetElementType(), gen, getElementOnStack),
-                () => EmitArrayMethod(type.GetElementType(), (gen, getElementOnStack) => _listMethods.TypeEmitter.EmitType(type.GetElementType(), gen, getElementOnStack)));
+            var methodInfo = _listMethods.GetMethod(
+                type,
+                () => EmitArrayMethod(type.GetElementType(), (gen, getElementOnStack) => _toJsonEmitters.EmitValue(type.GetElementType(), getElementOnStack, gen)));
             generator.Pop(); //remove StringBuilder from the stack
             generator.LoadArg(typeof(object), 0);  //load this
             generator.LoadStaticField(_stringBuilderField);

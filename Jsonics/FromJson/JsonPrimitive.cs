@@ -1,4 +1,4 @@
-namespace Jsonics
+namespace Jsonics.FromJson
 {
     public enum JsonPrimitive
     {

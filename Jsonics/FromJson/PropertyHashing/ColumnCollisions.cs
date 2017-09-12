@@ -1,4 +1,4 @@
-namespace Jsonics.PropertyHashing
+namespace Jsonics.FromJson.PropertyHashing
 {
     public class ColumnCollisions
     {

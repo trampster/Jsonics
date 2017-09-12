@@ -79,5 +79,18 @@ namespace JsonicsTest.JsonTests
             var minutes = offset.Minutes.ToString("00");
             Assert.That(json, Is.EqualTo($"{{\"DateTime\":\"2016-01-02T23:59:58.555{sign}{hours}:{minutes}\"}}"));
         }
+
+        [Test]
+        public void ToJson_DateTime_CorrectJson()
+        {
+            //arrange
+            var converter = JsonFactory.Compile<DateTime>();
+
+            //act
+            string json = converter.ToJson(new DateTime(2017,03,07, 23,59,42, DateTimeKind.Utc));
+
+            //assert
+            Assert.That(json, Is.EqualTo("\"2017-03-07T23:59:42Z\""));
+        }
     }
 }

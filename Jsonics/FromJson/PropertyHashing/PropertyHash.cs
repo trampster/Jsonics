@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Jsonics.PropertyHashing
+namespace Jsonics.FromJson.PropertyHashing
 {
     public class PropertyHash
     {

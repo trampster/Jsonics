@@ -1,7 +1,7 @@
 using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicsTest
+namespace JsonicsTest.ToJsonTests
 {
     [TestFixture]
     public class StructTests

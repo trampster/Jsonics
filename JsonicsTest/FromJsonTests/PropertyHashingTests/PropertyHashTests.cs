@@ -1,7 +1,7 @@
-using Jsonics.PropertyHashing;
+using Jsonics.FromJson.PropertyHashing;
 using NUnit.Framework;
 
-namespace JsonicsTest.PropertyHashing
+namespace JsonicsTest.FromJsonTests.PropertyHashingTests
 {
     [TestFixture]
     public class PropertyHashTests

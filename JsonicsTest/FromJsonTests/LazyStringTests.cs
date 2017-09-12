@@ -1,8 +1,9 @@
 using System;
 using Jsonics;
+using Jsonics.FromJson;
 using NUnit.Framework;
 
-namespace JsonicsTest.Deserialization
+namespace JsonicsTest.FromJsonTests
 {
     [TestFixture]
     public class LazyStringTests

@@ -3,9 +3,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Linq;
-using Jsonics.PropertyHashing;
 using Jsonics.FromJson;
 using System.Collections.Generic;
+using Jsonics.ToJson;
 
 namespace Jsonics
 {
@@ -109,7 +109,10 @@ namespace Jsonics
 
             var jsonILGenerator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
             
-            var emitters = new ListMethods(typeBuilder, jsonILGenerator.AppendQueue, builderField);
+
+            var listMethods = new ListMethods(typeBuilder, jsonILGenerator.AppendQueue, builderField);
+            var toJsonEmitters = new ToJsonEmitters(listMethods, builderField, typeBuilder);
+            
             //lazy construct a StringBuilder
             jsonILGenerator.LoadStaticField(builderField);
             
@@ -124,7 +127,7 @@ namespace Jsonics
             jsonILGenerator.CallVirtual(typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]));
 
             Type type = typeof(T);
-            emitters.TypeEmitter.EmitType(type, jsonILGenerator, gen => gen.LoadArg(type, 1));
+            toJsonEmitters.EmitValue(type, gen => gen.LoadArg(type, 1), jsonILGenerator);
 
             jsonILGenerator.CallToString();
 

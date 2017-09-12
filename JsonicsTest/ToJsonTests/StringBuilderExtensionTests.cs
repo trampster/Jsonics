@@ -1,8 +1,9 @@
 using System.Text;
 using Jsonics;
 using NUnit.Framework;
+using Jsonics.ToJson;
 
-namespace JsonicsTest
+namespace JsonicsTest.ToJsonTests
 {
     [TestFixture]
     public class StringBuilderExtensionTests

@@ -1,10 +1,10 @@
 using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicsTest
+namespace JsonicsTest.ToJsonTests
 {
     [TestFixture]
-    public class JsonFactoryTest
+    public class SimpleTestObjectTest
     {
         [Test]
         public void ToJson_Person_CorrectJson()
