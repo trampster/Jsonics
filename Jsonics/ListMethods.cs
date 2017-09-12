@@ -30,14 +30,6 @@ namespace Jsonics
             }
         }
 
-        public ValueEmitter ValueEmitter
-        {
-            get
-            {
-                return new ValueEmitter(_typeBuilder, _appendQueue, this, _stringBuilderField);
-            }
-        }
-
         public TypeEmitter TypeEmitter
         {
             get

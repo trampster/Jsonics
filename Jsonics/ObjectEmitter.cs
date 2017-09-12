@@ -41,14 +41,8 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType == typeof(Guid))
-                {
-                    CreateGuidProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else
-                {
-                    CreateObjectProperty(property, jsonILGenerator, getTypeOnStack);
-                }
+                
+                CreateObjectProperty(property, jsonILGenerator, getTypeOnStack);
             }
             jsonILGenerator.Append("}");
             jsonILGenerator.EmitQueuedAppends();
@@ -59,17 +53,6 @@ namespace Jsonics
             generator.Append($"\"{property.Name}\":");
 
             GenerateObject(property.PropertyType, generator, gen => 
-            {
-                loadType(gen);
-                gen.GetProperty(property);
-            });
-        }
-
-        void CreateGuidProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            generator.Append($"\"{property.Name}\":");
-
-            _listMethods.ValueEmitter.CreateGuid(generator, gen =>
             {
                 loadType(gen);
                 gen.GetProperty(property);

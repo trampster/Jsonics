@@ -24,16 +24,8 @@ namespace Jsonics
                 return;
             }
 
-            var valueEmitter = _listMethods.ValueEmitter;
 
-            if(type == typeof(Guid))
-            {
-                valueEmitter.CreateGuid(generator, getTypeOnStack);
-            }
-            else
-            {
-                _listMethods.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack);
-            }
+            _listMethods.ObjectEmitter.GenerateObject(type, generator, getTypeOnStack);
         }
     }
 }
