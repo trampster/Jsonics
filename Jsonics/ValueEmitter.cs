@@ -12,12 +12,6 @@ namespace Jsonics
         {
         }
 
-        public void CreateDateTime(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
-        {
-            getValueOnStack(generator);
-            generator.AppendDate();
-        }
-
         public void CreateGuid(JsonILGenerator generator, Action<JsonILGenerator> getValueOnStack)
         {
             var propertyValueLocal = generator.DeclareLocal<Guid>();

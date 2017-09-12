@@ -41,11 +41,7 @@ namespace Jsonics
                 {
                     continue;
                 }
-                if(property.PropertyType == typeof(DateTime))
-                {
-                    CreateDateTimeProperty(property, jsonILGenerator, getTypeOnStack);
-                }
-                else if(property.PropertyType == typeof(Guid))
+                if(property.PropertyType == typeof(Guid))
                 {
                     CreateGuidProperty(property, jsonILGenerator, getTypeOnStack);
                 }
@@ -63,17 +59,6 @@ namespace Jsonics
             generator.Append($"\"{property.Name}\":");
 
             GenerateObject(property.PropertyType, generator, gen => 
-            {
-                loadType(gen);
-                gen.GetProperty(property);
-            });
-        }
-
-        void CreateDateTimeProperty(PropertyInfo property, JsonILGenerator generator, Action<JsonILGenerator> loadType)
-        {
-            generator.Append($"\"{property.Name}\":");
-
-            _listMethods.ValueEmitter.CreateDateTime(generator, gen =>
             {
                 loadType(gen);
                 gen.GetProperty(property);

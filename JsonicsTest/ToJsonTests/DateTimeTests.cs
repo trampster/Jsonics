@@ -2,7 +2,7 @@ using System;
 using Jsonics;
 using NUnit.Framework;
 
-namespace JsonicsTest
+namespace JsonicsTest.JsonTests
 {
     [TestFixture]
     public class DateTimeTests

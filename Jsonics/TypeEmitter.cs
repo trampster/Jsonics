@@ -26,11 +26,7 @@ namespace Jsonics
 
             var valueEmitter = _listMethods.ValueEmitter;
 
-            if(type == typeof(DateTime))
-            {
-                valueEmitter.CreateDateTime(generator, getTypeOnStack);
-            }
-            else if(type == typeof(Guid))
+            if(type == typeof(Guid))
             {
                 valueEmitter.CreateGuid(generator, getTypeOnStack);
             }
