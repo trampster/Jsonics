@@ -4,25 +4,25 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson
 {
-    public class DateTimeEmitter : FromJsonEmitter
+    internal class DateTimeEmitter : FromJsonEmitter
     {
-        public DateTimeEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+        internal DateTimeEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
             : base(lazyStringLocal, generator, emitters)
         {
         }
         
-        public override void Emit(LocalBuilder indexLocal, Type type)
+        internal override void Emit(LocalBuilder indexLocal, Type type)
         {
             _generator.LoadLocal(_lazyStringLocal);
             _generator.LoadLocal(indexLocal);
             Type tupleType = null;
             if(type == typeof(DateTime))
             {
-                tupleType = StaticCall<DateTime, DateTimeEmitter>("ToDateTime", _generator);
+                tupleType = StaticCall<DateTime, ToDateTimeStaticMethods>("ToDateTime", _generator);
             }
             else if(type == typeof(DateTime?))
             {
-                tupleType = StaticCall<DateTime?, DateTimeEmitter>("ToNullableDateTime", _generator);
+                tupleType = StaticCall<DateTime?, ToDateTimeStaticMethods>("ToNullableDateTime", _generator);
             }
             else
             {
@@ -42,6 +42,18 @@ namespace Jsonics.FromJson
             return typeof(ValueTuple<T,int>);
         }
 
+        internal override bool TypeSupported(Type type)
+        {
+            return 
+                type == typeof(DateTime) ||
+                type == typeof(DateTime?);
+        }
+
+        internal override JsonPrimitive PrimitiveType => JsonPrimitive.String;
+    }
+
+        public class ToDateTimeStaticMethods
+    {
         public static (DateTime?, int) ToNullableDateTime(LazyString lazyString, int index)
         {
             string buffer = lazyString.Buffer;
@@ -315,15 +327,5 @@ namespace Jsonics.FromJson
             var dateTime = new DateTime(year, month, day, hour, minute, second, kind).AddMilliseconds(milliseonds);
             return (dateTime, index + 1 - start);
         }
-
-        public override bool TypeSupported(Type type)
-        {
-            return 
-                type == typeof(DateTime) ||
-                type == typeof(DateTime?);
-        }
-
-        public override JsonPrimitive PrimitiveType => JsonPrimitive.String;
-
     }
 }

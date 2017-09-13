@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Jsonics.ToJson
 {
-    public class ArrayEmitter : ToJsonEmitter
+    internal class ArrayEmitter : ToJsonEmitter
     {
         readonly ListMethods _listMethods;
         readonly FieldBuilder _stringBuilderField;
@@ -13,7 +13,7 @@ namespace Jsonics.ToJson
         readonly ToJsonEmitters _toJsonEmitters;
 
 
-        public ArrayEmitter(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder, ToJsonEmitters toJsonEmitters)
+        internal ArrayEmitter(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder, ToJsonEmitters toJsonEmitters)
         {
             _listMethods = listMethods;
             _stringBuilderField = stringBuilderField;
@@ -21,7 +21,7 @@ namespace Jsonics.ToJson
             _toJsonEmitters = toJsonEmitters;
         }
 
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             var endLabel = generator.DefineLabel();
@@ -47,7 +47,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             var methodInfo = _listMethods.GetMethod(
                 type,
@@ -59,12 +59,12 @@ namespace Jsonics.ToJson
             generator.Call(methodInfo);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type.IsArray;
         }
 
-        public MethodBuilder EmitArrayMethod(Type elementType, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        internal MethodBuilder EmitArrayMethod(Type elementType, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
         {
             Type arrayType = elementType.MakeArrayType();
 

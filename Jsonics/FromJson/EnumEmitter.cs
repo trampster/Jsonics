@@ -4,14 +4,14 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson
 {
-    public class EnumEmitter : FromJsonEmitter
+    internal class EnumEmitter : FromJsonEmitter
     {
-        public EnumEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+        internal EnumEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
             : base(lazyStringLocal, generator, emitters)
         {
         }
         
-        public override void Emit(LocalBuilder indexLocal, Type type)
+        internal override void Emit(LocalBuilder indexLocal, Type type)
         {
             Type underlyingType = Nullable.GetUnderlyingType(type);
             if(underlyingType != null)
@@ -67,7 +67,7 @@ namespace Jsonics.FromJson
             _generator.Mark(endLabel);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             if(type.GetTypeInfo().IsEnum)
             {
@@ -81,6 +81,6 @@ namespace Jsonics.FromJson
             return false;
         }
 
-        public override JsonPrimitive PrimitiveType => JsonPrimitive.Number;
+        internal override JsonPrimitive PrimitiveType => JsonPrimitive.Number;
     }
 }

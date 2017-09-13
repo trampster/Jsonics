@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace Jsonics.ToJson
 {
-    public class NullableNumberEmitter : ToJsonEmitter
+    internal class NullableNumberEmitter : ToJsonEmitter
     {
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             Type type = property.PropertyType;
             Type underlyingType = Nullable.GetUnderlyingType(type);
@@ -35,7 +35,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             Type underlyingType = Nullable.GetUnderlyingType(type);
             getValueOnStack(generator);
@@ -55,7 +55,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return 
                 type == typeof(uint?) ||

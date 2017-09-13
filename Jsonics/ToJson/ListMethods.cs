@@ -7,13 +7,13 @@ using Jsonics.ToJson;
 
 namespace Jsonics.ToJson
 {
-    public class ListMethods
+    internal class ListMethods
     {
         readonly TypeBuilder _typeBuilder;
         readonly StringBuilder _appendQueue;
         readonly FieldBuilder _stringBuilderField;
 
-        public ListMethods(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
+        internal ListMethods(TypeBuilder typeBuilder, StringBuilder appendQueue, FieldBuilder stringBuilderField)
         {
             _typeBuilder = typeBuilder;
             _appendQueue = appendQueue;
@@ -22,7 +22,7 @@ namespace Jsonics.ToJson
 
         Dictionary<Type, MethodInfo> _methodLookup = new Dictionary<Type, MethodInfo>();
 
-        public MethodInfo GetMethod(Type type, Func<MethodBuilder> getMethodBuilder)
+        internal MethodInfo GetMethod(Type type, Func<MethodBuilder> getMethodBuilder)
         {
             if(!_methodLookup.ContainsKey(type))
             {

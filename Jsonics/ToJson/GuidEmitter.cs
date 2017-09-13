@@ -4,9 +4,9 @@ using System.Reflection.Emit;
 
 namespace Jsonics.ToJson
 {
-    public class GuidEmitter : ToJsonEmitter
+    internal class GuidEmitter : ToJsonEmitter
     {
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append($"\"{property.Name}\":");
 
@@ -20,7 +20,7 @@ namespace Jsonics.ToJson
             generator);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             var propertyValueLocal = generator.DeclareLocal<Guid>();
             
@@ -39,7 +39,7 @@ namespace Jsonics.ToJson
             generator.EmitQueuedAppends();
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type == typeof(Guid);
         }

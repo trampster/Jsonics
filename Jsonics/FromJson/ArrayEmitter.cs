@@ -6,17 +6,17 @@ using System.Text;
 
 namespace Jsonics.FromJson
 {
-    public class ArrayEmitter : FromJsonEmitter
+    internal class ArrayEmitter : FromJsonEmitter
     {
         readonly Func<Type, FieldBuilder> _addStaticField;
 
-        public ArrayEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, Func<Type, FieldBuilder> addStaticField)
+        internal ArrayEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, Func<Type, FieldBuilder> addStaticField)
             : base(lazyStringLocal, generator, emitters)
         {
             _addStaticField = addStaticField;
         }
         
-        public override void Emit(LocalBuilder indexLocal, Type type)
+        internal override void Emit(LocalBuilder indexLocal, Type type)
         {
             var arrayElementType = type.GetElementType();
 
@@ -114,11 +114,11 @@ namespace Jsonics.FromJson
 
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type.IsArray;
         }
 
-        public override JsonPrimitive PrimitiveType => JsonPrimitive.Array;
+        internal override JsonPrimitive PrimitiveType => JsonPrimitive.Array;
     }
 }

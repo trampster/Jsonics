@@ -60,7 +60,7 @@ namespace JsonicsTests.FromJsonTests
             var lazyString = new LazyString(lazy, start, length);
 
             //act
-            (DateTime result, int endIndex) = DateTimeEmitter.ToDateTime(lazyString, index);
+            (DateTime result, int endIndex) = ToDateTimeStaticMethods.ToDateTime(lazyString, index);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));
@@ -75,7 +75,7 @@ namespace JsonicsTests.FromJsonTests
             var lazyString = new LazyString(lazy, start, length);
 
             //act
-            (DateTime? result, int endIndex) = DateTimeEmitter.ToNullableDateTime(lazyString, index);
+            (DateTime? result, int endIndex) = ToDateTimeStaticMethods.ToNullableDateTime(lazyString, index);
 
             //assert
             Assert.That(result, Is.EqualTo(expected));

@@ -4,9 +4,9 @@ using System.Reflection.Emit;
 
 namespace Jsonics.ToJson
 {
-    public class NullableBoolEmitter : ToJsonEmitter
+    internal class NullableBoolEmitter : ToJsonEmitter
     {
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             var endLabel = generator.DefineLabel();
@@ -48,7 +48,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             getValueOnStack(generator);
             var hasValueLabel = generator.DefineLabel();
@@ -84,7 +84,7 @@ namespace Jsonics.ToJson
             
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type == typeof(bool?);
         }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Jsonics.ToJson
 {
-    public class ListEmitter : ToJsonEmitter
+    internal class ListEmitter : ToJsonEmitter
     {
         readonly ListMethods _listMethods;
         readonly FieldBuilder _stringBuilderField;
@@ -14,7 +14,7 @@ namespace Jsonics.ToJson
         readonly ToJsonEmitters _toJsonEmitters;
 
 
-        public ListEmitter(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder, ToJsonEmitters toJsonEmitters)
+        internal ListEmitter(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder, ToJsonEmitters toJsonEmitters)
         {
             _listMethods = listMethods;
             _stringBuilderField = stringBuilderField;
@@ -22,7 +22,7 @@ namespace Jsonics.ToJson
             _toJsonEmitters = toJsonEmitters;
         }
 
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
             var endLabel = generator.DefineLabel();
@@ -48,7 +48,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             Action<JsonILGenerator, Action<JsonILGenerator>> emitElement = (gen, getElementOnStack) => _toJsonEmitters.EmitValue(type.GenericTypeArguments[0], getElementOnStack, gen);
             var methodInfo = _listMethods.GetMethod(
@@ -61,7 +61,7 @@ namespace Jsonics.ToJson
             generator.Call(methodInfo);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }

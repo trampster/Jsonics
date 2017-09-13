@@ -6,7 +6,7 @@ using Jsonics.ToJson;
 
 namespace Jsonics
 {
-    public class JsonILGenerator
+    internal class JsonILGenerator
     {
         StringBuilder _appendQueue;
         ILGenerator _generator; 

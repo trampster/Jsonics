@@ -6,17 +6,17 @@ using System.Text;
 
 namespace Jsonics.FromJson
 {
-    public class DictionaryEmitter : FromJsonEmitter
+    internal class DictionaryEmitter : FromJsonEmitter
     {
         readonly Func<Type, FieldBuilder> _addStaticField;
 
-        public DictionaryEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, Func<Type, FieldBuilder> addStaticField)
+        internal DictionaryEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, Func<Type, FieldBuilder> addStaticField)
             : base(lazyStringLocal, generator, emitters)
         {
             _addStaticField = addStaticField;
         }
         
-        public override void Emit(LocalBuilder indexLocal, Type type)
+        internal override void Emit(LocalBuilder indexLocal, Type type)
         {
             //(inputIndex, currentValue) = json.ReadToAny(inputIndex, '{', 'n') + 1;
             _generator.LoadLocalAddress(_lazyStringLocal);
@@ -136,11 +136,11 @@ namespace Jsonics.FromJson
             _generator.Mark(endLabel);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
 
-        public override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
+        internal override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
     }
 }

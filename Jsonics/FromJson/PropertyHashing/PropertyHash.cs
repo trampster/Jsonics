@@ -4,14 +4,14 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson.PropertyHashing
 {
-    public class PropertyHash
+    internal class PropertyHash
     {
-        public int Column {get;set;}
-        public bool UseLength{get;set;}
-        public int ModValue{get;set;}
-        public int CollisionCount {get;set;}
+        internal int Column {get;set;}
+        internal bool UseLength{get;set;}
+        internal int ModValue{get;set;}
+        internal int CollisionCount {get;set;}
 
-        public int Hash(string property)
+        internal int Hash(string property)
         {
             if(UseLength) 
             {
@@ -20,7 +20,7 @@ namespace Jsonics.FromJson.PropertyHashing
             return property[Column % property.Length] % ModValue;
         }
 
-        public LocalBuilder EmitHash(JsonILGenerator generator, LocalBuilder propertyNameLocal)
+        internal LocalBuilder EmitHash(JsonILGenerator generator, LocalBuilder propertyNameLocal)
         {
             var hashLocal = generator.DeclareLocal<int>();
             if(UseLength)
@@ -44,7 +44,7 @@ namespace Jsonics.FromJson.PropertyHashing
             return hashLocal;
         }
 
-        public bool IsBetterHash(PropertyHash otherHash)
+        internal bool IsBetterHash(PropertyHash otherHash)
         {
             if(otherHash.CollisionCount < CollisionCount)
             {

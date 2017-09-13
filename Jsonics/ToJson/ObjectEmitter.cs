@@ -5,16 +5,16 @@ using System.Reflection.Emit;
 
 namespace Jsonics.ToJson
 {
-    public class ObjectEmitter : ToJsonEmitter
+    internal class ObjectEmitter : ToJsonEmitter
     {
         readonly ToJsonEmitters _toJsonEmitters;
 
-        public ObjectEmitter(ToJsonEmitters toJsonEmitters)
+        internal ObjectEmitter(ToJsonEmitters toJsonEmitters)
         {
             _toJsonEmitters = toJsonEmitters;
         }
 
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append($"\"{property.Name}\":");
 
@@ -28,7 +28,7 @@ namespace Jsonics.ToJson
                 generator);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append("{");
 
@@ -53,7 +53,7 @@ namespace Jsonics.ToJson
             generator.EmitQueuedAppends();
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return true;
         }

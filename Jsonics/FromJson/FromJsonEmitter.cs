@@ -4,20 +4,20 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson
 {
-    public abstract class FromJsonEmitter
+    internal abstract class FromJsonEmitter
     {
         protected LocalBuilder _lazyStringLocal;
         protected JsonILGenerator _generator;
         protected FromJsonEmitters _emitters;
 
-        public FromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+        internal FromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
         {
             _lazyStringLocal = lazyStringLocal;
             _generator = generator;
             _emitters = emitters;
         }
 
-        public abstract bool TypeSupported(Type type);
+        internal abstract bool TypeSupported(Type type);
 
         /// <summary>
         /// Create the IL required to parse this property
@@ -26,7 +26,7 @@ namespace Jsonics.FromJson
         /// </summary>
         /// <param name="indexLocal"></param>
         /// <param name="type"></param>
-        public abstract void Emit(LocalBuilder indexLocal, Type type);
+        internal abstract void Emit(LocalBuilder indexLocal, Type type);
 
         internal Type LazyStringCallToX<T>(string methodName, JsonILGenerator generator)
         {
@@ -34,6 +34,6 @@ namespace Jsonics.FromJson
             return typeof(ValueTuple<T,int>);
         }
 
-        public abstract JsonPrimitive PrimitiveType {get;}
+        internal abstract JsonPrimitive PrimitiveType {get;}
     }
 }

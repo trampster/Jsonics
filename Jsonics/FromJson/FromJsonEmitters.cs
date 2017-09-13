@@ -4,11 +4,11 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson
 {
-    public class FromJsonEmitters
+    internal class FromJsonEmitters
     {
         List<FromJsonEmitter> _emitters;
 
-        public FromJsonEmitters(Type jsonObjectType, LocalBuilder lazyStringLocal, JsonILGenerator generator, Func<Type, FieldBuilder> addStaticField)
+        internal FromJsonEmitters(Type jsonObjectType, LocalBuilder lazyStringLocal, JsonILGenerator generator, Func<Type, FieldBuilder> addStaticField)
         {
             _emitters = new List<FromJsonEmitter>();
             _emitters.Add(new LazyStringEmitter<byte>(lazyStringLocal, generator, this, "ToByte", JsonPrimitive.Number));
@@ -45,7 +45,7 @@ namespace Jsonics.FromJson
             _emitters.Add(new ObjectFromJsonEmitterFactory(lazyStringLocal, generator, this));
         }
 
-        public void Emit(LocalBuilder indexLocal, Type type)
+        internal void Emit(LocalBuilder indexLocal, Type type)
         {
             foreach(var emitter in _emitters)
             {
@@ -57,7 +57,7 @@ namespace Jsonics.FromJson
             }
         }
 
-        public JsonPrimitive GetPrimitiveType(Type type)
+        internal JsonPrimitive GetPrimitiveType(Type type)
         {
             foreach(var emitter in _emitters)
             {

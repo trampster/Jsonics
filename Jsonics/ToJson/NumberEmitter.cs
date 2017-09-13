@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace Jsonics.ToJson
 {
-    public class NumberEmitter : ToJsonEmitter
+    internal class NumberEmitter : ToJsonEmitter
     {
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append($"\"{property.Name}\":");
 
@@ -19,13 +19,13 @@ namespace Jsonics.ToJson
                 generator);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             getValueOnStack(generator);
             generator.EmitAppend(type);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return 
                 type == typeof(uint) ||

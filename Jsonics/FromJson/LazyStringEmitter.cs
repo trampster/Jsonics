@@ -4,19 +4,19 @@ using System.Reflection.Emit;
 
 namespace Jsonics.FromJson
 {
-    public class LazyStringEmitter<T> : FromJsonEmitter
+    internal class LazyStringEmitter<T> : FromJsonEmitter
     {
         readonly string _methodName;
         readonly JsonPrimitive _jsonPrimitive;
 
-        public LazyStringEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, string methodName, JsonPrimitive jsonPrimitive)
+        internal LazyStringEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters, string methodName, JsonPrimitive jsonPrimitive)
             : base(lazyStringLocal, generator, emitters)
         {
             _methodName = methodName;
             _jsonPrimitive  = jsonPrimitive;
         }
         
-        public override void Emit(LocalBuilder indexLocal, Type type)
+        internal override void Emit(LocalBuilder indexLocal, Type type)
         {
             _generator.LoadLocalAddress(_lazyStringLocal);
             _generator.LoadLocal(indexLocal);
@@ -29,11 +29,11 @@ namespace Jsonics.FromJson
             _generator.LoadField(tupleType.GetRuntimeField("Item1"));
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type == typeof(T);
         }
 
-        public override JsonPrimitive PrimitiveType => _jsonPrimitive;
+        internal override JsonPrimitive PrimitiveType => _jsonPrimitive;
     }
 }

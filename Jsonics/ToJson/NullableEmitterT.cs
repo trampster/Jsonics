@@ -4,16 +4,16 @@ using System.Reflection.Emit;
 
 namespace Jsonics.ToJson
 {
-    public class NullableEmitter<T> : ToJsonEmitter where T : struct
+    internal class NullableEmitter<T> : ToJsonEmitter where T : struct
     {
         readonly ToJsonEmitters _toJsonEmitters;
 
-        public NullableEmitter(ToJsonEmitters toJsonEmitters)
+        internal NullableEmitter(ToJsonEmitters toJsonEmitters)
         {
             _toJsonEmitters = toJsonEmitters;
         }
 
-        public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             Type type = property.PropertyType;
             Type underlyingType = Nullable.GetUnderlyingType(type);
@@ -51,7 +51,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             getValueOnStack(generator);
             var hasValueLabel = generator.DefineLabel();
@@ -79,7 +79,7 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type == typeof(T?);
         }

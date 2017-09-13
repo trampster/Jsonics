@@ -16,14 +16,14 @@ namespace Jsonics.FromJson
         LocalBuilder _propertyEndLocal;
         Type _jsonObjectType;
 
-        public ObjectFromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+        internal ObjectFromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
             : base(lazyStringLocal, generator, emitters)
         {
             _lazyStringLocal = lazyStringLocal;
             _generator = generator;
         }
 
-        public override void Emit(LocalBuilder indexLocal, Type jsonObjectType)
+        internal override void Emit(LocalBuilder indexLocal, Type jsonObjectType)
         {
             _jsonObjectType = jsonObjectType;
             _indexLocal = indexLocal;
@@ -289,7 +289,7 @@ namespace Jsonics.FromJson
 
         class SwitchGroup : List<IGrouping<int, PropertyInfo>>{}
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             if(type.GetTypeInfo().IsValueType)
             {
@@ -314,6 +314,6 @@ namespace Jsonics.FromJson
             return true;
         }
 
-        public override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
+        internal override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
     }
 }

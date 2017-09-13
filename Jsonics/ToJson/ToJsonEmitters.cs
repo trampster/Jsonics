@@ -4,11 +4,11 @@ using System.Reflection.Emit;
 
 namespace Jsonics.ToJson
 {
-    public class ToJsonEmitters
+    internal class ToJsonEmitters
     {
         readonly ToJsonEmitter[] _emitters;
 
-        public ToJsonEmitters(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder)
+        internal ToJsonEmitters(ListMethods listMethods, FieldBuilder stringBuilderField, TypeBuilder typeBuilder)
         {
             _emitters = new ToJsonEmitter[]
             {
@@ -30,7 +30,7 @@ namespace Jsonics.ToJson
             };
         }
 
-        public bool EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal bool EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             foreach(var emitter in _emitters)
             {
@@ -43,7 +43,7 @@ namespace Jsonics.ToJson
             return false;
         }
 
-        public bool EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal bool EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             foreach(var emitter in _emitters)
             {

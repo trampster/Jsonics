@@ -17,7 +17,7 @@ namespace Jsonics.FromJson
         Type _jsonObjectType;
         bool _isNullable;
 
-        public StructFromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
+        internal StructFromJsonEmitter(LocalBuilder lazyStringLocal, JsonILGenerator generator, FromJsonEmitters emitters)
             : base(lazyStringLocal, generator, emitters)
         {
             _lazyStringLocal = lazyStringLocal;
@@ -25,7 +25,7 @@ namespace Jsonics.FromJson
         }
         Type _underlyingType;
 
-        public override void Emit(LocalBuilder indexLocal, Type jsonObjectType)
+        internal override void Emit(LocalBuilder indexLocal, Type jsonObjectType)
         {
             _jsonObjectType = jsonObjectType;
             
@@ -159,7 +159,7 @@ namespace Jsonics.FromJson
             _generator.Mark(endLabel);
         }
 
-        public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
+        internal void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
         {           
             var propertyHandlers = new List<Action>();
 
@@ -312,11 +312,11 @@ namespace Jsonics.FromJson
 
         class SwitchGroup : List<IGrouping<int, PropertyInfo>>{}
 
-        public override bool TypeSupported(Type type)
+        internal override bool TypeSupported(Type type)
         {
             return type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsEnum;
         }
 
-        public override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
+        internal override JsonPrimitive PrimitiveType => JsonPrimitive.Object;
     }
 }
