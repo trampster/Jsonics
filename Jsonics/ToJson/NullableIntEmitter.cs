@@ -7,7 +7,8 @@ namespace Jsonics.ToJson
     {
         public override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
-            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
+            var propertyType = property.PropertyType;
+            var propertyValueLocal = generator.DeclareLocal(propertyType);
             var endLabel = generator.DefineLabel();
             var nonNullLabel = generator.DefineLabel();
 
@@ -17,7 +18,7 @@ namespace Jsonics.ToJson
             generator.LoadLocalAddress(propertyValueLocal);
 
             //check for null
-            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
+            generator.Call(propertyType.GetTypeInfo().GetMethod("get_HasValue", new Type[0]));
             generator.BrIfTrue(nonNullLabel);
             
             //property is null
@@ -28,7 +29,7 @@ namespace Jsonics.ToJson
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
             generator.LoadLocalAddress(propertyValueLocal);
-            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
+            generator.Call(propertyType.GetTypeInfo().GetMethod("get_Value", new Type[0]));
             generator.AppendInt();
             generator.Mark(endLabel);
         }
@@ -47,14 +48,19 @@ namespace Jsonics.ToJson
 
             generator.Mark(hasValueLabel);
             getValueOnStack(generator);
-            generator.Call(typeof(int?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
+            generator.Call(type.GetTypeInfo().GetMethod("get_Value", new Type[0]));
             generator.AppendInt();
             generator.Mark(endLabel);
         }
 
         public override bool TypeSupported(Type type)
         {
-            return type == typeof(int?);
+            Type underlyingType = Nullable.GetUnderlyingType(type);
+            if(underlyingType == null)
+            {
+                return false;
+            }
+            return underlyingType == typeof(int) || underlyingType.GetTypeInfo().IsEnum;
         }
     }
 }
