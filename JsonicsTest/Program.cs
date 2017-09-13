@@ -7,7 +7,6 @@ using System.Text;
 using Jsonics;
 using Jsonics.FromJson;
 using Jsonics.FromJson.PropertyHashing;
-using NUnitLite;
 using static JsonicsTests.FromJsonTests.NullableEnumTests;
 using JsonicsTest.ToJsonTests;
 
@@ -17,9 +16,7 @@ namespace JsonicsTest
     {
         public static void Main(string[] args)
         {
-            var tests = new NullableGuidTests();
-            tests.ToJson_NullableGuidPropertyNull_CorrectJson();
-            //Benchmark();
+            Benchmark();
         }
 
         public static void Benchmark()
