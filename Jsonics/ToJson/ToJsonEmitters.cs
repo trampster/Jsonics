@@ -23,7 +23,9 @@ namespace Jsonics.ToJson
                 new ListEmitter(listMethods, stringBuilderField, typeBuilder, this),
                 new DictionaryEmitter(listMethods, stringBuilderField, typeBuilder, this),
                 new DateTimeEmitter(),
+                new NullableEmitter<DateTime>(this),
                 new GuidEmitter(),
+                new NullableEmitter<Guid>(this),
                 new ObjectEmitter(this),
             };
         }
