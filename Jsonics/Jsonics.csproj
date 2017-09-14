@@ -9,11 +9,17 @@
 
     <PackageVersion>0.1.0-alpha</PackageVersion>
     <Authors>Daniel Hughes</Authors>
-    <Description>High performance json library for c#</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
     <Copyright>Copyright (c) 2017 Daniel Hughes</Copyright>
     <PackageTags>json .net</PackageTags>
+    <PackageLicenseUrl>https://github.com/trampster/Jsonics/blob/master/License.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/trampster/Jsonics</PackageProjectUrl>
+    <Description>
+      Jsonics aims to be as fast as is possible in scenarios where the same type will be serialized or deserialized many times.
+    </Description>
+    <Summary>High performance Json Library for c#</Summary>
+    <Title>Jsonics (Json In C Sharp)</Title>
 
   </PropertyGroup>
 
