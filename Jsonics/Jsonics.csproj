@@ -6,7 +6,30 @@
     <AssemblyName>Jsonics</AssemblyName>
     <PackageId>Jsonics</PackageId>
     <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+
+    <PackageVersion>0.1.0-alpha</PackageVersion>
+    <Authors>Daniel Hughes</Authors>
+    <Description>High performance json library for c#</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <Copyright>Copyright (c) 2017 Daniel Hughes</Copyright>
+    <PackageTags>json .net</PackageTags>
+
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='StrongName'">
+    <PackageId>Jsonics.StrongName</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <PackageVersion>0.1.0-alpha</PackageVersion>
+    <Optimize>true</Optimize>
+    <AssemblyOriginatorKeyFile>Jsonics.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='StrongName'">
+    <Compile Remove="AssemblyInfo.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
