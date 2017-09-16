@@ -139,6 +139,10 @@ namespace Jsonics.FromJson
         public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
         {           
             var propertyHandlers = new List<Action>();
+            if(properties.Length == 0)
+            {
+                return;
+            }
 
             EmitGroup(properties, propertyHandlers, loopCheckLabel, unknownPropertyLabel);
 

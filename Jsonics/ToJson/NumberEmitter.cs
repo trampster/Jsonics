@@ -5,16 +5,16 @@ namespace Jsonics.ToJson
 {
     internal class NumberEmitter : ToJsonEmitter
     {
-        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append($"\"{property.Name}\":");
 
             EmitValue(
-                property.PropertyType, 
+                property.Type, 
                 gen => 
                 {
                     getValueOnStack(generator);
-                    generator.GetProperty(property);
+                    property.EmitGetValue(generator);
                 },
                 generator);
         }

@@ -7,7 +7,7 @@ namespace Jsonics.ToJson
     {
         internal abstract void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator);
 
-        internal abstract void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator);
+        internal abstract void EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator);
 
         internal abstract bool TypeSupported(Type type);
     }

@@ -14,16 +14,16 @@ namespace Jsonics.ToJson
             _toJsonEmitters = toJsonEmitters;
         }
 
-        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append($"\"{property.Name}\":");
 
             EmitValue(
-                property.PropertyType, 
+                property.Type, 
                 gen => 
                 {
                     getValueOnStack(gen);
-                    gen.GetProperty(property);
+                    property.EmitGetValue(gen);
                 },
                 generator);
         }
@@ -32,25 +32,52 @@ namespace Jsonics.ToJson
         {
             generator.Append("{");
 
+            bool isFirst = true;
+            EmitProperties(type, getValueOnStack, generator, ref isFirst);
+            EmitFields(type, getValueOnStack, generator, ref isFirst);
+
+            generator.Append("}");
+            generator.EmitQueuedAppends();
+        }
+
+        void EmitFields(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator, ref bool isFirst)
+        {
+            var fieldsQuery = 
+                from field in type.GetRuntimeFields()
+                where field.IsPublic
+                select field;
+            var fields = fieldsQuery.ToArray();
+
+            //do the properties
+            foreach(var field in fieldsQuery)
+            {
+                if(!isFirst)
+                {
+                    generator.Append(",");
+                }
+                isFirst = false;
+                _toJsonEmitters.EmitProperty(new JsonFieldInfo(field), getValueOnStack, generator);
+            }
+        }
+
+        void EmitProperties(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator, ref bool isFirst)
+        {
             var propertiesQuery = 
                 from property in type.GetRuntimeProperties()
-                where property.CanRead && property.CanWrite
+                where property.CanRead && property.GetGetMethod().IsPublic
                 select property;
             var properties = propertiesQuery.ToArray();
 
             //do the properties
-            bool isFirstProperty = true;
-            foreach(var property in type.GetRuntimeProperties())
+            foreach(var property in properties)
             {
-                if(!isFirstProperty)
+                if(!isFirst)
                 {
                     generator.Append(",");
                 }
-                isFirstProperty = false;
-                _toJsonEmitters.EmitProperty(property, getValueOnStack, generator);
+                isFirst = false;
+                _toJsonEmitters.EmitProperty(new JsonPropertyInfo(property), getValueOnStack, generator);
             }
-            generator.Append("}");
-            generator.EmitQueuedAppends();
         }
 
         internal override bool TypeSupported(Type type)

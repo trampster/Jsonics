@@ -13,16 +13,16 @@ namespace Jsonics.ToJson
             _toJsonEmitters = toJsonEmitters;
         }
 
-        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
-            Type type = property.PropertyType;
+            Type type = property.Type;
             Type underlyingType = Nullable.GetUnderlyingType(type);
             var propertyValueLocal = generator.DeclareLocal(type);
             var endLabel = generator.DefineLabel();
             var nonNullLabel = generator.DefineLabel();
 
             getValueOnStack(generator);
-            generator.GetProperty(property);
+            property.EmitGetValue(generator);
             generator.StoreLocal(propertyValueLocal);
             generator.LoadLocalAddress(propertyValueLocal);
 

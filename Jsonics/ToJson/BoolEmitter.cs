@@ -6,13 +6,13 @@ namespace Jsonics.ToJson
 {
     internal class BoolEmitter : ToJsonEmitter
     {
-        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             Label trueLabel = generator.DefineLabel();
             Label callAppend = generator.DefineLabel();
 
             getValueOnStack(generator);
-            generator.GetProperty(property);
+            property.EmitGetValue(generator);
             generator.BrIfTrue(trueLabel);
 
             //false case

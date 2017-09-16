@@ -6,14 +6,14 @@ namespace Jsonics.ToJson
 {
     internal class NullableBoolEmitter : ToJsonEmitter
     {
-        internal override void EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
-            var propertyValueLocal = generator.DeclareLocal(property.PropertyType);
+            var propertyValueLocal = generator.DeclareLocal(property.Type);
             var endLabel = generator.DefineLabel();
             var nonNullLabel = generator.DefineLabel();
 
             getValueOnStack(generator);
-            generator.GetProperty(property);
+            property.EmitGetValue(generator);
             generator.StoreLocal(propertyValueLocal);
             generator.LoadLocalAddress(propertyValueLocal);
 

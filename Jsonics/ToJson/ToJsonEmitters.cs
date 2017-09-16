@@ -43,11 +43,11 @@ namespace Jsonics.ToJson
             return false;
         }
 
-        internal bool EmitProperty(PropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal bool EmitProperty(IJsonPropertyInfo property, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
         {
             foreach(var emitter in _emitters)
             {
-                if(emitter.TypeSupported(property.PropertyType))
+                if(emitter.TypeSupported(property.Type))
                 {
                     emitter.EmitProperty(property, getValueOnStack, generator);
                     return true;
