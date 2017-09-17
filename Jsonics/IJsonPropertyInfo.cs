@@ -1,6 +1,6 @@
 using System;
 
-namespace Jsonics.ToJson
+namespace Jsonics
 {
     internal interface IJsonPropertyInfo
     {
@@ -15,5 +15,7 @@ namespace Jsonics.ToJson
         }
 
         void EmitGetValue(JsonILGenerator generator);
+
+        void EmitSetValue(JsonILGenerator generator);
     }    
 }

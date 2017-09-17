@@ -272,6 +272,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Ldfld, fieldInfo);
         }
 
+        public void StoreField(FieldInfo fieldInfo)
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Stfld, fieldInfo);
+        }
+
         public void StoreStaticField(FieldBuilder fieldBuilder)
         {
             EmitQueuedAppends();

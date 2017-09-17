@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Jsonics.ToJson
+namespace Jsonics
 {
     internal class JsonFieldInfo : IJsonPropertyInfo
     {
@@ -17,5 +17,10 @@ namespace Jsonics.ToJson
         public Type Type => _fieldInfo.FieldType;
 
         public void EmitGetValue(JsonILGenerator generator) => generator.LoadField(_fieldInfo);
+
+        public void EmitSetValue(JsonILGenerator generator)
+        {
+            generator.StoreField(_fieldInfo);
+        }
     }
 }

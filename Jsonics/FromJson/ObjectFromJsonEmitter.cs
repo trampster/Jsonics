@@ -111,10 +111,15 @@ namespace Jsonics.FromJson
             var unknownPropertyLabel = _generator.DefineLabel();
             var propertiesQuery = 
                 from property in _jsonObjectType.GetRuntimeProperties()
-                where property.CanRead && property.CanWrite
-                select property;
-            var properties = propertiesQuery.ToArray();
-            EmitProperties(properties, loopCheck, unknownPropertyLabel);
+                where property.CanWrite
+                select (IJsonPropertyInfo)new JsonPropertyInfo(property);
+
+            var fieldsQuery = 
+                from field in _jsonObjectType.GetRuntimeFields()
+                where field.IsPublic
+                select (IJsonPropertyInfo)new JsonFieldInfo(field);
+
+            EmitProperties(propertiesQuery.Concat(fieldsQuery).ToArray(), loopCheck, unknownPropertyLabel);
 
             //unknown property
             _generator.Mark(unknownPropertyLabel);
@@ -136,7 +141,7 @@ namespace Jsonics.FromJson
             _generator.Mark(endLabel);
         }
 
-        public void EmitProperties(PropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
+        public void EmitProperties(IJsonPropertyInfo[] properties, Label loopCheckLabel, Label unknownPropertyLabel)
         {           
             var propertyHandlers = new List<Action>();
             if(properties.Length == 0)
@@ -153,7 +158,7 @@ namespace Jsonics.FromJson
             }
         }
 
-        void EmitGroup(PropertyInfo[] properties, List<Action> propertyHandlers, Label loopCheckLabel, Label unknownPropertyLabel)
+        void EmitGroup(IJsonPropertyInfo[] properties, List<Action> propertyHandlers, Label loopCheckLabel, Label unknownPropertyLabel)
         {
             var propertyHashFactory = new PropertyHashFactory();
             var propertyNames = properties.Select(property => property.Name).ToArray();
@@ -220,7 +225,7 @@ namespace Jsonics.FromJson
         }
 
         void EmitPropertyHandler(
-            Label propertyLabel, IGrouping<int, PropertyInfo> propertyHash, 
+            Label propertyLabel, IGrouping<int, IJsonPropertyInfo> propertyHash, 
             Label unknownPropertyLabel, Label loopCheckLabel)
         {
             _generator.Mark(propertyLabel);
@@ -239,9 +244,10 @@ namespace Jsonics.FromJson
             //Parse property value
             _generator.LoadLocal(_jsonObjectLocal);
 
-            _emitters.Emit(_indexLocal, property.PropertyType);
+            _emitters.Emit(_indexLocal, property.Type);
             
-            _generator.CallVirtual(_jsonObjectType.GetRuntimeMethod($"set_{property.Name}", new Type[]{property.PropertyType}));
+            property.EmitSetValue(_generator);
+
             _generator.Branch(loopCheckLabel);
         }
 
@@ -270,7 +276,7 @@ namespace Jsonics.FromJson
             }
         }
 
-        IEnumerable<SwitchGroup> FindSwitchGroups(IGrouping<int, PropertyInfo>[] hashes)
+        IEnumerable<SwitchGroup> FindSwitchGroups(IGrouping<int, IJsonPropertyInfo>[] hashes)
         {
             int last = 0;
             int gaps = 0;
@@ -291,7 +297,7 @@ namespace Jsonics.FromJson
             yield return switchGroup;
         }
 
-        class SwitchGroup : List<IGrouping<int, PropertyInfo>>{}
+        class SwitchGroup : List<IGrouping<int, IJsonPropertyInfo>>{}
 
         internal override bool TypeSupported(Type type)
         {
