@@ -82,6 +82,10 @@ namespace Jsonics.ToJson
 
         internal override bool TypeSupported(Type type)
         {
+            if(type == typeof(char))
+            {
+                return false;
+            }
             return true;
         }
     }

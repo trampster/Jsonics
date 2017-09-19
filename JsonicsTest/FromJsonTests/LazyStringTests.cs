@@ -200,6 +200,33 @@ namespace JsonicsTest.FromJsonTests
             Assert.That(result, Is.EqualTo(expected));
         }
 
+        [TestCase("\"t\" ", 0, 3, 0, 3,'t')]
+        [TestCase("\"1\"", 0, 3, 0, 3, '1')]
+        [TestCase(" \"1\"", 0, 4, 0, 4, '1')]
+        [TestCase("\n\"1\"", 0, 4, 0, 4, '1')]
+        [TestCase(" \n\"1\"", 1, 4, 0, 4, '1')]
+        [TestCase("\"\\\\\"", 0, 4, 0, 4, '\\')] // escaped backslash
+        [TestCase("\"\\\"\"", 0, 4, 0, 4, '\"')] // escaped quote
+        [TestCase("\"\\/\"", 0, 4, 0, 4, '/')] // escaped forward slash
+        [TestCase("\"\\b\"", 0, 4, 0, 4, '\b')] // escaped backspace
+        [TestCase("\"\\f\"", 0, 4, 0, 4, '\f')] // escaped formfeed
+        [TestCase("\"\\n\"", 0, 4, 0, 4, '\n')] // escaped newline
+        [TestCase("\"\\r\"", 0, 4, 0, 4, '\r')] // escaped carrage return
+        [TestCase("\"\\t\"", 0, 4, 0, 4, '\t')] // escaped tab
+        [TestCase("\"\\u1234\"", 0, 8, 0, 8, '\u1234')] // escaped tab
+        public void ToChar_CorrectChar(string lazy, int start, int length, int index, int expectedEndIndex, char expected)
+        {
+            //arrange
+            var lazyString = new LazyString(lazy, start, length);
+
+            //act
+            (char result, int endIndex) = lazyString.ToChar(index);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(endIndex, Is.EqualTo(expectedEndIndex));
+        }
+
 
         [TestCase("true", 0, 4, 0, true, 4)]
         [TestCase("false", 0, 5, 0, false, 5)]
