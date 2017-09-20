@@ -204,7 +204,7 @@ namespace Jsonics.FromJson
             throw new InvalidJsonException("Missing end of string value");
         }
 
-         public (char, int) ToChar(int start)
+        public (char, int) ToChar(int start)
         {
             int index = start + _start;
             char value;

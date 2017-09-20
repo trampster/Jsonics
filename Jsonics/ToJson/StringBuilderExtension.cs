@@ -69,6 +69,21 @@ namespace Jsonics.ToJson
                 .Append('\"');
         }
 
+        public static StringBuilder AppendEscaped(this StringBuilder builder, char input)
+        {
+            builder.Append('\"');
+            if(input < 93 && _needsEscaping[input])
+            {
+                return builder
+                    .Append(_escapeLookup[input])
+                    .Append('\"');
+            }
+            
+            return builder
+                .Append(input)
+                .Append('\"');
+        }
+
         public static StringBuilder AppendList(this StringBuilder builder, List<int> property)
         {
             builder.Append('[');

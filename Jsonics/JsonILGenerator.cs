@@ -254,6 +254,12 @@ namespace Jsonics
             _generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendEscaped", new Type[]{typeof(StringBuilder), typeof(string)}));
         }
 
+        public void EmitAppendChar()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendEscaped", new Type[]{typeof(StringBuilder), typeof(char)}));
+        }
+
         public void Return()
         {
             EmitQueuedAppends();
