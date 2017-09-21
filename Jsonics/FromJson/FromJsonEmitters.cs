@@ -34,6 +34,7 @@ namespace Jsonics.FromJson
             _emitters.Add(new LazyStringEmitter<bool>(lazyStringLocal, generator, this, "ToBool", JsonPrimitive.Bool));
             _emitters.Add(new LazyStringEmitter<bool?>(lazyStringLocal, generator, this, "ToNullableBool", JsonPrimitive.Bool));
             _emitters.Add(new LazyStringEmitter<char>(lazyStringLocal, generator, this, "ToChar", JsonPrimitive.String));
+            _emitters.Add(new LazyStringEmitter<char?>(lazyStringLocal, generator, this, "ToNullableChar", JsonPrimitive.String));
             _emitters.Add(new EnumEmitter(lazyStringLocal, generator, this));
             _emitters.Add(new LazyStringEmitter<Guid>(lazyStringLocal, generator, this, "ToGuid", JsonPrimitive.String));
             _emitters.Add(new LazyStringEmitter<Guid?>(lazyStringLocal, generator, this, "ToNullableGuid", JsonPrimitive.String));

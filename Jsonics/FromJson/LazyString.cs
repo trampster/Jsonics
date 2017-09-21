@@ -252,6 +252,59 @@ namespace Jsonics.FromJson
             return (value, index + 1 - _start);
         }
 
+        public (char?, int) ToNullableChar(int start)
+        {
+            int index = start + _start;
+            char value;
+            while(true)
+            {
+                value = _buffer[index];
+                if(value == 'n')
+                {
+                    //null
+                    return (null, index + 4 - _start);
+                }
+                else if(value == '\"')
+                {
+                    break;
+                }
+                index++;
+            }
+
+            index++;
+            value = _buffer[index];
+            if(value == '\\')
+            {
+                //escape character
+                index++;
+                value = _buffer[index];
+                switch(value)
+                {
+                    case '\"':
+                    case '\\':
+                    case '/':
+                        return (value, index + 2 - _start);
+                    case 'b':
+                        return ('\b', index + 2 - _start);
+                    case 'f':
+                        return ('\f', index + 2 - _start);
+                    case 'n':
+                        return ('\n', index + 2 - _start);
+                    case 'r':
+                        return ('\r', index + 2 - _start);
+                    case 't':
+                        return ('\t', index + 2 - _start);
+                    case 'u':
+                        index++;
+                        return (FromHex(index), index + 5 - _start);
+                    default:
+                        throw new InvalidJsonException("Invalid char escape sequence");
+                }
+            }
+            index++;
+            return (value, index + 1 - _start);
+        }
+
         byte FromHexChar(char character)
         {
             switch(character)
