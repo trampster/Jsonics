@@ -166,7 +166,9 @@ namespace Jsonics
         {
             EmitQueuedAppends();
 
-            if(type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid) && !type.GetTypeInfo().IsEnum)
+            //TODO: ldarg vs ldarga is situational, if you are loading a struct to call a method on the struct then you
+            //need to call ldarga, if you want ot pass it to another method then you need to call ldarg
+            if(type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid) && !type.GetTypeInfo().IsEnum && type != typeof(char?))
             {
                 _generator.Emit(OpCodes.Ldarga_S, arg);
                 return;
@@ -258,6 +260,12 @@ namespace Jsonics
         {
             EmitQueuedAppends();
             _generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendEscaped", new Type[]{typeof(StringBuilder), typeof(char)}));
+        }
+
+        public void EmitAppendNullableChar()
+        {
+            EmitQueuedAppends();
+            _generator.Emit(OpCodes.Call, typeof(StringBuilderExtension).GetRuntimeMethod("AppendEscaped", new Type[]{typeof(StringBuilder), typeof(char?)}));
         }
 
         public void Return()

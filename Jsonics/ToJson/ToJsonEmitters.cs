@@ -19,6 +19,7 @@ namespace Jsonics.ToJson
                 new NumberEmitter(),
                 new NullableNumberEmitter(),
                 new CharEmitter(),
+                new NullableCharEmitter(),
                 new StringEmitter(),
                 new ArrayEmitter(listMethods, stringBuilderField, typeBuilder, this),
                 new ListEmitter(listMethods, stringBuilderField, typeBuilder, this),
