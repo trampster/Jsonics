@@ -42,18 +42,18 @@ namespace Jsonics.ToJson
             //property is not null
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
-            EmitValue(property.Type, gen => gen.LoadLocal(propertyValueLocal), generator);
+            EmitValue(property.Type, (gen, address) => gen.LoadLocal(propertyValueLocal), generator);
 
             generator.Mark(endLabel);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
             var methodInfo = _listMethods.GetMethod(type, () => EmitDictionaryMethod(type));
             generator.Pop();     //remove StringBuilder from the stack
-            generator.LoadArg(typeof(object), 0);
+            generator.LoadArg(typeof(object), 0, false);
             generator.LoadStaticField(_stringBuilderField);
-            getValueOnStack(generator);
+            getValueOnStack(generator, false);
             generator.Call(methodInfo);
         }
 
@@ -72,10 +72,10 @@ namespace Jsonics.ToJson
                 new Type[] { typeof(StringBuilder), dictionaryType});
             
             var generator = new JsonILGenerator(methodBuilder.GetILGenerator(), new StringBuilder());
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.Append("{");
             generator.Pop();
-            generator.LoadArg(dictionaryType, 2);
+            generator.LoadArg(dictionaryType, 2, false);
             var getEnumeratorMethodInfo = dictionaryType.GetRuntimeMethod("GetEnumerator", new Type[]{});
             var enumeratorType = getEnumeratorMethodInfo.ReturnType;
             generator.CallVirtual(getEnumeratorMethodInfo);
@@ -97,7 +97,7 @@ namespace Jsonics.ToJson
             //loop start
             var loopStartLabel = generator.DefineLabel();
             generator.Mark(loopStartLabel);
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.Append(",");
             generator.Pop(); //remove StringBuilder from stack
             EmitCurrentKeyValue(generator, enumeratorLocal, currentMethod, currentLocal);
@@ -109,7 +109,7 @@ namespace Jsonics.ToJson
             generator.BrIfTrue(loopStartLabel);
 
             generator.Mark(returnLabel);
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.Append("}");
             generator.Return();
 
@@ -121,7 +121,7 @@ namespace Jsonics.ToJson
             generator.LoadLocalAddress(enumeratorLocal);
             generator.Call(currentMethod);
             generator.StoreLocal(currentLocal);
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             //key
             var getKeyMethod = currentMethod.ReturnType.GetRuntimeMethod("get_Key", new Type[0]);
             var keyType = getKeyMethod.ReturnType;
@@ -136,10 +136,16 @@ namespace Jsonics.ToJson
                 generator.Append("\"");
                 _toJsonEmitters.EmitValue(
                     keyType, 
-                    gen => 
+                    (gen, address) => 
                     {
                         gen.LoadLocalAddress(currentLocal);
                         gen.Call(getKeyMethod);
+                        if(address)
+                        {
+                            var local = gen.DeclareLocal(keyType);
+                            gen.StoreLocal(local);
+                            gen.LoadLocalAddress(local);
+                        }
                     },
                     generator);
                 generator.Append("\"");
@@ -171,10 +177,16 @@ namespace Jsonics.ToJson
             //generator.LoadArg(typeof(StringBuilder), 1);
             _toJsonEmitters.EmitValue(
                 getValueMethod.ReturnType, 
-                gen => 
+                (gen, address) => 
                 {
                     gen.LoadLocalAddress(currentLocal);
                     gen.Call(getValueMethod);
+                    if(address)
+                    {
+                        var local = gen.DeclareLocal(keyType);
+                        gen.StoreLocal(local);
+                        gen.LoadLocalAddress(local);
+                    }
                 },
                 generator);
             generator.Pop(); //get the StringBuilder off the stack

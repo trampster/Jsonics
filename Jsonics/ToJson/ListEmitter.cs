@@ -43,21 +43,31 @@ namespace Jsonics.ToJson
             //property is not null
             generator.Mark(nonNullLabel);
             generator.Append($"\"{property.Name}\":");
-            EmitValue(property.Type, gen => gen.LoadLocal(propertyValueLocal), generator);
+            EmitValue(property.Type, (gen, address) => 
+            {
+                if(address)
+                {
+                    gen.LoadLocalAddress(propertyValueLocal);    
+                }
+                else
+                {
+                    gen.LoadLocal(propertyValueLocal);
+                }
+            }, generator);
 
             generator.Mark(endLabel);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
-            Action<JsonILGenerator, Action<JsonILGenerator>> emitElement = (gen, getElementOnStack) => _toJsonEmitters.EmitValue(type.GenericTypeArguments[0], getElementOnStack, gen);
+            Action<JsonILGenerator, Action<JsonILGenerator, bool>> emitElement = (gen, getElementOnStack) => _toJsonEmitters.EmitValue(type.GenericTypeArguments[0], getElementOnStack, gen);
             var methodInfo = _listMethods.GetMethod(
                 type, 
                 () => EmitListMethod(type, type.GenericTypeArguments[0], emitElement));
             generator.Pop();     //remove StringBuilder from the stack
-            generator.LoadArg(typeof(object), 0);
+            generator.LoadArg(typeof(object), 0, false);
             generator.LoadStaticField(_stringBuilderField);
-            getValueOnStack(generator);
+            getValueOnStack(generator, false);
             generator.Call(methodInfo);
         }
 
@@ -66,7 +76,7 @@ namespace Jsonics.ToJson
             return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
         }
 
-        MethodBuilder EmitListMethod(Type listType, Type elementType, Action<JsonILGenerator, Action<JsonILGenerator>> emitElement)
+        MethodBuilder EmitListMethod(Type listType, Type elementType, Action<JsonILGenerator, Action<JsonILGenerator, bool>> emitElement)
         {
             var methodBuilder = _typeBuilder.DefineMethod(
                 "Get" + Guid.NewGuid().ToString().Replace("-", ""),
@@ -79,24 +89,34 @@ namespace Jsonics.ToJson
             var emptyArray = generator.DefineLabel();
             var beforeLoop = generator.DefineLabel();
 
-            generator.LoadArg(listType, 2);
+            generator.LoadArg(listType, 2, false);
             generator.CallVirtual(listType.GetRuntimeMethod("get_Count", new Type[0]));
             generator.LoadConstantInt32(1);
             generator.BranchIfLargerThan(emptyArray);
 
-            //length > 1
-            generator.LoadArg(typeof(StringBuilder), 1);
+            // //length > 1
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.LoadConstantInt32('[');
             generator.EmitAppend(typeof(char));
-            generator.LoadArg(listType, 2);
-            generator.LoadConstantInt32(0);
-            emitElement(generator, gen => gen.LoadListElement(listType));
+            
+            emitElement(generator, (gen, address) => 
+            {
+                gen.LoadArg(listType, 2, false);
+                gen.LoadConstantInt32(0);
+                gen.LoadListElement(listType);
+                if(address)
+                {
+                    var local = gen.DeclareLocal(elementType);
+                    gen.StoreLocal(local);
+                    gen.LoadLocalAddress(local);
+                }
+            });
             generator.Pop();
             generator.Branch(beforeLoop);
 
             //empty array
             generator.Mark(emptyArray);
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.Append("[]");
             generator.Return();
 
@@ -112,12 +132,21 @@ namespace Jsonics.ToJson
             //loop start
             var loopStart = generator.DefineLabel();
             generator.Mark(loopStart);
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.LoadConstantInt32(',');
             generator.EmitAppend(typeof(char));
-            generator.LoadArg(listType, 2);
-            generator.LoadLocal(indexLocal);
-            emitElement(generator, gen => gen.LoadListElement(listType));
+            emitElement(generator, (gen, address) => 
+            {
+                gen.LoadArg(listType, 2, false);
+                gen.LoadLocal(indexLocal);
+                gen.LoadListElement(listType);
+                if(address)
+                {
+                    var local = gen.DeclareLocal(elementType);
+                    gen.StoreLocal(local);
+                    gen.LoadLocalAddress(local);
+                }
+            });
             generator.Pop();
             generator.LoadLocal(indexLocal);
             generator.LoadConstantInt32(1);
@@ -126,13 +155,13 @@ namespace Jsonics.ToJson
 
             generator.Mark(lengthCheckLabel);
             generator.LoadLocal(indexLocal);
-            generator.LoadArg(listType, 2);
+            generator.LoadArg(listType, 2, false);
             generator.CallVirtual(listType.GetRuntimeMethod("get_Count", new Type[0]));
             generator.ConvertToInt32();
             generator.BranchIfLargerThan(loopStart);
             //end loop
 
-            generator.LoadArg(typeof(StringBuilder), 1);
+            generator.LoadArg(typeof(StringBuilder), 1, false);
             generator.LoadConstantInt32(']');
             generator.EmitAppend(typeof(char));
             generator.Return();

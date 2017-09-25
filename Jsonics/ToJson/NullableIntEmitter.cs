@@ -12,7 +12,7 @@ namespace Jsonics.ToJson
             var endLabel = generator.DefineLabel();
             var nonNullLabel = generator.DefineLabel();
 
-            getValueOnStack(generator);
+            getValueOnStack(generator); //loading parent object
             property.EmitGetValue(generator);
             generator.StoreLocal(propertyValueLocal);
             generator.LoadLocalAddress(propertyValueLocal);
@@ -34,9 +34,9 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
-            getValueOnStack(generator);
+            getValueOnStack(generator, true);
             var hasValueLabel = generator.DefineLabel();
             var endLabel = generator.DefineLabel();
 
@@ -47,7 +47,7 @@ namespace Jsonics.ToJson
             generator.Branch(endLabel);
 
             generator.Mark(hasValueLabel);
-            getValueOnStack(generator);
+            getValueOnStack(generator, true);
             generator.Call(type.GetTypeInfo().GetMethod("get_Value", new Type[0]));
             generator.AppendInt();
             generator.Mark(endLabel);

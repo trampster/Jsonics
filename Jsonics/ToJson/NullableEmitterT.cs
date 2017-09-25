@@ -41,19 +41,25 @@ namespace Jsonics.ToJson
 
             _toJsonEmitters.EmitValue(
                 underlyingType, 
-                gen =>
+                (gen, address) =>
                 {
                     gen.LoadLocalAddress(propertyValueLocal);
                     gen.Call(type.GetTypeInfo().GetMethod("get_Value", new Type[0]));
+                    if(address)
+                    {
+                        var local = gen.DeclareLocal(property.Type);
+                        gen.StoreLocal(local);
+                        gen.LoadLocalAddress(local);
+                    }
                 },
                 generator);
 
             generator.Mark(endLabel);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
-            getValueOnStack(generator);
+            getValueOnStack(generator, true);
             var hasValueLabel = generator.DefineLabel();
             var endLabel = generator.DefineLabel();
 
@@ -66,12 +72,19 @@ namespace Jsonics.ToJson
             //has value
             generator.Mark(hasValueLabel);
 
+            var underlyingType = Nullable.GetUnderlyingType(type);
             _toJsonEmitters.EmitValue(
-                Nullable.GetUnderlyingType(type),
-                gen =>
+                underlyingType,
+                (gen, address) =>
                 {
-                    getValueOnStack(generator);
+                    getValueOnStack(generator, true);
                     gen.Call(type.GetTypeInfo().GetMethod("get_Value", new Type[0]));
+                    if(address)
+                    {
+                        var local = gen.DeclareLocal(underlyingType);
+                        gen.StoreLocal(local);
+                        gen.LoadLocalAddress(local);
+                    }
                 },
                 generator);
 

@@ -48,9 +48,9 @@ namespace Jsonics.ToJson
             generator.Mark(endLabel);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
-            getValueOnStack(generator);
+            getValueOnStack(generator, true);
             var hasValueLabel = generator.DefineLabel();
             var endLabel = generator.DefineLabel();
 
@@ -61,7 +61,7 @@ namespace Jsonics.ToJson
             generator.Branch(endLabel);
 
             generator.Mark(hasValueLabel);
-            getValueOnStack(generator);
+            getValueOnStack(generator, true);
             generator.Call(typeof(bool?).GetTypeInfo().GetMethod("get_Value", new Type[0]));
 
             Label trueLabel = generator.DefineLabel();

@@ -162,13 +162,13 @@ namespace Jsonics
             _generator.Emit(OpCodes.Callvirt, typeof(Object).GetRuntimeMethod("ToString", new Type[0]));
         }
 
-        public void LoadArg(Type type, int arg)
+        public void LoadArg(Type type, int arg, bool address)
         {
             EmitQueuedAppends();
 
             //TODO: ldarg vs ldarga is situational, if you are loading a struct to call a method on the struct then you
             //need to call ldarga, if you want ot pass it to another method then you need to call ldarg
-            if(type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid) && !type.GetTypeInfo().IsEnum && type != typeof(char?))
+            if(address) //type.GetTypeInfo().IsValueType && !type.GetTypeInfo().IsPrimitive && type != typeof(DateTime) && type != typeof(Guid) && !type.GetTypeInfo().IsEnum && type != typeof(char?))
             {
                 _generator.Emit(OpCodes.Ldarga_S, arg);
                 return;
@@ -431,17 +431,65 @@ namespace Jsonics
             _generator.Emit(OpCodes.Pop);
         }
 
-        public void LoadArrayElement(Type elementType)
-        {
+        public void LoadArrayElement(Type elementType, bool address)
+        {          
             EmitQueuedAppends();
+            if(elementType == typeof(byte) || elementType == typeof(bool))
+            {
+                _generator.Emit(OpCodes.Ldelem_I1);
+                return;
+            }
+            if(elementType == typeof(sbyte))
+            {
+                _generator.Emit(OpCodes.Ldelem_U1);
+                return;
+            }
+            if(elementType == typeof(char))
+            {
+                _generator.Emit(OpCodes.Ldelem_I2);
+                return;
+            }
+            if(elementType == typeof(short))
+            {
+                _generator.Emit(OpCodes.Ldelem_I2);
+                return;
+            }
+            if(elementType == typeof(ushort))
+            {
+                _generator.Emit(OpCodes.Ldelem_U2);
+                return;
+            }
             if(elementType == typeof(int))
             {
                 _generator.Emit(OpCodes.Ldelem_I4);
                 return;
             }
+            if(elementType == typeof(uint))
+            {
+                _generator.Emit(OpCodes.Ldelem_U4);
+                return;
+            }
+            if(elementType == typeof(float))
+            {
+                _generator.Emit(OpCodes.Ldelem_R4);
+                return;
+            }
+            if(elementType == typeof(double))
+            {
+                _generator.Emit(OpCodes.Ldelem_R8);
+                return;
+            }
             if(elementType.GetTypeInfo().IsValueType)
             {
-                _generator.Emit(OpCodes.Ldelem);
+                if(address)
+                {
+                    _generator.Emit(OpCodes.Ldelem, elementType);
+                    var local = _generator.DeclareLocal(elementType);
+                    this.StoreLocal(local);
+                    this.LoadLocalAddress(local);
+                    return;
+                }
+                _generator.Emit(OpCodes.Ldelem, elementType);
                 return;
             }
             _generator.Emit(OpCodes.Ldelem_Ref);

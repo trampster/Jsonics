@@ -12,24 +12,25 @@ namespace Jsonics.ToJson
 
             EmitValue(
             property.Type, 
-            gen =>
+            (gen, address) =>
             {
                 getValueOnStack(gen);
                 property.EmitGetValue(gen);
+                if(address)
+                {
+                    var local = gen.DeclareLocal(property.Type);
+                    gen.StoreLocal(local);
+                    gen.LoadLocalAddress(local);
+                }
             },
             generator);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
-            var propertyValueLocal = generator.DeclareLocal<Guid>();
-            
             generator.Append($"\"");
 
-            getValueOnStack(generator);
-
-            generator.StoreLocal(propertyValueLocal);
-            generator.LoadLocalAddress(propertyValueLocal);
+            getValueOnStack(generator, true);
 
             generator.Constrain<Guid>();
             generator.CallToString();

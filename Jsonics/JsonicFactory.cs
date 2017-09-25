@@ -55,7 +55,7 @@ namespace Jsonics
             //new LazyString(input)
             var lazyStringLocal = jsonILGenerator.DeclareLocal<LazyString>();
             jsonILGenerator.LoadLocalAddress(lazyStringLocal);
-            jsonILGenerator.LoadArg(typeof(string), 1);
+            jsonILGenerator.LoadArg(typeof(string), 1, false);
             var lazyStringConstructor = typeof(LazyString).GetTypeInfo().GetConstructor(new Type[]{typeof(string)});
             jsonILGenerator.Call(lazyStringConstructor);
 
@@ -127,7 +127,7 @@ namespace Jsonics
             jsonILGenerator.CallVirtual(typeof(StringBuilder).GetRuntimeMethod("Clear", new Type[0]));
 
             Type type = typeof(T);
-            toJsonEmitters.EmitValue(type, gen => gen.LoadArg(type, 1), jsonILGenerator);
+            toJsonEmitters.EmitValue(type, (gen, address) => gen.LoadArg(type, 1, address), jsonILGenerator);
 
             jsonILGenerator.CallToString();
 

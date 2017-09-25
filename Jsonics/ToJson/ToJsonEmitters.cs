@@ -32,7 +32,7 @@ namespace Jsonics.ToJson
             };
         }
 
-        internal bool EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal bool EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
             foreach(var emitter in _emitters)
             {

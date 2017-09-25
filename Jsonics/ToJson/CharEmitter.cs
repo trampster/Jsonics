@@ -11,7 +11,7 @@ namespace Jsonics.ToJson
 
             EmitValue(
                 property.Type, 
-                gen => 
+                (gen, address) => 
                 {
                     getValueOnStack(generator);
                     property.EmitGetValue(generator);
@@ -19,9 +19,9 @@ namespace Jsonics.ToJson
                 generator);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
-            getValueOnStack(generator);
+            getValueOnStack(generator, false);
             generator.EmitAppendChar();
         }
 

@@ -20,7 +20,7 @@ namespace Jsonics.ToJson
 
             EmitValue(
                 property.Type, 
-                gen => 
+                (gen, address) => 
                 {
                     getValueOnStack(gen);
                     property.EmitGetValue(gen);
@@ -28,13 +28,13 @@ namespace Jsonics.ToJson
                 generator);
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
             generator.Append("{");
 
             bool isFirst = true;
-            EmitProperties(type, getValueOnStack, generator, ref isFirst);
-            EmitFields(type, getValueOnStack, generator, ref isFirst);
+            EmitProperties(type, gen => getValueOnStack(gen, type.GetTypeInfo().IsValueType), generator, ref isFirst);
+            EmitFields(type, gen => getValueOnStack(gen, type.GetTypeInfo().IsValueType), generator, ref isFirst);
 
             generator.Append("}");
             generator.EmitQueuedAppends();
@@ -48,7 +48,7 @@ namespace Jsonics.ToJson
                 select field;
             var fields = fieldsQuery.ToArray();
 
-            //do the properties
+            //do the fields
             foreach(var field in fieldsQuery)
             {
                 if(!isFirst)

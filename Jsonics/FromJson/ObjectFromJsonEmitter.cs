@@ -130,7 +130,7 @@ namespace Jsonics.FromJson
 
             //loopCheck
             _generator.Mark(loopCheck); 
-            _generator.LoadArg(typeof(string), 1);
+            _generator.LoadArg(typeof(string), 1, false);
             _generator.LoadLocal(_indexLocal);
             _generator.CallVirtual(typeof(string).GetRuntimeMethod("get_Chars", new Type[]{typeof(int)}));
             _generator.LoadConstantInt32('}');

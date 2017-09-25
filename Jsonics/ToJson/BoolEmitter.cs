@@ -27,12 +27,12 @@ namespace Jsonics.ToJson
             generator.EmitAppend(typeof(string));
         }
 
-        internal override void EmitValue(Type type, Action<JsonILGenerator> getValueOnStack, JsonILGenerator generator)
+        internal override void EmitValue(Type type, Action<JsonILGenerator, bool> getValueOnStack, JsonILGenerator generator)
         {
             Label trueLabel = generator.DefineLabel();
             Label callAppend = generator.DefineLabel();
 
-            getValueOnStack(generator);
+            getValueOnStack(generator, false);
             generator.BrIfTrue(trueLabel);
 
             //false case
