@@ -443,5 +443,18 @@ namespace JsonicsTests.ToJsonTests
             //assert
             Assert.That(json, Is.EqualTo("[\"2018-04-08T01:02:03Z\",\"2017-03-07T23:59:42Z\"]"));
         }
+
+        [Test]
+        public void ToJson_DecimalArray_CorrectJson()
+        {
+            //arrange
+            var converter = JsonFactory.Compile<decimal[]>();
+
+            //act
+            string json = converter.ToJson(new decimal[]{-11.12M,2.4M,3M,4M,5.5M});
+
+            //assert
+            Assert.That(json, Is.EqualTo("[-11.12,2.4,3,4,5.5]"));
+        }
     }
 }
