@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using Jsonics;
 using NUnit.Framework;
 
@@ -150,6 +152,34 @@ namespace JsonicsTests.ToJsonTests
         {
             //arrange
             var converter = JsonFactory.Compile<uint>();
+
+            //act
+            string json = converter.ToJson(input);
+
+            //assert
+            Assert.That(json, Is.EqualTo(expectedJson));
+        }
+
+        public static IEnumerable DecimalTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(0M, "0");
+                yield return new TestCaseData(1M, "1");
+                yield return new TestCaseData(-1M, "-1");
+                yield return new TestCaseData(42M, "42");
+                yield return new TestCaseData(-42M, "-42");
+                yield return new TestCaseData(-42.42M, "-42.42");
+                yield return new TestCaseData(decimal.MaxValue, "79228162514264337593543950335");
+                yield return new TestCaseData(decimal.MinValue, "-79228162514264337593543950335");
+            }
+        }  
+
+        [Test, TestCaseSource(typeof(NumberTests), "DecimalTestCases")]
+        public void ToJson_Decimal_CorrectJson(decimal input, string expectedJson)
+        {
+            //arrange
+            var converter = JsonFactory.Compile<decimal>();
 
             //act
             string json = converter.ToJson(input);

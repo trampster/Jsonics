@@ -854,6 +854,11 @@ namespace Jsonics.FromJson
             return (soFar, index - _start) ;
         }
 
+        public (decimal, int) ToDecimal(int start)
+        {
+            return (0, start);
+        }
+
         public (long, int) ToLong(int start)
         {
             int index = start + _start;
