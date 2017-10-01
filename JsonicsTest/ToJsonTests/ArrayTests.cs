@@ -456,5 +456,18 @@ namespace JsonicsTests.ToJsonTests
             //assert
             Assert.That(json, Is.EqualTo("[-11.12,2.4,3,4,5.5]"));
         }
+
+        [Test]
+        public void ToJson_NullableDecimalArray_CorrectJson()
+        {
+            //arrange
+            var converter = JsonFactory.Compile<decimal?[]>();
+
+            //act
+            string json = converter.ToJson(new decimal?[]{-11.12M,2.4M,null,3M,4M,5.5M});
+
+            //assert
+            Assert.That(json, Is.EqualTo("[-11.12,2.4,null,3,4,5.5]"));
+        }
     }
 }
