@@ -62,7 +62,8 @@ namespace Jsonics.ToJson
                 type == typeof(long?) || type == typeof(ulong?) ||
                 type == typeof(byte?) || type == typeof(sbyte?) ||
                 type == typeof(short?) || type == typeof(ushort?) ||
-                type == typeof(float?) || type == typeof(double?);
+                type == typeof(float?) || type == typeof(double?) ||
+                type == typeof(decimal?);
         }
     }
 }

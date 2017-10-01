@@ -1,4 +1,5 @@
 using Jsonics;
+using JsonicsTests.TestCaseSources;
 using NUnit.Framework;
 
 namespace JsonicsTests.ToJsonTests
@@ -165,6 +166,33 @@ namespace JsonicsTests.ToJsonTests
 
             //assert
             Assert.That(json, Is.EqualTo(expectedJson));
+        }
+
+        [Test, TestCaseSource(typeof(DecimalTestCaseSource), "NullableTestCases")]
+        public void ToJson_NullableDecimal_CorrectJson(decimal? input, string expectedJson)
+        {
+            //arrange
+            var converter = JsonFactory.Compile<decimal?>();
+
+            //act
+            string json = converter.ToJson(input);
+
+            //assert
+            Assert.That(json, Is.EqualTo(expectedJson));
+        }
+
+        [Test, TestCaseSource(typeof(DecimalTestCaseSource), "NullableTestCases")]
+        public void ToJson_NullableDecimalProperty_CorrectJson(decimal? input, string expectedJson)
+        {
+            //arrange
+            var instance = new DecimalTestCaseSource.NullableDecimalClass(){Property = input};
+            var converter = JsonFactory.Compile<DecimalTestCaseSource.NullableDecimalClass>();
+
+            //act
+            string json = converter.ToJson(instance);
+
+            //assert
+            Assert.That(json, Is.EqualTo($"{{\"Property\":{expectedJson}}}"));
         }
     }
 }

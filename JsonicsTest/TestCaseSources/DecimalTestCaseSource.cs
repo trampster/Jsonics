@@ -20,6 +20,28 @@ namespace JsonicsTests.TestCaseSources
                 yield return new TestCaseData(decimal.MaxValue, "79228162514264337593543950335");
                 yield return new TestCaseData(decimal.MinValue, "-79228162514264337593543950335");
             }
-        }  
+        }
+
+        public static IEnumerable NullableTestCases
+        {
+            get
+            {
+                foreach(var testCase in TestCases)
+                {
+                    yield return testCase;
+                }
+                yield return new TestCaseData(null, "null");
+                
+            }
+        }
+
+        public class NullableDecimalClass
+        {
+            public decimal? Property 
+            {
+                get;
+                set;
+            }
+        }
     }
 }
