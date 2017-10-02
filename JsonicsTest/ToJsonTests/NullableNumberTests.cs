@@ -168,7 +168,7 @@ namespace JsonicsTests.ToJsonTests
             Assert.That(json, Is.EqualTo(expectedJson));
         }
 
-        [Test, TestCaseSource(typeof(DecimalTestCaseSource), "NullableTestCases")]
+        [Test, TestCaseSource(typeof(DecimalTestCaseSource), "ToJsonNullableTestCases")]
         public void ToJson_NullableDecimal_CorrectJson(decimal? input, string expectedJson)
         {
             //arrange
@@ -181,7 +181,7 @@ namespace JsonicsTests.ToJsonTests
             Assert.That(json, Is.EqualTo(expectedJson));
         }
 
-        [Test, TestCaseSource(typeof(DecimalTestCaseSource), "NullableTestCases")]
+        [Test, TestCaseSource(typeof(DecimalTestCaseSource), "ToJsonNullableTestCases")]
         public void ToJson_NullableDecimalProperty_CorrectJson(decimal? input, string expectedJson)
         {
             //arrange

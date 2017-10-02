@@ -906,6 +906,62 @@ namespace Jsonics.FromJson
             return (sign*(wholePart + fractionalPart), index - _start);
         }
 
+        public (decimal?, int) ToNullableDecimal(int start)
+        {
+            int index = start + _start;
+            int sign = 1;
+            //skip any whitespace at start
+            char character = ' ';
+            while(true)
+            {
+                character = _buffer[index];
+                if(character == 'n')
+                {
+                    return (null, index + 4 - _start);
+                }
+                else if(IsNumber(character))
+                {
+                    break;
+                }
+                else if(character == '-')
+                {
+                    index++;
+                    sign = -1;
+                    break;
+                }
+                index++;
+            }
+
+            int end = _start + _length;
+
+
+            decimal wholePart = 0;
+            for(index = index+0; index < end; index++)
+            {
+                character = _buffer[index];
+                if(!IsNumber(character)) break;
+                wholePart = (wholePart*10M) + (character - '0');
+            }
+
+            decimal fractionalPart = 0;
+            if(character == '.')
+            {
+                long fractionalValue = 0;
+                int factionalLength = 0;
+                for(index = index+1; index < end; index++)
+                {
+                    character = _buffer[index];
+                    if(!IsNumber(character)) break;
+                    fractionalValue = (fractionalValue*10) + character - '0';
+                    factionalLength++;
+                }
+                decimal divisor = (decimal)Math.Pow(10, factionalLength);
+                fractionalPart = fractionalValue/divisor;
+            }
+
+            return (sign*(wholePart + fractionalPart), index - _start);
+        }
+
         public (long, int) ToLong(int start)
         {
             int index = start + _start;

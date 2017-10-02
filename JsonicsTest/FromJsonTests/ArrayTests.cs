@@ -102,5 +102,29 @@ namespace JsonicsTests.FromJsonTests
             //assert
             Assert.That(result, Is.EqualTo(expected));
         }
+
+        public static IEnumerable NullableDecimalArrayTestCases
+        {
+            get
+            {
+                yield return new TestCaseData("[1,1.1,2.2,-3.4]", new decimal?[]{1,1.1M,2.2M,-3.4M});
+                yield return new TestCaseData("[1,null, null,-3.4]", new decimal?[]{1,null,null,-3.4M});
+                yield return new TestCaseData("null", null);
+                yield return new TestCaseData("[]", new decimal?[]{});
+            }
+        }  
+
+        [Test, TestCaseSource(typeof(ArrayTests), "NullableDecimalArrayTestCases")]
+        public void NullableDecimalArrayValue_CorrectlyDeserialized(string json, decimal?[] expected)
+        {
+            //arrange
+            IJsonConverter<decimal?[]> converter = JsonFactory.Compile<decimal?[]>();
+
+            //act
+            decimal?[] result = converter.FromJson(json);
+
+            //assert
+            Assert.That(result, Is.EqualTo(expected));
+        }
     }
 }

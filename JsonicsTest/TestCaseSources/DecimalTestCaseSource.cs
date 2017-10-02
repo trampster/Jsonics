@@ -22,7 +22,7 @@ namespace JsonicsTests.TestCaseSources
             }
         }
 
-        public static IEnumerable NullableTestCases
+        public static IEnumerable ToJsonNullableTestCases
         {
             get
             {
@@ -32,6 +32,20 @@ namespace JsonicsTests.TestCaseSources
                 }
                 yield return new TestCaseData(null, "null");
                 
+            }
+        }
+
+        public static IEnumerable FromJsonNullableTestCases
+        {
+            get
+            {
+                foreach(var testCase in TestCases)
+                {
+                    yield return testCase;
+                }
+                yield return new TestCaseData(null, " null");
+                yield return new TestCaseData(null, "\nnull");
+                yield return new TestCaseData(null, "\t null");
             }
         }
 
