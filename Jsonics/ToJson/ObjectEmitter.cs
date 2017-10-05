@@ -44,7 +44,9 @@ namespace Jsonics.ToJson
         {
             var fieldsQuery = 
                 from field in type.GetRuntimeFields()
-                where field.IsPublic
+                where 
+                    field.IsPublic &&
+                    field.GetCustomAttribute<IgnoreAttribute>(true) == null
                 select field;
             var fields = fieldsQuery.ToArray();
 
@@ -64,7 +66,10 @@ namespace Jsonics.ToJson
         {
             var propertiesQuery = 
                 from property in type.GetRuntimeProperties()
-                where property.CanRead && property.GetGetMethod().IsPublic
+                where 
+                    property.CanRead && property.GetGetMethod().IsPublic &&
+                    property.GetCustomAttribute<IgnoreAttribute>(true) == null
+
                 select property;
             var properties = propertiesQuery.ToArray();
 
