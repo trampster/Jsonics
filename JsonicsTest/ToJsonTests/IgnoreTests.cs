@@ -1,13 +1,14 @@
 using NUnit.Framework;
+using Jsonics;
 
-namespace Jsonics
+namespace JsonicsTests.ToJsonTests
 {
     [TestFixture]
     public class IgnoreTests
     {
         public class ClassWithIgnoredProperty
         {
-            [Ignore]
+            [Jsonics.Ignore]
             public int IgnoredProperty
             {
                 get;
@@ -41,7 +42,7 @@ namespace Jsonics
 
         public class ClassWithIgnoredField
         {
-            [Ignore]
+            [Jsonics.Ignore]
             public int IgnoredField;
 
             public int IncludedField;
@@ -65,9 +66,9 @@ namespace Jsonics
             Assert.That(json, Is.EqualTo("{\"IncludedField\":2}"));
         }
 
-        public class StructWithIgnoredProperty
+        public struct StructWithIgnoredProperty
         {
-            [Ignore]
+            [Jsonics.Ignore]
             public int IgnoredProperty
             {
                 get;
@@ -99,9 +100,9 @@ namespace Jsonics
             Assert.That(json, Is.EqualTo("{\"IncludedProperty\":2}"));
         }
 
-        public class StructWithIgnoredField
+        public struct StructWithIgnoredField
         {
-            [Ignore]
+            [Jsonics.Ignore]
             public int IgnoredField;
 
             public int IncludedField;

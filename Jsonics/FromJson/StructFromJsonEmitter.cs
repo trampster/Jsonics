@@ -130,12 +130,12 @@ namespace Jsonics.FromJson
             var unknownPropertyLabel = _generator.DefineLabel();
             var propertiesQuery = 
                 from property in _underlyingType.GetRuntimeProperties()
-                where property.CanWrite
+                where property.CanWrite && property.GetCustomAttribute<IgnoreAttribute>(true) == null
                 select (IJsonPropertyInfo)new JsonPropertyInfo(property);
 
             var fieldsQuery = 
                 from field in _underlyingType.GetRuntimeFields()
-                where field.IsPublic
+                where field.IsPublic && field.GetCustomAttribute<IgnoreAttribute>(true) == null
                 select (IJsonPropertyInfo)new JsonFieldInfo(field);
 
             EmitProperties(propertiesQuery.Concat(fieldsQuery).ToArray(), loopCheck, unknownPropertyLabel);
