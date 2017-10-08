@@ -57,7 +57,7 @@ namespace JsonicsTests.FromJsonTests
         }
 
         [Test]
-        public void ClassWithIgnoredProperty_IncludedFieldySet()
+        public void ClassWithIgnoredField_IncludedFieldSet()
         {
             //arrange
             var converter = JsonFactory.Compile<ClassWithIgnoredField>();
@@ -70,7 +70,7 @@ namespace JsonicsTests.FromJsonTests
         }
 
         [Test]
-        public void ClassWithIgnoredProperty_IgnoredFieldNotSet()
+        public void ClassWithIgnoredField_IgnoredFieldNotSet()
         {
             //arrange
             var converter = JsonFactory.Compile<ClassWithIgnoredField>();
