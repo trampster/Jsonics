@@ -12,7 +12,18 @@ namespace Jsonics
             _fieldInfo = fieldInfo;
         }
 
-        public string Name => _fieldInfo.Name;
+        public string Name
+        {
+            get
+            {
+                var nameAttribute = _fieldInfo.GetCustomAttribute<NameAttribute>(true);
+                if(nameAttribute == null)
+                {
+                    return _fieldInfo.Name;
+                }
+                return nameAttribute.JsonName;
+            }
+        }
 
         public Type Type => _fieldInfo.FieldType;
 

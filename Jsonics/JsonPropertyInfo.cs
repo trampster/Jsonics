@@ -14,7 +14,18 @@ namespace Jsonics
 
         public Type Type => _propertyInfo.PropertyType;
 
-        public string Name => _propertyInfo.Name;
+        public string Name
+        {
+            get
+            {
+                var nameAttribute = _propertyInfo.GetCustomAttribute<NameAttribute>(true);
+                if(nameAttribute == null)
+                {
+                    return _propertyInfo.Name;
+                }
+                return nameAttribute.JsonName;
+            }
+        }
 
         public void EmitGetValue(JsonILGenerator generator) => generator.GetProperty(_propertyInfo);
 
