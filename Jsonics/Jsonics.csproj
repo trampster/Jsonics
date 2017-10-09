@@ -5,12 +5,26 @@
     <DebugType>portable</DebugType>
     <AssemblyName>Jsonics</AssemblyName>
     <PackageId>Jsonics</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-
-    <PackageVersion>0.1.0-alpha</PackageVersion>
+    <!-- Version is tied to the strong name and should only be changed when compatibility is broken and the major version is changed -->
+    <Version>0.0.0.0</Version>
+    <!-- Pacage version and file version are the real versions and follow SimVer2.0 conventions http://semver.org/ -->
+    <PackageVersion>0.2.0-alpha</PackageVersion>
+    <FileVersion>0.2.0.0</FileVersion>
     <Authors>Daniel Hughes</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageReleaseNotes>
+        New Features:
+        - Ignore Support via .net Attribute
+        - Property Name support via .net Attribute
+        - Moved to .net standard 2.0
+        - .net Field support
+        - char support
+        - decimal support
+        - Signing
+        Bug Fixes:
+        - Fixed support from primitive list and array types other than int and string
+    </PackageReleaseNotes>
+
     <Copyright>Copyright (c) 2017 Daniel Hughes</Copyright>
     <PackageTags>json .net</PackageTags>
     <PackageLicenseUrl>https://github.com/trampster/Jsonics/blob/master/License.txt</PackageLicenseUrl>
@@ -20,20 +34,12 @@
     </Description>
     <Summary>High performance Json Library for c#</Summary>
     <Title>Jsonics (Json In C Sharp)</Title>
-
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='StrongName'">
-    <PackageId>Jsonics.StrongName</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-    <PackageVersion>0.1.0-alpha</PackageVersion>
-    <Optimize>true</Optimize>
-    <AssemblyOriginatorKeyFile>Jsonics.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Jsonics.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)'=='StrongName'">
+    <ItemGroup Condition="'$(Configuration)'=='Release'">
     <Compile Remove="AssemblyInfo.cs" />
   </ItemGroup>
 
