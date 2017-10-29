@@ -148,7 +148,13 @@ namespace Jsonics.FromJson
             _generator.StoreLocal(_indexLocal);
 
             //loopCheck
-            _generator.Mark(loopCheck); 
+            _generator.Mark(loopCheck);
+            //skip whitespace
+            _generator.LoadLocalAddress(_lazyStringLocal);
+            _generator.LoadLocal(_indexLocal);
+            _generator.Call(typeof(LazyString).GetRuntimeMethod("SkipWhitespace", new Type[]{typeof(int)}));
+            _generator.StoreLocal(_indexLocal);
+            
             _generator.LoadArg(typeof(string), 1, false);
             _generator.LoadLocal(_indexLocal);
             _generator.CallVirtual(typeof(string).GetRuntimeMethod("get_Chars", new Type[]{typeof(int)}));

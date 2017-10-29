@@ -119,5 +119,27 @@ namespace JsonicsTests.FromJsonTests
             Assert.That(instance.AAB, Is.EqualTo(2));
             Assert.That(instance.BAA, Is.EqualTo(3));
         }
+
+
+        public struct TwoStrings
+        {
+            public string First;
+            public string Second;
+        }
+
+        [Test]
+        public void SpaceAfterLastProperty_CorrectlyDeserialized()
+        {
+            //arrange
+            var json = "{\"First\":\"ok\",\"Second\":\"asdf\" }";
+            IJsonConverter<TwoStrings> converter = JsonFactory.Compile<TwoStrings>();
+
+            //act
+            var result = converter.FromJson(json);
+
+            //assert
+            Assert.That(result.First, Is.EqualTo("ok"));
+            Assert.That(result.Second, Is.EqualTo("asdf"));
+        }
     }
 }

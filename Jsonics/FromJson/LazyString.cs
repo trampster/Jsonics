@@ -68,6 +68,26 @@ namespace Jsonics.FromJson
             return (-1, ' ');
         }
 
+        public int SkipWhitespace(int start)
+        {
+            int end = _start + _length;
+            for(int index = _start + start; index < end; index++)
+            {
+                var character = _buffer[index];
+                switch(character)
+                {
+                    case ' ':
+                    case '\r':
+                    case '\n':
+                    case '\t':
+                        continue;
+                    default:
+                        return index - _start;
+                }
+            }
+            return -1;
+        }
+
         public int ReadToPropertyValueEnd(int start)
         {
             int unclosedBrakets = 0;
@@ -99,7 +119,7 @@ namespace Jsonics.FromJson
                     return index;
                 }
             }
-            throw new InvalidJsonException("Property starting at {start + _start} didn't end.");
+            throw new InvalidJsonException($"Property starting at {start + _start} didn't end.");
         }
 
         public char At(int index)
